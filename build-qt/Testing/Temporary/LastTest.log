@@ -1,0 +1,68 @@
+Start testing: Sep 21 21:41 EDT
+----------------------------------------------------------
+3/11 Testing: qt
+3/11 Test: qt
+Command: "/home/nao/.local/lib/python3.14/site-packages/cmake/data/bin/cmake" "-DTEST_EXECUTABLE=/home/nao/Documents/Projects/reader/build-qt/test_qt" "-DTEST_HOME_ROOT=/home/nao/Documents/Projects/reader/build-qt/test-homes" "-P" "/home/nao/Documents/Projects/reader/cmake/RunIsolatedTest.cmake"
+Directory: /home/nao/Documents/Projects/reader/build-qt
+"qt" start time: Sep 21 21:41 EDT
+Output:
+----------------------------------------------------------
+ALL QT INTEGRATION TESTS PASSED
+<end of output>
+Test time =   0.16 sec
+----------------------------------------------------------
+Test Passed.
+"qt" end time: Sep 21 21:41 EDT
+"qt" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/11 Testing: chat_ui
+5/11 Test: chat_ui
+Command: "/home/nao/.local/lib/python3.14/site-packages/cmake/data/bin/cmake" "-DTEST_EXECUTABLE=/home/nao/Documents/Projects/reader/build-qt/test_chat_ui" "-DTEST_HOME_ROOT=/home/nao/Documents/Projects/reader/build-qt/test-homes" "-P" "/home/nao/Documents/Projects/reader/cmake/RunIsolatedTest.cmake"
+Directory: /home/nao/Documents/Projects/reader/build-qt
+"chat_ui" start time: Sep 21 21:41 EDT
+Output:
+----------------------------------------------------------
+chat UI evidence checks passed; screenshot /tmp/reader-chat-evidence.png
+<end of output>
+Test time =   0.23 sec
+----------------------------------------------------------
+Test Passed.
+"chat_ui" end time: Sep 21 21:41 EDT
+"chat_ui" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/11 Testing: reader_ui
+7/11 Test: reader_ui
+Command: "/home/nao/.local/lib/python3.14/site-packages/cmake/data/bin/cmake" "-DTEST_EXECUTABLE=/home/nao/Documents/Projects/reader/build-qt/test_reader_ui" "-DTEST_HOME_ROOT=/home/nao/Documents/Projects/reader/build-qt/test-homes" "-P" "/home/nao/Documents/Projects/reader/cmake/RunIsolatedTest.cmake"
+Directory: /home/nao/Documents/Projects/reader/build-qt
+"reader_ui" start time: Sep 21 21:41 EDT
+Output:
+----------------------------------------------------------
+reader timings ms: first_paint=141 delayed_ai_page_round_trip=18 literal_search=0 selection_context=0 fake_provider_first_token=268
+reader UI evidence screenshot: /tmp/reader-main-window.png
+<end of output>
+Test time =   3.02 sec
+----------------------------------------------------------
+Test Passed.
+"reader_ui" end time: Sep 21 21:41 EDT
+"reader_ui" time elapsed: 00:00:03
+----------------------------------------------------------
+
+10/11 Testing: webengine
+10/11 Test: webengine
+Command: "/home/nao/.local/lib/python3.14/site-packages/cmake/data/bin/cmake" "-DTEST_EXECUTABLE=/home/nao/Documents/Projects/reader/build-qt/test_webengine" "-DTEST_HOME_ROOT=/home/nao/Documents/Projects/reader/build-qt/test-homes" "-P" "/home/nao/Documents/Projects/reader/cmake/RunIsolatedTest.cmake"
+Directory: /home/nao/Documents/Projects/reader/build-qt
+"webengine" start time: Sep 21 21:41 EDT
+Output:
+----------------------------------------------------------
+ALL WEBENGINE TESTS PASSED
+<end of output>
+Test time =   4.02 sec
+----------------------------------------------------------
+Test Passed.
+"webengine" end time: Sep 21 21:41 EDT
+"webengine" time elapsed: 00:00:04
+----------------------------------------------------------
+
+End testing: Sep 21 21:41 EDT

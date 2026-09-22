@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/nao/Documents/Projects/reader/build-qt/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

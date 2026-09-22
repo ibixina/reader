@@ -1,0 +1,2 @@
+# Empty custom commands generated dependencies file for test_render_stress_autogen_timestamp_deps.
+# This may be replaced when dependencies are built.

@@ -1,0 +1,12 @@
+core 37 0.000716391
+qt 42 0.00371392
+webengine 22 0.182859
+select 22 0.00720845
+render 15 0.00273796
+reader_ui 13 0.231963
+chat_ui 11 0.0204582
+chat_lifecycle 7 0.00174989
+embedding_qt 7 0.0143451
+render_stress 4 0.0674065
+chat_rich 1 1.35329
+---
