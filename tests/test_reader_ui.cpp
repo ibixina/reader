@@ -1,41 +1,34 @@
+// Integrated reader test for the minimal feature set: viewer, selection→
+// browser-chat context, literal search, outline, notes/highlights,
+// shortcuts, history, fit/rotate, and document-switch isolation.
+// The browser chat needs no network here: only its local context surface
+// (selection chips, copy-prompt) is exercised, never a page load or send.
 #include "app/Application.h"
-#include "ai/LlmProvider.h"
 #include "document/DocumentAnchor.h"
 #include "academic_fixture.h"
-#include "ui/CommandPalette.h"
 #include "ui/MainWindow.h"
-#include "ui/MapPanel.h"
+#include "ui/OutlinePanel.h"
 #include "ui/PdfView.h"
-#include "ui/SummaryPanel.h"
+#include "ui/WebPanel.h"
 #include <QApplication>
-#include <QAction>
 #include <QClipboard>
-#include <QComboBox>
+#include <QDialog>
 #include <QElapsedTimer>
-#include <QDockWidget>
-#include <QGraphicsEllipseItem>
-#include <QGraphicsView>
-#include <QImage>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
-#include <QMenu>
 #include <QMouseEvent>
 #include <QPushButton>
-#include <QTabWidget>
-#include <QThread>
 #include <QTextBrowser>
-#include <QUrl>
+#include <QThread>
+#include <QWebEngineView>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <unistd.h>
 #include <algorithm>
-#include <atomic>
 #include <cmath>
-#include <chrono>
-#include <thread>
 
 namespace {
 
@@ -58,49 +51,6 @@ bool waitFor(QApplication& app, int timeoutMs, Predicate predicate) {
     }
     return predicate();
 }
-
-class CountingOfflineProvider final : public reader::LlmProvider {
-public:
-    struct Observation {
-        std::atomic<int> references{0};
-        std::atomic<bool> equation{false};
-        std::atomic<bool> figure{false};
-        std::atomic<bool> figureImage{false};
-    };
-
-    CountingOfflineProvider(std::atomic<int>* calls, Observation* observation)
-        : calls_(calls), observation_(observation) {}
-    std::string name() const override { return "counting-offline"; }
-    void streamChat(const reader::ChatRequest& request,
-                    reader::StreamCallbacks callbacks) override {
-        ++*calls_;
-        observation_->references = static_cast<int>(request.explicitReferences.size());
-        observation_->equation = false;
-        observation_->figure = false;
-        observation_->figureImage = false;
-        for (const auto& reference : request.explicitReferences) {
-            if (reference.type == reader::ReferenceType::Equation)
-                observation_->equation = true;
-            if (reference.type == reader::ReferenceType::Figure) {
-                observation_->figure = true;
-                observation_->figureImage = reference.image.has_value() &&
-                                            !reference.image->bytes.empty();
-            }
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(250));
-        std::string answer = "Grounded offline answer.";
-        if (!request.explicitReferences.empty())
-            answer += " [" + reader::contextReferenceId(request.explicitReferences.front()) + "]";
-        if (callbacks.onToken) callbacks.onToken(answer);
-        if (callbacks.onSource && !request.explicitReferences.empty())
-            callbacks.onSource(request.explicitReferences.front().anchor);
-        if (callbacks.onDone) callbacks.onDone(answer);
-    }
-
-private:
-    std::atomic<int>* calls_;
-    Observation* observation_;
-};
 
 } // namespace
 
@@ -125,15 +75,11 @@ int main(int argc, char** argv) {
         distinct << "\n% distinct document identity\n";
     }
     reader::Application app;
-    app.providerConfig.kind = "offline";
-    app.providerConfig.apiKey.clear();
-    std::atomic<int> providerCalls{0};
-    CountingOfflineProvider::Observation providerObservation;
     MainWindow window(&app);
-    app.chatManager->setProvider(
-        std::make_unique<CountingOfflineProvider>(&providerCalls, &providerObservation));
     window.resize(1100, 760);
     window.show();
+    window.activateWindow();
+    qt.processEvents(QEventLoop::AllEvents, 50);
     QElapsedTimer firstPaintTimer;
     firstPaintTimer.start();
     window.openFile(QString::fromStdString(pdfPath));
@@ -142,7 +88,6 @@ int main(int argc, char** argv) {
     CHECK(waitFor(qt, 8000, [&] { return app.model.blocks.size() > 8; }));
     CHECK(app.model.document.pageCount == 4);
     CHECK(!app.documents->recentDocuments(10).empty());
-    CHECK(providerCalls.load() == 0);
 
     auto* pdf = window.findChild<PdfView*>();
     CHECK(pdf != nullptr);
@@ -159,19 +104,22 @@ int main(int argc, char** argv) {
     }));
     const qint64 firstPaintMs = firstPaintTimer.elapsed();
     qint64 selectionContextMs = -1;
-    qint64 delayedAiJumpMs = -1;
     qint64 literalSearchMs = -1;
-    qint64 fakeProviderFirstTokenMs = -1;
+    QString selText;
+
+    auto* browser = window.findChild<WebPanel*>();
+    CHECK(browser != nullptr);
+    // Fresh start (isolated HOME, no settings): the chat pane defaults on.
+    CHECK(browser->isVisible());
+    auto* browserContext = window.findChild<QTextBrowser*>("browserContext");
+    auto* browserQuestion = window.findChild<QLineEdit*>("browserQuestion");
+    CHECK(browserContext && browserQuestion);
 
     // An actual drag on the rendered page updates structured context while
-    // preserving the in-progress composer and clipboard. It must not send a
-    // request simply because a selection changed.
-    auto* chatInput = window.findChild<QLineEdit*>("chatInput");
+    // preserving focus and clipboard. It must not navigate or send anything.
     QWidget* firstPage = window.findChild<QWidget*>("pdfPage_0");
-    CHECK(chatInput && firstPage);
-    if (chatInput && firstPage) {
-        chatInput->setText("draft question");
-        chatInput->setFocus(Qt::OtherFocusReason);
+    CHECK(firstPage);
+    if (firstPage) {
         QGuiApplication::clipboard()->setText("clipboard sentinel");
         const auto blockIt = std::find_if(
             app.model.blocks.begin(), app.model.blocks.end(), [](const reader::TextBlock& block) {
@@ -203,41 +151,27 @@ int main(int argc, char** argv) {
             }));
             selectionContextMs = selectionTimer.elapsed();
             CHECK(selectionContextMs < 500);
-            CHECK(chatInput->text() == "draft question");
-            CHECK(waitFor(qt, 200, [&] { return chatInput->hasFocus(); }));
             CHECK(QGuiApplication::clipboard()->text() == "clipboard sentinel");
-            CHECK(providerCalls.load() == 0);
+            // The browser chat surface reflects the live selection locally:
+            // whatever the drag resolved to must appear verbatim.
+            qt.processEvents(QEventLoop::AllEvents, 50);
+            selText = app.context.currentContext().temporary.empty()
+                          ? QString()
+                          : QString::fromStdString(
+                                app.context.currentContext().temporary.front().extractedText)
+                                .simplified();
+            CHECK(!selText.isEmpty());
+            CHECK(browserContext && browserContext->toPlainText().contains(selText.left(40)));
         }
-        for (QWidget* top : QApplication::topLevelWidgets())
-            if (qobject_cast<QMenu*>(top)) top->close();
     }
 
-    auto* sendButton = window.findChild<QPushButton*>("sendButton");
-    CHECK(sendButton != nullptr);
-    if (chatInput && sendButton && !app.context.currentContext().temporary.empty()) {
-        chatInput->setText("What does this selected passage mean?");
-        sendButton->click();
-        CHECK(waitFor(qt, 200, [&] { return !sendButton->isEnabled(); }));
-        QElapsedTimer delayedAiJump;
-        delayedAiJump.start();
-        pdf->goToPage(1);
-        pdf->goToPage(0);
-        qt.processEvents(QEventLoop::AllEvents, 25);
-        delayedAiJumpMs = delayedAiJump.elapsed();
-        CHECK(delayedAiJumpMs < 250);
-        CHECK(waitFor(qt, 2000, [&] { return providerCalls.load() == 1; }));
-        CHECK(waitFor(qt, 2000, [&] { return sendButton->isEnabled(); }));
-        pdf->fitWidth();
-        const auto selectedContext = app.context.currentContext();
-        if (!selectedContext.temporary.empty())
-            pdf->jumpToAnchor(selectedContext.temporary.front().anchor, true);
-        QElapsedTimer chatRender;
-        chatRender.start();
-        while (chatRender.elapsed() < 400) {
-            qt.processEvents(QEventLoop::AllEvents, 20);
-            QThread::msleep(5);
-        }
-        window.grab().save("/tmp/reader-chat-flow.png");
+    // Copy-prompt assembles selection + question without any network.
+    if (browser && !selText.isEmpty()) {
+        browserQuestion->setText("What does this passage mean?");
+        browser->copyPrompt();
+        const QString prompt = QGuiApplication::clipboard()->text();
+        CHECK(prompt.contains("What does this passage mean?"));
+        CHECK(prompt.contains(selText.left(40)));
     }
 
     // Search is a real reader widget action, not a model-only shortcut.
@@ -260,39 +194,82 @@ int main(int argc, char** argv) {
         }
     }
 
-    // The palette emits a real command and MainWindow executes it.
-    CommandPalette palette(&app, &window);
-    QObject::connect(&palette, &CommandPalette::commandChosen, &window,
-                     [&](const QString& command) {
-                         QMetaObject::invokeMethod(&window, "executeCommand",
-                                                   Qt::DirectConnection,
-                                                   Q_ARG(QString, command));
-                     });
-    auto* paletteList = palette.findChild<QListWidget*>();
-    CHECK(paletteList && paletteList->count() > 0);
-    if (paletteList) {
-        for (int i = 0; i < paletteList->count(); ++i) {
-            if (paletteList->item(i)->text() == "go to methods") {
-                paletteList->setCurrentRow(i);
-                QMetaObject::invokeMethod(paletteList, "itemActivated", Qt::DirectConnection,
-                                          Q_ARG(QListWidgetItem*, paletteList->item(i)));
-                break;
-            }
+    // Outline lists detected sections; activating one navigates the reader.
+    auto* outline = window.findChild<OutlinePanel*>();
+    CHECK(outline != nullptr);
+    if (outline) {
+        CHECK(waitFor(qt, 2000, [&] {
+            auto* list = outline->findChild<QListWidget*>();
+            return list && list->count() > 0;
+        }));
+        auto* list = outline->findChild<QListWidget*>();
+        if (list && list->count() > 0) {
+            list->setCurrentRow(0);
+            QMetaObject::invokeMethod(list, "itemActivated", Qt::DirectConnection,
+                                      Q_ARG(QListWidgetItem*, list->currentItem()));
+            qt.processEvents(QEventLoop::AllEvents, 50);
         }
     }
-    CHECK(pdf->currentPage() == 1);
 
     // PdfView consumes these shortcuts, so each signal must be wired to a
     // real MainWindow action rather than disappearing at the viewport.
     pdf->setFocus(Qt::OtherFocusReason);
     QKeyEvent findKey(QEvent::KeyPress, Qt::Key_F, Qt::ControlModifier);
     QApplication::sendEvent(pdf, &findKey);
-    auto* readerDock = window.findChild<QDockWidget*>();
-    CHECK(readerDock && readerDock->isVisible());
+    auto* readerTools = window.findChild<QWidget*>("readerToolsOverlay");
+    CHECK(readerTools && readerTools->isVisible());
+    // In-window overlay: hovers over the left edge without pushing the
+    // document and without relying on window-manager positioning.
+    CHECK(readerTools && readerTools->x() == 0);
+    CHECK(readerTools && readerTools->width() > 200);
+    // Window shortcuts drive the reading actions end to end: h applies the
+    // highlight exactly once and arms space, which then focuses the
+    // browser ask box. The highlight is removed again so later annotation
+    // counts stay clean.
     window.activateWindow();
-    QMetaObject::invokeMethod(pdf, "askAiRequested", Qt::DirectConnection);
+    pdf->setFocus(Qt::OtherFocusReason);
+    qt.processEvents(QEventLoop::AllEvents, 20);
+    const std::size_t annotationsBefore =
+        app.annotations->annotationsFor(app.model.document.id).size();
+    QKeyEvent highlightKey(QEvent::KeyPress, Qt::Key_H, Qt::NoModifier);
+    QApplication::sendEvent(pdf, &highlightKey);
     qt.processEvents(QEventLoop::AllEvents, 50);
-    CHECK(chatInput && (chatInput->hasFocus() || QApplication::focusWidget() == chatInput));
+    CHECK(app.annotations->annotationsFor(app.model.document.id).size() == annotationsBefore + 1);
+    QKeyEvent spaceKey(QEvent::KeyPress, Qt::Key_Space, Qt::NoModifier);
+    QApplication::sendEvent(&window, &spaceKey);
+    qt.processEvents(QEventLoop::AllEvents, 50);
+    CHECK(browserQuestion &&
+          (browserQuestion->hasFocus() || QApplication::focusWidget() == browserQuestion));
+    CHECK(pdf->removeHighlightForCurrentSelection());
+    // Chatting is sacred: with focus inside the browser chat (ChatGPT's
+    // own composer looks like the web view to Qt), space must NOT jump to
+    // the ask box, and letter shortcuts must not fire either.
+    if (auto* webView = window.findChild<QWebEngineView*>()) {
+        webView->setFocus(Qt::OtherFocusReason);
+        qt.processEvents(QEventLoop::AllEvents, 20);
+        // Focus lands on the view's internal proxy: it must still be inside
+        // the page (that is exactly what chatHasFocus sees).
+        CHECK(webView->isAncestorOf(QApplication::focusWidget()));
+        QKeyEvent chatSpace(QEvent::KeyPress, Qt::Key_Space, Qt::NoModifier);
+        QApplication::sendEvent(webView, &chatSpace);
+        qt.processEvents(QEventLoop::AllEvents, 50);
+        // Stolen focus would land on the ask box, which is NOT inside the page.
+        CHECK(QApplication::focusWidget() != browserQuestion);
+        CHECK(webView->isAncestorOf(QApplication::focusWidget()));
+        // 'n' with chat focus must not pop the note editor. Premise: the
+        // earlier drag selection is still live, so an unguarded shortcut
+        // would open the dialog.
+        CHECK(pdf->hasLiveSelection());
+        const std::size_t notesBefore =
+            app.annotations->notesFor(app.model.document.id).size();
+        QKeyEvent chatN(QEvent::KeyPress, Qt::Key_N, Qt::NoModifier);
+        QApplication::sendEvent(webView, &chatN);
+        qt.processEvents(QEventLoop::AllEvents, 50);
+        CHECK(app.annotations->notesFor(app.model.document.id).size() == notesBefore);
+        CHECK(window.findChild<QDialog*>("noteEditor") == nullptr);
+    } else {
+        CHECK(false); // browser chat view must exist
+    }
     pdf->goToPage(2);
     app.state.history.clear();
     app.state.history.visit({0, 25, 1.1, std::nullopt});
@@ -315,30 +292,18 @@ int main(int argc, char** argv) {
     CHECK(pdf->captureState().selection.has_value());
     if (pdf->captureState().selection)
         CHECK(pdf->captureState().selection->anchorText == anchor.anchorText);
-    QMetaObject::invokeMethod(&window, "executeCommand", Qt::DirectConnection,
-                              Q_ARG(QString, QString("pin current selection")));
+    // Pin the live reference for comparison, like the chat would.
+    {
+        const auto context = app.context.currentContext();
+        if (!context.temporary.empty()) app.context.pinReference(context.temporary.front().id);
+    }
     const auto pinned = app.context.currentContext();
     CHECK(pinned.temporary.empty());
     CHECK(pinned.pinned.size() == 1);
     CHECK(app.annotations->annotationsFor(app.model.document.id).empty());
 
-    // Command actions populate meaningful questions and structured scope.
-    QMetaObject::invokeMethod(&window, "executeCommand", Qt::DirectConnection,
-                              Q_ARG(QString, QString("explain current section")));
-    CHECK(chatInput && chatInput->text().contains("Explain the current section"));
-    CHECK(!app.context.currentContext().temporary.empty());
-    if (!app.context.currentContext().temporary.empty())
-        CHECK(app.context.currentContext().temporary.front().type ==
-              reader::ReferenceType::Section);
-    QMetaObject::invokeMethod(&window, "executeCommand", Qt::DirectConnection,
-                              Q_ARG(QString, QString("summarize current page")));
-    CHECK(chatInput && chatInput->text().contains("Summarize page"));
-    if (!app.context.currentContext().temporary.empty())
-        CHECK(app.context.currentContext().temporary.front().type == reader::ReferenceType::Page);
-
-    // Core rich-object flow uses real PDF clicks: equation is pinned, figure
-    // becomes the live comparison reference with an async raster crop, then
-    // table and citation clicks preserve their typed payloads.
+    // Core rich-object flow uses real PDF clicks: equation, figure, table
+    // and citation clicks become typed live context for the browser chat.
     {
         const auto context = app.context.currentContext();
         for (const auto& reference : context.temporary)
@@ -372,10 +337,8 @@ int main(int argc, char** argv) {
         CHECK(!app.model.figures.empty());
         CHECK(!app.model.tables.empty());
         CHECK(!app.model.citations.empty());
-        std::optional<reader::DocumentAnchor> equationAnchor;
         if (!app.model.equations.empty()) {
             const auto equation = reader::anchorForEquation(app.model, app.model.equations.front());
-            equationAnchor = equation;
             clickAnchor(equation);
             CHECK(!app.context.currentContext().temporary.empty());
             if (!app.context.currentContext().temporary.empty()) {
@@ -385,82 +348,19 @@ int main(int argc, char** argv) {
                 CHECK(reference.anchor.objectId == equation.objectId);
                 CHECK(!reference.latex.empty());
             }
-            QMetaObject::invokeMethod(&window, "executeCommand", Qt::DirectConnection,
-                                      Q_ARG(QString, QString("pin current selection")));
+            const auto eqContext = app.context.currentContext();
+            if (!eqContext.temporary.empty())
+                app.context.pinReference(eqContext.temporary.front().id);
         }
         if (!app.model.figures.empty()) {
             const auto figure = reader::anchorForFigure(app.model, app.model.figures.front());
             clickAnchor(figure);
-            CHECK(waitFor(qt, 2000, [&] {
-                const auto current = app.context.currentContext();
-                return !current.temporary.empty() && current.temporary.front().image.has_value();
-            }));
             const auto current = app.context.currentContext();
             CHECK(current.pinned.size() == 1);
             CHECK(!current.temporary.empty());
             if (!current.temporary.empty()) {
                 CHECK(current.temporary.front().type == reader::ReferenceType::Figure);
                 CHECK(current.temporary.front().anchor.objectId == figure.objectId);
-            }
-            if (chatInput && sendButton) {
-                auto* transcript = window.findChild<QTextBrowser*>("chatThread");
-                const int previousAnswers = transcript
-                    ? transcript->toPlainText().count("Grounded offline answer.")
-                    : 0;
-                chatInput->setText("Compare the pinned equation with this figure.");
-                QElapsedTimer firstTokenTimer;
-                firstTokenTimer.start();
-                sendButton->click();
-                CHECK(waitFor(qt, 2500, [&] {
-                    return transcript &&
-                           transcript->toPlainText().count("Grounded offline answer.") >
-                               previousAnswers;
-                }));
-                fakeProviderFirstTokenMs = firstTokenTimer.elapsed();
-                CHECK(waitFor(qt, 1000, [&] { return sendButton->isEnabled(); }));
-                CHECK(providerCalls.load() == 2);
-                CHECK(providerObservation.references.load() == 2);
-                CHECK(providerObservation.equation.load());
-                CHECK(providerObservation.figure.load());
-                CHECK(providerObservation.figureImage.load());
-
-                // Exercise the rendered source link itself. Hover previews the
-                // exact equation bounds; clicking navigates and promotes the
-                // same anchor to the persistent source highlight.
-                if (transcript) {
-                    QPoint sourcePoint(-1, -1);
-                    for (int y = 0; y < transcript->viewport()->height() && sourcePoint.x() < 0;
-                         y += 2) {
-                        for (int x = 0; x < transcript->viewport()->width(); x += 2) {
-                            if (transcript->anchorAt({x, y}) == "reader-source:1") {
-                                sourcePoint = {x, y};
-                                break;
-                            }
-                        }
-                    }
-                    CHECK(sourcePoint.x() >= 0);
-                    if (sourcePoint.x() >= 0) {
-                        QMouseEvent hover(QEvent::MouseMove, sourcePoint,
-                                          transcript->viewport()->mapToGlobal(sourcePoint),
-                                          Qt::NoButton, Qt::NoButton, Qt::NoModifier);
-                        QApplication::sendEvent(transcript->viewport(), &hover);
-                        CHECK(pdf->hoveredAnchor().has_value());
-                        if (pdf->hoveredAnchor() && equationAnchor)
-                            CHECK(pdf->hoveredAnchor()->objectId == equationAnchor->objectId);
-                        QMouseEvent press(QEvent::MouseButtonPress, sourcePoint,
-                                          transcript->viewport()->mapToGlobal(sourcePoint),
-                                          Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
-                        QMouseEvent release(QEvent::MouseButtonRelease, sourcePoint,
-                                            transcript->viewport()->mapToGlobal(sourcePoint),
-                                            Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
-                        QApplication::sendEvent(transcript->viewport(), &press);
-                        QApplication::sendEvent(transcript->viewport(), &release);
-                        qt.processEvents(QEventLoop::AllEvents, 50);
-                        CHECK(pdf->highlightedAnchor().has_value());
-                        if (pdf->highlightedAnchor() && equationAnchor)
-                            CHECK(pdf->highlightedAnchor()->objectId == equationAnchor->objectId);
-                    }
-                }
             }
         }
         if (!app.model.tables.empty()) {
@@ -486,37 +386,23 @@ int main(int argc, char** argv) {
         }
     }
 
-    // Pane visibility/collapse state is exercised through the actual slots.
+    // Pane visibility is exercised through the actual slot.
     QMetaObject::invokeMethod(&window, "toggleAiPane", Qt::DirectConnection);
     QMetaObject::invokeMethod(&window, "toggleAiPane", Qt::DirectConnection);
-    QMetaObject::invokeMethod(&window, "toggleAiCollapse", Qt::DirectConnection);
-    QMetaObject::invokeMethod(&window, "toggleAiCollapse", Qt::DirectConnection);
 
-    // Reopen is cache-safe and remains offline: the hash identity is stable
-    // and no provider is configured by this test.
+    // Reopen is cache-safe and remains offline: the hash identity is stable.
     const auto identity = app.model.document.id;
+    // Reading position persists across reopen: leave page 2 behind.
+    pdf->goToPage(2);
+    qt.processEvents(QEventLoop::AllEvents, 100);
     window.openFile(QString::fromStdString(pdfPath));
     CHECK(waitFor(qt, 8000, [&] { return app.model.document.id == identity; }));
     CHECK(waitFor(qt, 8000, [&] { return app.model.blocks.size() > 8; }));
+    CHECK(waitFor(qt, 3000, [&] { return pdf->currentPage() == 2; }));
     CHECK(!app.context.currentContext().pinned.empty());
 
-    // Switching to a distinct document cancels pending chat/crops and clears
-    // every paper-A reference. Same-document reopen above intentionally kept
-    // pinned comparison context.
-    std::atomic<bool> staleImagePublished{false};
-    if (!app.model.figures.empty()) {
-        reader::ContextReference figure;
-        figure.type = reader::ReferenceType::Figure;
-        figure.anchor = reader::anchorForFigure(app.model, app.model.figures.front());
-        pdf->requestReferenceImage(figure, [&](std::optional<reader::ReferenceImage>) {
-            staleImagePublished.store(true);
-        });
-    }
-    if (chatInput && sendButton) {
-        chatInput->setText("This paper-A request must be cancelled on document switch.");
-        sendButton->click();
-        CHECK(waitFor(qt, 200, [&] { return !sendButton->isEnabled(); }));
-    }
+    // Switching to a distinct document clears every paper-A reference.
+    // Same-document reopen above intentionally kept pinned context.
     window.openFile(QString::fromStdString(secondPdfPath));
     CHECK(waitFor(qt, 8000, [&] {
         return !app.model.document.id.empty() && app.model.document.id != identity;
@@ -526,100 +412,14 @@ int main(int argc, char** argv) {
     CHECK(app.context.currentContext().pinned.empty());
     CHECK(!app.state.history.canBack());
     CHECK(pdf->currentPage() == 0);
-    CHECK(waitFor(qt, 1500, [&] { return sendButton->isEnabled(); }));
-    CHECK(!staleImagePublished.load());
 
-    // Cached reopen and local ingest remain network-free. The populated
-    // Summary tab plus readable PDF are captured as end-to-end evidence.
-    CHECK(providerCalls.load() == 2);
-    QMetaObject::invokeMethod(&window, "runIngest", Qt::DirectConnection,
-                              Q_ARG(bool, false));
-    CHECK(waitFor(qt, 8000, [&] { return app.analysis && app.analysis->usable(); }));
-    auto* summaryPanel = window.findChild<SummaryPanel*>();
-    auto* mapPanel = window.findChild<MapPanel*>();
-    auto* summaryView = window.findChild<QTextBrowser*>("summaryView");
-    CHECK(summaryPanel && mapPanel && summaryView);
-    if (summaryPanel) summaryPanel->rebuild();
-    CHECK(summaryView && summaryView->toPlainText().contains("Local extractive analysis"));
-
-    // Full deterministic manifest exercises every Summary/Map surface while
-    // the preceding assertions keep local ingest as a real smoke test.
-    app.analysis = reader_test::academicAnalysis(app.model);
-    if (summaryPanel) summaryPanel->rebuild();
-    if (mapPanel) mapPanel->rebuild();
-    pdf->setRotation(0);
     pdf->goToPage(0);
     pdf->fitWidth();
-    auto* tabs = window.findChild<QTabWidget*>();
-    CHECK(tabs != nullptr);
-    if (tabs) {
-        for (int i = 0; i < tabs->count(); ++i)
-            if (tabs->tabText(i) == "Summary") tabs->setCurrentIndex(i);
-    }
-    app.state.settings.showMethods = true;
-    if (auto* depth = window.findChild<QComboBox*>("summaryDepth"))
-        depth->setCurrentText("Technical");
-    if (auto* sections = window.findChild<QComboBox*>("sectionSummaryDepth"))
-        sections->setCurrentText("Detailed");
-    QElapsedTimer renderWait;
-    renderWait.start();
-    while (renderWait.elapsed() < 800) {
-        qt.processEvents(QEventLoop::AllEvents, 25);
-        QThread::msleep(5);
-    }
-
-    window.grab().save("/tmp/reader-main-window.png");
-    CHECK(summaryView && summaryView->toHtml().contains("block:"));
-    const auto methodBlock = std::find_if(
-        app.model.blocks.begin(), app.model.blocks.end(), [](const reader::TextBlock& block) {
-            return block.text.find("Selection is represented") != std::string::npos;
-        });
-    CHECK(methodBlock != app.model.blocks.end());
-    if (summaryView && methodBlock != app.model.blocks.end()) {
-        const QUrl source("block:" + QString::fromStdString(methodBlock->id));
-        CHECK(summaryView->toHtml().contains(QString::fromStdString(methodBlock->id)));
-        QMetaObject::invokeMethod(summaryView, "anchorClicked", Qt::DirectConnection,
-                                  Q_ARG(QUrl, source));
-        CHECK(pdf->currentPage() == methodBlock->page);
-    }
-    if (tabs) {
-        for (int i = 0; i < tabs->count(); ++i)
-            if (tabs->tabText(i) == "Map") tabs->setCurrentIndex(i);
-    }
     qt.processEvents(QEventLoop::AllEvents, 100);
-    auto* mapView = window.findChild<QGraphicsView*>("conceptMapView");
-    auto* conceptDetail = window.findChild<QLabel*>("conceptDetail");
-    CHECK(mapView && !mapView->scene()->items().isEmpty());
-    if (mapView) {
-        for (QGraphicsItem* item : mapView->scene()->items()) {
-            if (qgraphicsitem_cast<QGraphicsEllipseItem*>(item)) {
-                item->setSelected(true);
-                break;
-            }
-        }
-    }
-    qt.processEvents(QEventLoop::AllEvents, 50);
-    CHECK(conceptDetail && conceptDetail->text().contains("block:"));
-    if (conceptDetail && methodBlock != app.model.blocks.end()) {
-        QMetaObject::invokeMethod(
-            conceptDetail, "linkActivated", Qt::DirectConnection,
-            Q_ARG(QString, "block:" + QString::fromStdString(methodBlock->id)));
-        CHECK(pdf->currentPage() == methodBlock->page);
-    }
-    pdf->goToPage(0);
-    pdf->fitWidth();
-    QElapsedTimer mapRenderWait;
-    mapRenderWait.start();
-    while (mapRenderWait.elapsed() < 500) {
-        qt.processEvents(QEventLoop::AllEvents, 25);
-        QThread::msleep(5);
-    }
-    window.grab().save("/tmp/reader-map.png");
+    window.grab().save("/tmp/reader-main-window.png");
     std::cout << "reader timings ms: first_paint=" << firstPaintMs
-              << " delayed_ai_page_round_trip=" << delayedAiJumpMs
               << " literal_search=" << literalSearchMs
-              << " selection_context=" << selectionContextMs
-              << " fake_provider_first_token=" << fakeProviderFirstTokenMs << '\n';
+              << " selection_context=" << selectionContextMs << '\n';
     std::cout << "reader UI evidence screenshot: /tmp/reader-main-window.png\n";
     app.shutdown();
     window.hide();

@@ -18,7 +18,7 @@
 namespace reader {
 
 struct PdfRenderer::State {
-    explicit State(std::size_t capacity) : cache(capacity), pages(16) {}
+    explicit State(std::size_t capacity) : cache(capacity), pages(6) {}
 
     LruCache<RenderKey, QImage, RenderKeyHash> cache;
     // Full-page renders: one Poppler pass per (page, size); tiles slice

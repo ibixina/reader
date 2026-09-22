@@ -3,6 +3,7 @@
 #include "app/Application.h"
 #include <QApplication>
 #include <QClipboard>
+#include <QCursor>
 #include <QFile>
 #include <QFileInfo>
 #include <QHBoxLayout>
@@ -12,6 +13,7 @@
 #include <QLineEdit>
 #include <QPointer>
 #include <QPushButton>
+#include <QShowEvent>
 #include <QTextBrowser>
 #include <QTimer>
 #include <QVBoxLayout>
@@ -68,12 +70,17 @@ WebPanel::WebPanel(reader::Application* app, QWidget* parent)
 
     auto* layout = new QVBoxLayout(this);
     layout->setContentsMargins(0, 0, 0, 0);
-    auto* nav = new QHBoxLayout();
-    auto* back = new QPushButton("‹", this);
-    auto* forward = new QPushButton("›", this);
-    auto* reload = new QPushButton("⟳", this);
-    auto* home = new QPushButton("chatgpt.com", this);
-    auto* copy = new QPushButton("Copy prompt", this);
+    // The nav row auto-hides like the main toolbar: edge reveal only, so
+    // the chat stays a clean ask box + page. The ask row never hides.
+    navBar_ = new QWidget(this);
+    navBar_->setObjectName("browserNavBar");
+    auto* nav = new QHBoxLayout(navBar_);
+    nav->setContentsMargins(0, 0, 0, 0);
+    auto* back = new QPushButton("‹", navBar_);
+    auto* forward = new QPushButton("›", navBar_);
+    auto* reload = new QPushButton("⟳", navBar_);
+    auto* home = new QPushButton("chatgpt.com", navBar_);
+    auto* copy = new QPushButton("Copy prompt", navBar_);
     copy->setToolTip("Copy selection + question as a ChatGPT-ready prompt");
     context_ = new QTextBrowser(this);
     context_->setObjectName("browserContext");
@@ -94,7 +101,12 @@ WebPanel::WebPanel(reader::Application* app, QWidget* parent)
     nav->addWidget(reload);
     nav->addWidget(home);
     nav->addWidget(copy);
-    layout->addLayout(nav);
+    layout->addWidget(navBar_);
+    navBar_->hide();
+    navTimer_ = new QTimer(this);
+    navTimer_->setInterval(250);
+    connect(navTimer_, &QTimer::timeout, this, &WebPanel::updateNavReveal);
+    navTimer_->start();
     layout->addWidget(context_);
     auto* askRow = new QHBoxLayout();
     question_ = new QLineEdit(this);
@@ -139,8 +151,43 @@ WebPanel::WebPanel(reader::Application* app, QWidget* parent)
                             : "Couldn't load chatgpt.com — check connection, then press ⟳.");
     });
 
-    view_->load(temporaryChatUrl());
+    // Lazy first load: constructing the panel (e.g. at startup with the AI
+    // pane hidden, or in tests) must not spawn the WebEngine process and
+    // fetch chatgpt.com. The URL loads on first show; explicit navigation
+    // (home/reload) still works immediately by forcing the load.
     refreshContext();
+}
+
+void WebPanel::showEvent(QShowEvent* event) {
+    QWidget::showEvent(event);
+    ensureLoaded();
+}
+
+void WebPanel::ensureLoaded() {
+    if (loaded_ || !view_) return;
+    loaded_ = true;
+    view_->load(temporaryChatUrl());
+}
+
+void WebPanel::updateNavReveal() {
+    if (!navBar_) return;
+    if (!isVisible()) return;
+    if (navBar_->isHidden()) {
+        const QPoint local = mapFromGlobal(QCursor::pos());
+        constexpr int kRevealHeight = 10;
+        if (local.y() >= 0 && local.y() <= kRevealHeight && local.x() >= 0 &&
+            local.x() < width())
+            navBar_->show();
+        return;
+    }
+    if (navBar_->underMouse()) return;
+    if (QWidget* focus = QApplication::focusWidget();
+        focus && navBar_->isAncestorOf(focus))
+        return;
+    const QPoint local = mapFromGlobal(QCursor::pos());
+    const int hideBelow = navBar_->height() + 8;
+    if (local.y() > hideBelow || local.x() < 0 || local.x() >= width() || local.y() < 0)
+        navBar_->hide();
 }
 
 void WebPanel::refreshContext() {
@@ -210,6 +257,7 @@ QString WebPanel::fillScript(const QString& prompt) {
 
 void WebPanel::ask() {
     if (asking_) return;
+    ensureLoaded();
     asking_ = true;
     QString prompt = buildPrompt(question_->text().trimmed());
     question_->clear();
@@ -328,71 +376,6 @@ bool WebPanel::sendConfirmed(const QString& beforeJson, const QString& afterJson
     return after.value("generating").toBool(false) && after.value("composer").toInt(-1) == 0;
 }
 
-void WebPanel::confirmSend(const QString& beforeJson,
-                           std::function<void(const QString&)> done) {
-    QPointer<WebPanel> guard(this);
-    QTimer::singleShot(2500, this, [this, guard, beforeJson, done] {
-        if (!guard) return;
-        view_->page()->runJavaScript(
-            confirmScript(), [guard, beforeJson, done](const QVariant& after) {
-                if (!guard) return;
-                done(sendConfirmed(beforeJson, after.toString()) ? "sent"
-                                                                : "send-unconfirmed");
-            });
-    });
-}
-
-void WebPanel::attachPdf(const QString& base64Pdf, const QString& filename,
-                         std::function<void(const QString&)> done) {
-    QPointer<WebPanel> guard(this);
-    view_->page()->runJavaScript(
-        attachScript(base64Pdf, filename), [this, guard, done](const QVariant& result) {
-            if (!guard) return;
-            const QString status = result.toString();
-            if (status != "started") {
-                done("noattach:" + status);
-                return;
-            }
-            auto* timer = new QTimer(this);
-            timer->setInterval(1000);
-            auto attempts = std::make_shared<int>(25);
-            connect(timer, &QTimer::timeout, this,
-                    [this, guard, timer, attempts, done] {
-                        if (!guard) {
-                            timer->stop();
-                            timer->deleteLater();
-                            return;
-                        }
-                        view_->page()->runJavaScript(
-                            attachPollScript(),
-                            [guard, timer, attempts, done](const QVariant& state) {
-                                if (!guard) return;
-                                const QString s = state.toString();
-                                if (s == "attached" || s.startsWith("error")) {
-                                    timer->stop();
-                                    timer->deleteLater();
-                                    done(s == "attached" ? "attached" : "noattach:" + s);
-                                } else if (--(*attempts) <= 0) {
-                                    timer->stop();
-                                    timer->deleteLater();
-                                    done("noattach:timeout");
-                                }
-                            });
-                    });
-            timer->start();
-        });
-}
-
-void WebPanel::startPolling(quint64 requestId) {
-    pollAttempts_ = 0;
-    if (!pollTimer_) {
-        pollTimer_ = new QTimer(this);
-        connect(pollTimer_, &QTimer::timeout, this, [this] { pollChatResponse(); });
-    }
-    pollTimer_->start(3000);
-    (void)requestId;
-}
-
 QString WebPanel::pollScript() {
     return QStringLiteral(
         "(function(){"
@@ -412,121 +395,14 @@ QString WebPanel::pollScript() {
 }
 
 void WebPanel::cancelPending() {
-    if (pollTimer_) pollTimer_->stop();
+    // tryFill callbacks are QPointer-guarded; resetting the flag is enough
+    // to let a later ask() through after a document switch or teardown.
     asking_ = false;
-    activeIngestRequestId_ = 0;
-}
-
-void WebPanel::ingestViaChat(const QString& pdfPath, const QString& fullPrompt,
-                             const QString& skeletonPrompt, quint64 requestId) {
-    if (asking_) return;
-    asking_ = true;
-    activeIngestRequestId_ = requestId;
-    // Manual fallback always stays available: even when auto-send fails, the
-    // user pastes + sends by hand and the poller below still picks up the
-    // answer. Nothing is ever reported "sent" without send evidence.
-    auto manualFallback = [this, requestId, fullPrompt](const QString& why) {
-        if (requestId != activeIngestRequestId_) return;
-        QGuiApplication::clipboard()->setText(fullPrompt);
-        status_->setText("Auto-send failed (" + why +
-                         ") — full prompt copied. Attach the PDF yourself, paste, press Enter;"
-                         " I'll pick up the answer.");
-        startPolling(requestId);
-    };
-    auto sendSkeleton = [this, requestId, manualFallback, skeletonPrompt] {
-        if (requestId != activeIngestRequestId_) return;
-        status_->setText("Sending analysis prompt…");
-        QPointer<WebPanel> guard(this);
-        view_->page()->runJavaScript(
-            confirmScript(), [this, guard, requestId, manualFallback,
-                              skeletonPrompt](const QVariant& before) {
-                if (!guard || requestId != activeIngestRequestId_) return;
-                const QString beforeJson = before.toString();
-                tryFill(skeletonPrompt, /*retriesLeft=*/2,
-                        [this, guard, requestId, manualFallback,
-                         beforeJson](const QString& fillStatus) {
-                            if (!guard || requestId != activeIngestRequestId_) return;
-                            if (fillStatus != "sent") {
-                                manualFallback(fillStatus);
-                                return;
-                            }
-                            confirmSend(beforeJson,
-                                        [this, requestId, manualFallback](const QString& confirmed) {
-                                            if (requestId != activeIngestRequestId_) return;
-                                            if (confirmed != "sent") {
-                                                manualFallback(confirmed);
-                                                return;
-                                            }
-                                            status_->setText(
-                                                "Prompt sent ✓ — waiting for ChatGPT to finish…");
-                                            startPolling(requestId);
-                                        });
-                        });
-            });
-    };
-    QFileInfo info(pdfPath);
-    if (!info.exists() || info.size() <= 0 || info.size() > kMaxAttachBytes) {
-        status_->setText("Paper file not attachable — sending text instead…");
-        tryFill(fullPrompt, /*retriesLeft=*/2,
-                [this, requestId, manualFallback](const QString& fillStatus) {
-                    if (requestId != activeIngestRequestId_) return;
-                    if (fillStatus != "sent") {
-                        manualFallback(fillStatus);
-                        return;
-                    }
-                    status_->setText("Prompt sent — waiting for ChatGPT to finish…");
-                    startPolling(requestId);
-                });
-        return;
-    }
-    QFile file(pdfPath);
-    if (!file.open(QIODevice::ReadOnly)) {
-        manualFallback("unreadable-pdf");
-        return;
-    }
-    const QString base64 = QString::fromLatin1(file.readAll().toBase64());
-    QString base = info.baseName();
-    QString clean;
-    for (QChar c : base) {
-        if (c.isLetterOrNumber() || c == ' ' || c == '-' || c == '_') clean += c;
-    }
-    clean = clean.trimmed().left(24);
-    if (clean.isEmpty()) clean = "paper";
-    status_->setText("Attaching paper PDF…");
-    attachPdf(base64, clean + ".pdf",
-              [this, requestId, manualFallback, sendSkeleton](const QString& attachStatus) {
-                  if (requestId != activeIngestRequestId_) return;
-                  if (attachStatus != "attached") {
-                      manualFallback(attachStatus);
-                      return;
-                  }
-                  status_->setText("Paper attached ✓ — sending analysis prompt…");
-                  sendSkeleton();
-              });
-}
-
-void WebPanel::pollChatResponse() {
-    QPointer<WebPanel> guard(this);
-    view_->page()->runJavaScript(pollScript(), [this, guard](const QVariant& result) {
-        if (!guard) return;
-        QJsonDocument doc = QJsonDocument::fromJson(result.toString().toUtf8());
-        QJsonObject obj = doc.object();
-        bool generating = obj.value("generating").toBool(true);
-        QString text = obj.value("text").toString();
-        ++pollAttempts_;
-        if (generating && pollAttempts_ <= 2)
-            status_->setText("ChatGPT is working…");
-        if ((!generating && text.size() > 100) || pollAttempts_ >= 120) {
-            if (pollTimer_) pollTimer_->stop();
-            asking_ = false;
-            emit chatIngestResponse((!generating && !text.isEmpty()) ? text : QString(),
-                                    activeIngestRequestId_);
-        }
-    });
 }
 
 void WebPanel::copyPrompt() {
-    QGuiApplication::clipboard()->setText(buildPrompt(""));
+    // Copy exactly what Ask would send: selection context + question box.
+    QGuiApplication::clipboard()->setText(buildPrompt(question_->text().trimmed()));
     context_->setPlainText(context_->toPlainText() + "  · prompt copied, paste into ChatGPT");
     view_->setFocus();
 }

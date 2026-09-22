@@ -1,5 +1,12 @@
 # Specification acceptance record
 
+> Superseded in scope on 2026-09-22: the app was slimmed to viewer +
+> browser chat (only AI chat) + shortcuts + notes/highlights +
+> selection→chat + outlines + page fitting. Native chat, Map/Summary/
+> Ingest-Raw/Thumbnails/CommandPalette, whole-paper ingest, AI overlays and
+> semantic search were removed. See `docs/PERF_NOTE.md` (authoritative).
+> What follows is the pre-slim historical record.
+
 This record maps `ai_paper_reader_spec.md` to the current local implementation. It records observable behavior and test evidence. The source tree is authoritative; generated files under old build directories are not.
 
 ## Shipped core behavior

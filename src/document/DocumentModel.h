@@ -8,7 +8,11 @@
 
 namespace reader {
 
-inline constexpr int kExtractionSchemaVersion = 1;
+// Bump when extraction or structure detection changes so cached models
+// are rebuilt instead of serving stale sections: v2 rejects math/URL
+// fragments, equation labels, number runs and sentence fragments that v1
+// admitted as headings.
+inline constexpr int kExtractionSchemaVersion = 2;
 
 // Application-level document model (§8). Raw PDF-engine objects never leak
 // past the pdf/ layer; everything downstream uses these stable-ID types.

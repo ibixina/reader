@@ -1,6 +1,7 @@
 #include "analysis/StructureDetector.h"
 #include "core/Types.h"
 #include <algorithm>
+#include <cstdlib>
 #include <optional>
 #include <regex>
 #include <unordered_map>
@@ -8,8 +9,60 @@
 
 namespace reader {
 
+namespace {
+
+// A heading never ends mid-sentence: terminal ". , ; : ) ] }" marks a
+// body fragment ("Section 5.1 and Appendix B)."). Theorem headers keep
+// their traditional latitude.
+bool endsWithTerminalPunct(const std::string& text) {
+    std::size_t end = text.size();
+    while (end > 0 && text[end - 1] == ' ') --end;
+    if (end == 0) return true;
+    switch (text[end - 1]) {
+    case '.':
+    case ',':
+    case ';':
+    case ':':
+    case ')':
+    case ']':
+    case '}':
+        return true;
+    default:
+        return false;
+    }
+}
+
+// Real headings are Title Case; body fragments swept into short lines
+// ("model for which …", "a summary statistic") usually start lowercase.
+bool startsWithUpper(const std::string& text) {
+    for (char c : text) {
+        if (c >= 'A' && c <= 'Z') return true;
+        if (c >= 'a' && c <= 'z') return false;
+    }
+    return true;
+}
+
+} // namespace
+
 bool StructureDetector::isHeading(const std::string& text, float avgFont, float font) {
     if (text.empty() || text.size() > 160) return false;
+    // Table-of-contents entries locate nothing; they are never sections.
+    if (isTableOfContentsLine(text)) return false;
+    // A heading is never a URL/DOI, a bare number salad ("0 1 2 3 4 5 6"),
+    // a lone symbol ("X", "T"), or a math/algorithm fragment. These text
+    // judgments are unconditional: engine font sizes misreport often
+    // enough (captions at 24pt, titles at 5pt) that large type must never
+    // override them.
+    static const std::regex urlRe(R"(https?://|www\.|doi\s*:|arxiv\s*:)", std::regex::icase);
+    if (std::regex_search(text, urlRe)) return false;
+    int alnum = 0;
+    for (char c : text)
+        if ((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') ||
+            (c >= '0' && c <= '9'))
+            ++alnum;
+    if (alnum < 2) return false;
+    const bool bigType = avgFont > 0 && font > avgFont * 1.18f;
+    if (hasMathSymbol(text)) return false;
     // Captions, footnotes, bibliography entries and equations are never
     // headings, even when short or numbered.
     static const std::regex figRe(R"(^\s*(Figure|Fig\.)\s+(\d+))", std::regex::icase);
@@ -20,19 +73,42 @@ bool StructureDetector::isHeading(const std::string& text, float avgFont, float 
     if (std::regex_search(text, figRe) || std::regex_search(text, tableRe) ||
         std::regex_search(text, footnoteRe) || std::regex_search(text, bibRe))
         return false;
-    if (std::regex_search(text, eqLabel) &&
-        text.find_first_of("=∑∫∂∇∈∀∃αβγθλµσφψω^_") != std::string::npos)
-        return false;
-    const bool bigType = avgFont > 0 && font > avgFont * 1.18f;
+    // A trailing "(12)" is an equation/figure label, never a heading —
+    // even in large type ("T (7)", "TEIGt. (22)").
+    if (std::regex_search(text, eqLabel)) return false;
     static const std::regex numbered(R"(^\s*(\d+(\.\d+)*\.?|Appendix\s+[A-Z]|[IVX]+\.)\s+\S)");
     if (std::regex_search(text, numbered)) {
+        // A value, not a label: "1.0 and NRMSE…" is body text, where "3.2
+        // Posterior…" is a subsection. Nobody numbers a section ".0".
+        static const std::regex labelRe(R"(^\s*(\d+(?:\.\d+)*)\.?)");
+        std::smatch labelMatch;
+        if (std::regex_search(text, labelMatch, labelRe)) {
+            const std::string label = labelMatch[1].str();
+            if (label.size() > 2 && label.compare(label.size() - 2, 2, ".0") == 0)
+                return false;
+        }
         // Enumerated list items ("1. Load the data…") share the numbering
         // shape; only accept long ones when the type is also bigger.
+        // The title itself must read like a title: a second bare number
+        // ("0 1 2 3 …", "5 10–5") or a one-letter stub ("2 L") is a value
+        // run or fragment, not a section.
+        static const std::regex afterLabelRe(
+            R"(^\s*(?:\d+(?:\.\d+)*\.?|Appendix\s+[A-Z]|[IVX]+\.)\s+(\S.*)$)");
+        static const std::regex numericToken(R"(^[\d\.\-–—,]+$)");
+        static const std::regex wordRe(R"([A-Za-z]{2,})");
+        std::smatch afterMatch;
+        if (std::regex_search(text, afterMatch, afterLabelRe)) {
+            const std::string rest = afterMatch[1].str();
+            if (std::regex_match(rest.substr(0, rest.find(' ')), numericToken)) return false;
+            if (!std::regex_search(rest, wordRe)) return false;
+        }
         if (text.size() < 100 || bigType) return true;
     }
     static const std::regex sectionWord(
         R"(^\s*(Appendix|Annex|Chapter|Section|Part)\s+[A-Z0-9]+)", std::regex::icase);
-    if (std::regex_search(text, sectionWord)) return true;
+    if (std::regex_search(text, sectionWord) && text.size() < 80 &&
+        !endsWithTerminalPunct(text))
+        return true;
     static const std::regex theoremLike(
         R"(^\s*(Theorem|Lemma|Proposition|Corollary|Definition|Remark|Example|Proof)\b)",
         std::regex::icase);
@@ -53,36 +129,99 @@ bool StructureDetector::isHeading(const std::string& text, float avgFont, float 
         const std::string key(k);
         if (lower == key || lower == key + "s") return true;
         // "Conclusion and future work", "Experimental setup", "Data collection":
-        // prefix matches only count for short standalone lines, never for
-        // body paragraphs that merely start with the word.
+        // prefix matches only count for short standalone Title Case lines,
+        // never for lowercase body fragments that merely start with the
+        // word ("model for which …", "summary and posterior …").
         if (text.size() < 80 && lower.rfind(key, 0) == 0 && lower.size() > key.size() &&
-            (lower[key.size()] == ' ' || lower[key.size()] == ':' || lower[key.size()] == '-'))
+            (lower[key.size()] == ' ' || lower[key.size()] == ':' || lower[key.size()] == '-') &&
+            startsWithUpper(text) && !endsWithTerminalPunct(text))
             return true;
     }
-    // ALL-CAPS short lines ("INTRODUCTION", "ACKNOWLEDGMENTS").
+    // ALL-CAPS short lines ("INTRODUCTION", "ACKNOWLEDGMENTS"). Non-ASCII
+    // bytes can never confirm capitals; digit-heavy lines ("99–102. IEEE,
+    // 2006. 6") are references, not headings; lone words ("EIG") need
+    // large type to qualify. Words are alphanumeric runs, so control junk
+    // ("EIG \x01") cannot fake a second word.
     bool hasAlpha = false;
     bool allCaps = true;
-    int words = 1;
+    int words = 0;
+    int digits = 0;
+    bool inWord = false;
+    bool wordHasAlnum = false;
     for (std::size_t i = 0; i < lower.size(); ++i) {
         const char c = lower[i];
-        if (c == ' ') ++words;
+        const bool alnum = (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9');
+        if (c == ' ') {
+            if (inWord && wordHasAlnum) ++words;
+            inWord = false;
+            wordHasAlnum = false;
+            continue;
+        }
+        inWord = true;
+        if (alnum) wordHasAlnum = true;
         if (c >= 'a' && c <= 'z') {
             hasAlpha = true;
             const char orig = text[i];
             if (orig != static_cast<char>(c - ('a' - 'A'))) allCaps = false;
+        } else if (c >= '0' && c <= '9') {
+            ++digits;
+        } else if (static_cast<unsigned char>(c) >= 0x80) {
+            allCaps = false;
         }
     }
-    if (hasAlpha && allCaps && words <= 8 && text.size() >= 4) return true;
-    // Larger type is the strongest signal: short lines set bigger than body.
-    if (bigType && words <= 12) return true;
+    if (inWord && wordHasAlnum) ++words;
+    if (hasAlpha && allCaps && words <= 8 && text.size() >= 4 && digits <= 4 &&
+        (words > 1 || bigType))
+        return true;
+    // Larger type is the weakest signal: short Title Case lettered lines
+    // set bigger than body. Lowercase fragments ("a summary statistic")
+    // and bare numbers ("1.5") never qualify.
+    if (bigType && hasAlpha && words <= 12 && words >= 1 && startsWithUpper(text) &&
+        !endsWithTerminalPunct(text))
+        return true;
     return false;
 }
 
-int StructureDetector::headingLevel(const std::string& text) {
+bool StructureDetector::isTableOfContentsLine(const std::string& text) {
+    if (text.size() > 200) return false;
+    // Numbered entry, dot leader, printed page number: "1 Intro .... 5".
+    // A real heading never trails a dot leader into a page number.
+    static const std::regex tocRe(
+        R"(^\s*(\d+(\.\d+)*\.?|Appendix\s+[A-Z]|[IVX]+\.)\s+\S.*[\.·…]{2,}\s*\d+\s*$)");
+    return std::regex_search(text, tocRe);
+}
+
+bool StructureDetector::hasMathSymbol(const std::string& text) {
+    static const char* symbols[] = {
+        "=",  "<-", "->", "=>", ":=", "←", "→", "↑", "↓", "↔", "⇒", "⇐", "∂", "∇", "∑",
+        "∏",  "∫",  "√",  "∞",  "∈",  "∉",  "∀",  "∃",  "∧",  "∨",  "¬",  "⊕",  "⊗",  "≈",
+        "≠",  "≤",  "≥",  "±",  "×",  "÷",  "∝",  "∼",  "≡",  "∅",  "∩",  "∪",  "⊂",  "⊃",
+        "−",  "…",  "#",  "$",  "α",  "β",  "γ",  "δ",  "ε",  "ζ",  "η",  "θ",  "ι",  "κ",  "λ",  "μ",
+        "ν",  "ξ",  "ο",  "π",  "ρ",  "σ",  "τ",  "υ",  "φ",  "χ",  "ψ",  "ω",  "Α",  "Β",
+        "Γ",  "Δ",  "Ε",  "Ζ",  "Η",  "Θ",  "Ι",  "Κ",  "Λ",  "Μ",  "Ν",  "Ξ",  "Ο",  "Π",
+        "Ρ",  "Σ",  "Τ",  "Υ",  "Φ",  "Χ",  "Ψ",  "Ω",  "₀",  "₁",  "₂",  "₃",  "₄",  "₅",
+        "₆",  "₇",  "₈",  "₉",  "⁰",  "¹",  "²",  "³",  "⁴",  "⁵",  "⁶",  "⁷",  "⁸",  "⁹"};
+    for (const char* s : symbols)
+        if (text.find(s) != std::string::npos) return true;
+    return false;
+}
+
+int StructureDetector::headingLevel(const std::string& text, float avgFont, float font) {
     static const std::regex subsub(R"(^\s*\d+\.\d+\.\d+)");
     if (std::regex_search(text, subsub)) return 3;
     static const std::regex sub(R"(^\s*\d+\.\d+)");
     if (std::regex_search(text, sub)) return 2;
+    static const std::regex singleNumber(R"(^\s*\d+\.?\s+\S)");
+    static const std::regex appendixNumber(R"(^\s*(Appendix\s+[A-Z]|[IVX]+\.)\s+\S)");
+    static const std::regex theoremLike(
+        R"(^\s*(Theorem|Lemma|Proposition|Corollary|Definition|Remark|Example|Proof)\b)",
+        std::regex::icase);
+    if (std::regex_search(text, theoremLike)) return 3;
+    if (std::regex_search(text, singleNumber) || std::regex_search(text, appendixNumber))
+        return 1;
+    // Unnumbered body-sized headings ("References", "Acknowledgments") sit
+    // one level below the large-type top-level sections around them.
+    if (avgFont > 0 && font > 0 && font < avgFont * 1.02f) return 2;
     return 1;
 }
 
@@ -142,6 +281,22 @@ StructureDetector::Result StructureDetector::detect(DocumentModel& model, IPdfEn
         avgFont = first.empty() ? 11.0f : fontSum / static_cast<float>(first.size());
     }
     if (avgFont <= 0) avgFont = 11.0f;
+
+    // Running heads ("J. SMITH ET AL.") repeat identically on many pages
+    // and otherwise pass the heading tests. Prescan heading candidates:
+    // text seen on 3+ distinct pages is page furniture, never a section.
+    std::unordered_set<std::string> repeatedHeadings;
+    {
+        std::unordered_map<std::string, std::unordered_set<int>> pagesByText;
+        for (std::size_t i = 0; i < model.blocks.size(); ++i) {
+            const std::string t = trim(model.blocks[i].text);
+            if (t.empty() || t.size() >= 160) continue;
+            if (!isHeading(t, avgFont, blockFont[i])) continue;
+            pagesByText[t].insert(model.blocks[i].page);
+        }
+        for (const auto& [text, pages] : pagesByText)
+            if (pages.size() >= 3) repeatedHeadings.insert(text);
+    }
 
     static const std::regex figRe(R"(^\s*(Figure|Fig\.)\s+(\d+)\s*[\s:.])", std::regex::icase);
     static const std::regex tableRe(R"(^\s*Table\s+(\d+)\s*[\s:.])", std::regex::icase);
@@ -229,11 +384,12 @@ StructureDetector::Result StructureDetector::detect(DocumentModel& model, IPdfEn
             begin = m.suffix().first;
         }
 
-        if (isHeading(t, avgFont, blockFont[i]) && t.size() < 160) {
+        if (isHeading(t, avgFont, blockFont[i]) && t.size() < 160 &&
+            repeatedHeadings.count(t) == 0) {
             Section s;
             s.id = ids.section();
             s.title = t;
-            s.level = headingLevel(t);
+            s.level = headingLevel(t, avgFont, blockFont[i]);
             s.startPage = b.page;
             s.endPage = b.page;
             if (current) model.sections[*current].endPage = b.page;
@@ -314,26 +470,45 @@ StructureDetector::Result StructureDetector::detect(DocumentModel& model, IPdfEn
                     std::regex::icase);
                 return trim(std::regex_replace(lower, prefix, ""));
             };
-            std::unordered_set<std::string> have;
-            for (const auto& s : model.sections) have.insert(normTitle(s.title));
+            std::unordered_map<std::string, std::vector<int>> have;
+            for (const auto& s : model.sections) have[normTitle(s.title)].push_back(s.startPage);
             for (const auto& e : native) {
                 if (e.title.empty() || e.page < 0 || e.page >= model.document.pageCount)
                     continue;
                 const std::string key = normTitle(e.title);
-                if (key.empty() || have.count(key)) continue;
+                if (key.empty()) continue;
+                // Same title is only a duplicate when it points at the same
+                // place: appendix sections legitimately repeat earlier names.
+                bool duplicate = false;
+                for (int page : have[key])
+                    if (std::abs(page - e.page) <= 1) {
+                        duplicate = true;
+                        break;
+                    }
+                if (duplicate) continue;
                 Section s;
                 s.id = ids.section();
                 s.title = trim(e.title);
                 s.level = std::clamp(e.level + 1, 1, 3);
                 s.startPage = s.endPage = e.page;
                 model.sections.push_back(s);
-                have.insert(key);
+                have[key].push_back(e.page);
             }
             std::stable_sort(model.sections.begin(), model.sections.end(),
                              [](const Section& a, const Section& b) {
                                  if (a.startPage != b.startPage) return a.startPage < b.startPage;
                                  return a.level < b.level;
                              });
+            // Linearize page ranges in reading order so sectionForPage and
+            // the outline follow stay sane when bookmark entries interleave
+            // with detected headings.
+            for (std::size_t i = 0; i < model.sections.size(); ++i) {
+                const int next =
+                    (i + 1 < model.sections.size())
+                        ? model.sections[i + 1].startPage
+                        : std::max(model.sections[i].startPage, model.document.pageCount - 1);
+                model.sections[i].endPage = std::max(model.sections[i].startPage, next);
+            }
             model.rebuildIndex();
         }
     }

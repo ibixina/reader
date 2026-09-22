@@ -27,7 +27,13 @@ public:
 
 private:
     static bool isHeading(const std::string& text, float avgFont, float font);
-    static int headingLevel(const std::string& text);
+    // Table-of-contents dot-leader lines ("1 Intro .... 5") look numbered
+    // but locate nothing: they must never become sections.
+    static bool isTableOfContentsLine(const std::string& text);
+    // Numbered algorithm/code lines ("6 t0 ← Lpost(θ) (prior loss)")
+    // mimic heading numbering. Real headings carry no math symbols.
+    static bool hasMathSymbol(const std::string& text);
+    static int headingLevel(const std::string& text, float avgFont, float font);
 };
 
 } // namespace reader

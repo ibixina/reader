@@ -1,16 +1,18 @@
 #pragma once
 #include "document/DocumentAnchor.h"
-#include "ai/EmbeddingProviderQt.h"
 #include "pdf/PdfRenderer.h"
 #include "pdf/PdfSelection.h"
 #include "pdf/PopplerBridge.h"
 #include "pdf/PdfEngine.h"
 #include "pdf/WordIndex.h"
 #include "search/TextIndex.h"
-#include "search/VectorIndex.h"
 #include "ai/References.h"
 #include <QScrollArea>
 #include <QImage>
+#include <QList>
+#include <QPoint>
+#include <QPointer>
+#include <QRectF>
 #include <QSize>
 #include <QSizeF>
 #include <atomic>
@@ -24,6 +26,7 @@
 class QPdfDocument;
 class QPdfLinkModel;
 class QPdfLink;
+class QDialog;
 class QKeyEvent;
 class QResizeEvent;
 class QTimer;
@@ -51,24 +54,8 @@ public:
     ~PdfView() override;
     void attachDocument(std::shared_ptr<QPdfDocument> doc, const QString& path);
     int pageCount() const;
-    void requestThumbnail(int page, const QSize& size,
-                          std::function<void(const QImage&)> callback);
-    // Render a bounded object/region crop on the renderer lane. The callback
-    // is delivered on the GUI thread and is generation-bound to the document.
-    void requestAnchorImage(const reader::DocumentAnchor& anchor,
-                            std::function<void(const QImage&)> callback);
-    void configureSemantic(const reader::EmbeddingProviderQtConfig& config);
-    std::optional<reader::SemanticSearchSnapshot> semanticSnapshot() const;
-    void requestReferenceImage(
-        const reader::ContextReference& reference,
-        std::function<void(std::optional<reader::ReferenceImage>)> callback);
-    void loadSemanticCacheAsync(std::function<void(bool, const QString&)> callback);
-    void buildSemanticIndexAsync(
-        std::size_t maxBlocks, std::function<void(bool, const QString&)> callback);
-    void searchSemanticAsync(
-        const std::string& query, std::size_t limit,
-        std::function<void(std::vector<reader::VectorIndex::Hit>, const QString&)> callback);
-    bool semanticReady() const;
+    // Unrotated page sizes in points, matching selection/highlight geometry.
+    std::vector<QSizeF> pageSizes() const;
     // external shared ownership: background index jobs may outlive a reopen
     void goToPage(int page);
     void jumpToAnchor(const reader::DocumentAnchor& anchor, bool highlight);
@@ -94,12 +81,20 @@ public:
     void restoreState(const reader::PdfViewState& state, bool highlight = true);
     std::vector<reader::TextIndex::Hit> searchLiteral(const std::string& query,
                                                       std::size_t limit = 20);
-    std::vector<reader::VectorIndex::Hit> searchSemantic(const std::string& query,
-                                                         std::size_t limit = 10);
     std::vector<reader::PdfOutlineEntry> outlineEntries() const;
     void clearAllSelections();
-    // Repaint AI emphasis from the cached PaperAnalysis (§5.8/§5.9).
-    void refreshAiOverlays();
+    // Page-size accidental drags never become selections: at most
+    // kMaxSelectionChars of dragged text is accepted as a live selection.
+    static bool isSelectionTooLarge(const QString& text);
+    // Explicit selection actions for the h/n/a reading shortcuts (§42).
+    // Highlight toggles: the first press applies it exactly once no matter
+    // how often it repeats, and pressing h again removes it.
+    bool hasLiveSelection() const;
+    bool hasHighlightForCurrentSelection() const;
+    bool highlightCurrentSelection();
+    bool removeHighlightForCurrentSelection();
+    bool promptNoteForCurrentSelection();
+    bool askAboutCurrentSelection();
     // Repaint saved user highlights from SQLite (§38).
     void refreshUserOverlays();
     // Index word geometry around a page on the serial doc lane.
@@ -118,19 +113,15 @@ signals:
     void linkActivated(int page, const QString& uri);
     void bookmarkRequested(const reader::DocumentAnchor& anchor);
     void regionCaptured(const reader::DocumentAnchor& anchor, const QImage& image);
-    void askAiRequested();
-    // Single-key quick ask from the selection menu. seed is empty when the
-    // user pressed A, otherwise the first typed character that should land
-    // in the ask box.
+    // Empty seed means the user pressed A on a live selection; focusing the
+    // ask box is the whole action.
     void quickAskRequested(const QString& seed);
     void pageChanged(int page);
     void selectionGeometryReady(int page);
     void zoomChanged(double zoom);
     void viewStateChanged(int page, int scrollY, double zoom, int rotation);
     void findRequested();
-    void commandPaletteRequested();
     void sidecarToggleRequested();
-    void tabRequested(int index);
     void historyBackRequested();
     void historyForwardRequested();
 
@@ -143,9 +134,11 @@ private:
     void schedulePixelPrefetch(int page);
     QWidget* pageWidget(int page) const;
     void keyPressEvent(QKeyEvent* event) override;
-    bool eventFilter(QObject* watched, QEvent* event) override;
     QPdfLink linkAt(int page, const QPointF& point) const;
-    void showSelectionMenu(const reader::DocumentAnchor& anchor);
+    void promptNoteForAnchor(const reader::DocumentAnchor& anchor);
+    // Screen position for the floating note editor: above the selection
+    // when its geometry is known, otherwise at the cursor.
+    QPoint noteEditorPos(const reader::DocumentAnchor& anchor, const QSize& size) const;
     reader::Application* app_;
     std::shared_ptr<QPdfDocument> doc_;
     // Page count/sizes cached once at attach time. QPdfDocument serializes
@@ -172,17 +165,20 @@ private:
     std::shared_ptr<PopplerBridge> raster_;
     std::unique_ptr<QPdfLinkModel> linkModel_;
     reader::TextIndex textIndex_;
-    reader::VectorIndex vectorIndex_;
-    struct SemanticState {
-        mutable std::mutex mutex;
-        reader::VectorIndex index;
-        std::shared_ptr<reader::EmbeddingProviderQt> provider;
-    };
-    std::shared_ptr<SemanticState> semanticState_ = std::make_shared<SemanticState>();
-    reader::CancellationToken semanticToken_;
     std::optional<reader::DocumentAnchor> selection_;
+    // Per-row rects (PDF points) of the live selection, stashed at drag
+    // time: the paint truth used when a highlight is saved, so multiline
+    // highlights hug the selected rows instead of the bounding box.
+    QList<QRectF> selectionRows_;
     bool pendingG_ = false;
     bool suppressNextClickClear_ = false;
+    // Upper bound for one drag selection: about a long paragraph or two.
+    // AI context truncates at 500 chars anyway; anything bigger is an
+    // accidental page-size drag, never intent.
+    static constexpr int kMaxSelectionChars = 2000;
+    // Floating note editor currently open, if any. A popup, never modal:
+    // click-away cancels, Save persists.
+    QPointer<QDialog> noteEditor_ = nullptr;
     QTimer* prefetchTimer_ = nullptr;
     int pendingPrefetchPage_ = -1;
     // Latest scroll-driven prefetch target. Word jobs compare against it at

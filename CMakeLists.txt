@@ -50,10 +50,9 @@ endif()
 find_package(Threads REQUIRED)
 target_link_libraries(reader_core PUBLIC Threads::Threads)
 
-# --- UI + providers (Qt6) ---
+# --- UI (Qt6): viewer + browser chat (the only AI chat) + outline/search ---
 if(BUILD_UI)
-  find_package(Qt6 REQUIRED COMPONENTS Widgets Network Pdf Sql Concurrent)
-  find_package(Qt6 QUIET COMPONENTS WebEngineWidgets)
+  find_package(Qt6 REQUIRED COMPONENTS Widgets Network Pdf Sql Concurrent WebEngineWidgets)
   set(CMAKE_AUTOMOC ON)
   set(CMAKE_AUTOUIC ON)
   set(CMAKE_AUTORCC ON)
@@ -64,13 +63,11 @@ if(BUILD_UI)
     src/pdf/QtPdfEngine.cpp
     src/pdf/PopplerBridge.cpp
     src/pdf/WordBoxes.cpp
+    src/pdf/HighlightExport.cpp
     src/ai/OpenAIProvider.cpp
     src/ai/EmbeddingProviderQt.cpp
     app/main.cpp
   )
-  # WebPanel is an optional WebEngine frontend. Keep it out of the base
-  # source glob so a Qt build without WebEngine still has a valid native UI.
-  list(FILTER UI_SOURCES EXCLUDE REGEX "/WebPanel\\.cpp$")
   find_package(PkgConfig QUIET)
   # Prefer pkg-config, fall back to direct lookup (the .pc Requires chain
   # needs freetype/poppler .pc files absent in minimal sysroots).
@@ -93,35 +90,28 @@ if(BUILD_UI)
     set(POPPLER_LINK ${PopplerQt6_LIBRARIES})
   endif()
   add_executable(paper-reader ${UI_SOURCES})
-  target_sources(paper-reader PRIVATE src/ui/chat_resources.qrc)
   target_include_directories(paper-reader PRIVATE src ${PopplerQt6_INCLUDE_DIRS})
   target_link_libraries(paper-reader PRIVATE reader_core ${POPPLER_LINK}
-    Qt6::Widgets Qt6::Network Qt6::Pdf Qt6::Sql Qt6::Concurrent)
+    Qt6::Widgets Qt6::Network Qt6::Pdf Qt6::Sql Qt6::Concurrent Qt6::WebEngineWidgets)
   target_compile_options(paper-reader PRIVATE -Wall -Wextra -Wpedantic)
-  if(TARGET Qt6::WebEngineWidgets)
-    target_sources(paper-reader PRIVATE src/ui/WebPanel.cpp)
-    target_link_libraries(paper-reader PRIVATE Qt6::WebEngineWidgets)
-    # The bundled QtWebEngine package omits its expat dependency from the
-    # imported target on some sysroots, so resolve it explicitly at link time.
-    # Discard an incompatible cached value from a previous configuration.
-    unset(EXPAT_LIBRARY CACHE)
-    find_file(EXPAT_LIBRARY NAMES libexpat.so libexpat.so.1
-      PATHS /usr/lib64 $ENV{CONDA_PREFIX}/lib /usr/lib
-      NO_DEFAULT_PATH)
-    if(NOT EXPAT_LIBRARY)
-      message(FATAL_ERROR "Qt WebEngine requires an expat runtime library.")
-    endif()
-    # Keep expat on the link line until QtWebEngineCore's transitive symbols
-    # are processed; this sysroot's imported target omits that dependency.
-    if(UNIX AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-      target_link_options(paper-reader PRIVATE "-Wl,--no-as-needed")
-    endif()
-    target_link_libraries(paper-reader PRIVATE ${EXPAT_LIBRARY})
-    target_compile_definitions(paper-reader PRIVATE HAVE_WEBENGINE)
-    message(STATUS "Qt WebEngine found: embedded ChatGPT tab enabled.")
-  else()
-    message(STATUS "Qt WebEngine not found: native Chat tab used.")
+  # The bundled QtWebEngine package omits its expat dependency from the
+  # imported target on some sysroots, so resolve it explicitly at link time.
+  # Discard an incompatible cached value from a previous configuration.
+  unset(EXPAT_LIBRARY CACHE)
+  find_file(EXPAT_LIBRARY NAMES libexpat.so libexpat.so.1
+    PATHS /usr/lib64 $ENV{CONDA_PREFIX}/lib /usr/lib
+    NO_DEFAULT_PATH)
+  if(NOT EXPAT_LIBRARY)
+    message(FATAL_ERROR "Qt WebEngine requires an expat runtime library.")
   endif()
+  # Keep expat on the link line until QtWebEngineCore's transitive symbols
+  # are processed; this sysroot's imported target omits that dependency.
+  if(UNIX AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_link_options(paper-reader PRIVATE "-Wl,--no-as-needed")
+  endif()
+  target_link_libraries(paper-reader PRIVATE ${EXPAT_LIBRARY})
+  target_compile_definitions(paper-reader PRIVATE HAVE_WEBENGINE)
+  message(STATUS "Qt WebEngine required: browser chat is the only AI chat.")
 endif()
 
 # --- Tests ---
@@ -148,6 +138,19 @@ if(BUILD_TESTS)
   if(Qt6_FOUND AND PopplerQt6_FOUND)
     set(NATIVE_QT_TEST_ENV "QT_QPA_PLATFORM=offscreen"
       "LD_LIBRARY_PATH=/usr/lib64:/home/nao/qtsysroot/usr/lib64:/home/nao/miniforge3/lib")
+    # Any test constructing the main window initializes QtWebEngine (the
+    # browser chat is the only AI chat). Headless Chromium needs sandbox
+    # off here; resource overrides only apply on machines carrying the
+    # rootless sysroot (harmless elsewhere).
+    set(READER_WEBENGINE_TEST_ENV "QTWEBENGINE_DISABLE_SANDBOX=1"
+        "QTWEBENGINE_CHROMIUM_FLAGS=--no-sandbox --disable-gpu")
+    if(EXISTS "/home/nao/qtsysroot/usr/lib64/qt6/libexec/QtWebEngineProcess")
+      list(APPEND READER_WEBENGINE_TEST_ENV
+        "QTWEBENGINEPROCESS_PATH=/home/nao/qtsysroot/usr/lib64/qt6/libexec/QtWebEngineProcess"
+        "QTWEBENGINE_RESOURCES_PATH=/home/nao/qtsysroot/usr/share/qt6/resources"
+        "QTWEBENGINE_LOCALES_PATH=/home/nao/qtsysroot/usr/share/qt6/translations/qtwebengine_locales"
+        "QTWEBENGINE_DICTIONARIES_PATH=/home/nao/qtsysroot/usr/share/qt6/qtwebengine_dictionaries")
+    endif()
     add_executable(test_qt tests/test_qt.cpp src/pdf/QtPdfEngine.cpp)
     target_include_directories(test_qt PRIVATE src)
     target_link_libraries(test_qt PRIVATE reader_core
@@ -171,18 +174,6 @@ if(BUILD_TESTS)
       -DTEST_HOME_ROOT=${ISOLATED_TEST_ROOT}
       -P ${ISOLATED_TEST_SCRIPT})
     set_tests_properties(select PROPERTIES ENVIRONMENT "${NATIVE_QT_TEST_ENV}")
-    add_executable(test_chat_ui tests/test_chat_ui.cpp src/app/Application.cpp
-      src/ui/ChatPanel.cpp src/ui/ChatTranscript.cpp src/ai/OpenAIProvider.cpp
-      src/ui/chat_resources.qrc)
-    target_include_directories(test_chat_ui PRIVATE src)
-    target_link_libraries(test_chat_ui PRIVATE reader_core
-      Qt6::Widgets Qt6::Concurrent Qt6::Network)
-    target_compile_options(test_chat_ui PRIVATE -Wall -Wextra -Wpedantic)
-    add_test(NAME chat_ui COMMAND ${CMAKE_COMMAND}
-      -DTEST_EXECUTABLE=$<TARGET_FILE:test_chat_ui>
-      -DTEST_HOME_ROOT=${ISOLATED_TEST_ROOT}
-      -P ${ISOLATED_TEST_SCRIPT})
-    set_tests_properties(chat_ui PROPERTIES ENVIRONMENT "${NATIVE_QT_TEST_ENV}")
     add_executable(test_embedding_qt tests/test_embedding_qt.cpp src/ai/EmbeddingProviderQt.cpp)
     target_include_directories(test_embedding_qt PRIVATE src)
     target_link_libraries(test_embedding_qt PRIVATE reader_core Qt6::Core Qt6::Network)
@@ -200,13 +191,35 @@ if(BUILD_TESTS)
     add_executable(test_reader_ui tests/test_reader_ui.cpp ${READER_UI_TEST_SOURCES})
     target_include_directories(test_reader_ui PRIVATE src tests ${PopplerQt6_INCLUDE_DIRS})
     target_link_libraries(test_reader_ui PRIVATE reader_core ${POPPLER_LINK}
-      Qt6::Widgets Qt6::Network Qt6::Pdf Qt6::Sql Qt6::Concurrent)
+      Qt6::Widgets Qt6::Network Qt6::Pdf Qt6::Sql Qt6::Concurrent
+      Qt6::WebEngineWidgets ${EXPAT_LIBRARY})
+    if(UNIX AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+      target_link_options(test_reader_ui PRIVATE "-Wl,--no-as-needed")
+    endif()
+    target_compile_definitions(test_reader_ui PRIVATE HAVE_WEBENGINE)
     target_compile_options(test_reader_ui PRIVATE -Wall -Wextra -Wpedantic)
     add_test(NAME reader_ui COMMAND ${CMAKE_COMMAND}
       -DTEST_EXECUTABLE=$<TARGET_FILE:test_reader_ui>
       -DTEST_HOME_ROOT=${ISOLATED_TEST_ROOT}
       -P ${ISOLATED_TEST_SCRIPT})
-    set_tests_properties(reader_ui PROPERTIES ENVIRONMENT "${NATIVE_QT_TEST_ENV}")
+    set_tests_properties(reader_ui PROPERTIES ENVIRONMENT
+      "${NATIVE_QT_TEST_ENV};${READER_WEBENGINE_TEST_ENV}")
+    add_executable(test_shutdown tests/test_shutdown.cpp ${READER_UI_TEST_SOURCES})
+    target_include_directories(test_shutdown PRIVATE src tests ${PopplerQt6_INCLUDE_DIRS})
+    target_link_libraries(test_shutdown PRIVATE reader_core ${POPPLER_LINK}
+      Qt6::Widgets Qt6::Network Qt6::Pdf Qt6::Sql Qt6::Concurrent
+      Qt6::WebEngineWidgets ${EXPAT_LIBRARY})
+    if(UNIX AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+      target_link_options(test_shutdown PRIVATE "-Wl,--no-as-needed")
+    endif()
+    target_compile_definitions(test_shutdown PRIVATE HAVE_WEBENGINE)
+    target_compile_options(test_shutdown PRIVATE -Wall -Wextra -Wpedantic)
+    add_test(NAME shutdown COMMAND ${CMAKE_COMMAND}
+      -DTEST_EXECUTABLE=$<TARGET_FILE:test_shutdown>
+      -DTEST_HOME_ROOT=${ISOLATED_TEST_ROOT}
+      -P ${ISOLATED_TEST_SCRIPT})
+    set_tests_properties(shutdown PROPERTIES ENVIRONMENT
+      "${NATIVE_QT_TEST_ENV};${READER_WEBENGINE_TEST_ENV}" TIMEOUT 120)
   endif()
   if(Qt6_FOUND AND PopplerQt6_FOUND)
     add_executable(test_render tests/test_render.cpp src/pdf/PopplerBridge.cpp)
@@ -229,6 +242,16 @@ if(BUILD_TESTS)
       -DTEST_HOME_ROOT=${ISOLATED_TEST_ROOT}
       -P ${ISOLATED_TEST_SCRIPT})
     set_tests_properties(render_stress PROPERTIES ENVIRONMENT "${NATIVE_QT_TEST_ENV}")
+    add_executable(test_export tests/test_export.cpp src/pdf/HighlightExport.cpp
+      src/pdf/PopplerBridge.cpp)
+    target_include_directories(test_export PRIVATE src tests ${PopplerQt6_INCLUDE_DIRS})
+    target_link_libraries(test_export PRIVATE ${POPPLER_LINK} Qt6::Gui Qt6::Core)
+    target_compile_options(test_export PRIVATE -Wall -Wextra -Wpedantic)
+    add_test(NAME export COMMAND ${CMAKE_COMMAND}
+      -DTEST_EXECUTABLE=$<TARGET_FILE:test_export>
+      -DTEST_HOME_ROOT=${ISOLATED_TEST_ROOT}
+      -P ${ISOLATED_TEST_SCRIPT})
+    set_tests_properties(export PROPERTIES ENVIRONMENT "${NATIVE_QT_TEST_ENV}" TIMEOUT 120)
   endif()
   if(TARGET Qt6::WebEngineWidgets)
     add_executable(test_webengine tests/test_webengine.cpp src/ui/WebPanel.cpp)
@@ -245,31 +268,11 @@ if(BUILD_TESTS)
       -P ${ISOLATED_TEST_SCRIPT})
     # Headless Chromium needs sandbox off here; resource overrides only
     # apply on machines carrying the rootless sysroot (harmless elsewhere).
-    set(WEBENGINE_TEST_ENV "QT_QPA_PLATFORM=offscreen" "QTWEBENGINE_DISABLE_SANDBOX=1"
-        "QTWEBENGINE_CHROMIUM_FLAGS=--no-sandbox --disable-gpu")
+    set(WEBENGINE_TEST_ENV "QT_QPA_PLATFORM=offscreen" ${READER_WEBENGINE_TEST_ENV})
     if(EXISTS "/home/nao/qtsysroot/usr/lib64/qt6/libexec/QtWebEngineProcess")
       list(APPEND WEBENGINE_TEST_ENV
-        "LD_LIBRARY_PATH=/usr/lib64:/home/nao/qtsysroot/usr/lib64:/home/nao/miniforge3/lib"
-        "QTWEBENGINEPROCESS_PATH=/home/nao/qtsysroot/usr/lib64/qt6/libexec/QtWebEngineProcess"
-        "QTWEBENGINE_RESOURCES_PATH=/home/nao/qtsysroot/usr/share/qt6/resources"
-        "QTWEBENGINE_LOCALES_PATH=/home/nao/qtsysroot/usr/share/qt6/translations/qtwebengine_locales"
-        "QTWEBENGINE_DICTIONARIES_PATH=/home/nao/qtsysroot/usr/share/qt6/qtwebengine_dictionaries")
+        "LD_LIBRARY_PATH=/usr/lib64:/home/nao/qtsysroot/usr/lib64:/home/nao/miniforge3/lib")
     endif()
     set_tests_properties(webengine PROPERTIES ENVIRONMENT "${WEBENGINE_TEST_ENV}")
-    add_executable(test_chat_rich tests/test_chat_rich.cpp src/ui/ChatTranscript.cpp
-      src/ui/chat_resources.qrc)
-    target_include_directories(test_chat_rich PRIVATE src)
-    target_link_libraries(test_chat_rich PRIVATE Qt6::Widgets Qt6::WebEngineWidgets
-      ${EXPAT_LIBRARY})
-    target_compile_definitions(test_chat_rich PRIVATE HAVE_WEBENGINE)
-    if(UNIX AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-      target_link_options(test_chat_rich PRIVATE "-Wl,--no-as-needed")
-    endif()
-    target_compile_options(test_chat_rich PRIVATE -Wall -Wextra -Wpedantic)
-    add_test(NAME chat_rich COMMAND ${CMAKE_COMMAND}
-      -DTEST_EXECUTABLE=$<TARGET_FILE:test_chat_rich>
-      -DTEST_HOME_ROOT=${ISOLATED_TEST_ROOT}
-      -P ${ISOLATED_TEST_SCRIPT})
-    set_tests_properties(chat_rich PROPERTIES ENVIRONMENT "${WEBENGINE_TEST_ENV}")
   endif()
 endif()

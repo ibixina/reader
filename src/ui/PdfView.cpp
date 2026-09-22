@@ -3,15 +3,15 @@
 #include "document/DocumentModel.h"
 #include "pdf/PdfSelection.h"
 #include <QCoreApplication>
-#include <QBuffer>
+#include <QAbstractButton>
 #include <QApplication>
 #include <QClipboard>
+#include <QDialog>
+#include <QDialogButtonBox>
 #include <QGuiApplication>
-#include <QInputDialog>
 #include <QKeyEvent>
 #include <QLineEdit>
 #include <QMetaObject>
-#include <QMenu>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPlainTextEdit>
@@ -22,6 +22,8 @@
 #include <QPdfPageNavigator>
 #include <QPdfSelection>
 #include <QPointer>
+#include <QPushButton>
+#include <QScreen>
 #include <QScrollBar>
 #include <QResizeEvent>
 #include <QShortcut>
@@ -54,9 +56,16 @@ public:
         setCursor(Qt::IBeamCursor);
         setFocusPolicy(Qt::NoFocus);
     }
-    void setHighlight(QRectF r) {
-        highlight_ = r;
+    void setHighlights(QList<QRectF> rows) {
+        highlightRows_ = std::move(rows);
         update();
+    }
+    // Paint truth for the live selection: one rect per visual row, so a
+    // multiline highlight never covers unselected text.
+    QList<QRectF> selectionRows() const {
+        QList<QRectF> rows;
+        for (const QPolygonF& poly : precise_) rows.push_back(poly.boundingRect());
+        return rows;
     }
     void setHoverHighlight(QRectF r) {
         hoverHighlight_ = r;
@@ -68,11 +77,6 @@ public:
     }
     // Ready-to-paint underline segments + fallback rects, all in points.
     // Pure data: no engine calls here or in paint (§7).
-    void setAiLines(QList<QPair<QPointF, QPointF>> lines, QList<QRectF> fallback) {
-        aiLines_ = std::move(lines);
-        aiFallback_ = std::move(fallback);
-        update();
-    }
     void setLines(std::vector<reader::TextSpan> lines) { lines_ = std::move(lines); }
     int pageIndex() const { return page_; }
     void setUserOverlays(QList<QPair<QRectF, QString>> overlays) {
@@ -208,17 +212,8 @@ protected:
                 }
             }
         }
-        // AI emphasis (§5.9): precomputed red underlines; blocks without
-        // word geometry fall back to a red outline.
-        if (!aiLines_.isEmpty() || !aiFallback_.isEmpty()) {
-            p.setPen(QPen(QColor(220, 30, 30), 2));
-            for (const auto& [a, b] : aiLines_)
-                p.drawLine(mapPoint(a), mapPoint(b));
-            for (const QRectF& r : aiFallback_)
-                p.drawRect(mapRect(r));
-        }
-        // Tight per-fragment highlight from the engine (§55): what you see
-        // is exactly the text that became AI context.
+        // Continuous per-row highlight: what you see is exactly the text
+        // that became AI context, with no gaps between words.
         if (!precise_.isEmpty()) {
             p.setPen(Qt::NoPen);
             p.setBrush(QColor(60, 120, 255, 80));
@@ -228,8 +223,10 @@ protected:
                 p.drawPolygon(mapped);
             }
         }
-        if (highlight_.isValid()) {
-            p.fillRect(mapRect(highlight_), QColor(255, 200, 60, 110));
+        if (!highlightRows_.isEmpty()) {
+            p.setPen(Qt::NoPen);
+            p.setBrush(QColor(255, 200, 60, 110));
+            for (const QRectF& r : highlightRows_) p.fillRect(mapRect(r), p.brush());
         }
         if (hoverHighlight_.isValid()) {
             p.setBrush(Qt::NoBrush);
@@ -248,8 +245,10 @@ protected:
         if (snap_.ready) {
             anchorWord_ = wordAt(snap_.words, pt);
             anchorIsWord_ = anchorWord_ >= 0;
+            anchorChar_ = anchorIsWord_ ? charOffset(snap_.words[anchorWord_], pt.x()) : 0;
         } else {
             anchorWord_ = -1;
+            anchorChar_ = 0;
             anchorIsWord_ = false;
         }
         if (!anchorIsWord_) anchorLine_ = lineAt(pt);
@@ -293,25 +292,7 @@ protected:
 
 private:
     static int wordAt(const std::vector<reader::WordBox>& words, const QPointF& pt) {
-        for (int k = 0; k < (int)words.size(); ++k)
-            if (words[k].rect.contains(pt)) return k;
-        // Nearest word within a small tolerance (clicks on gaps).
-        int best = -1;
-        double bestDist = 100.0; // 10pt squared
-        for (int k = 0; k < (int)words.size(); ++k) {
-            const QRectF& r = words[k].rect;
-            double dx = 0, dy = 0;
-            if (pt.x() < r.left()) dx = r.left() - pt.x();
-            else if (pt.x() > r.right()) dx = pt.x() - r.right();
-            if (pt.y() < r.top()) dy = r.top() - pt.y();
-            else if (pt.y() > r.bottom()) dy = pt.y() - r.bottom();
-            double d = dx * dx + dy * dy;
-            if (d < bestDist) {
-                bestDist = d;
-                best = k;
-            }
-        }
-        return best;
+        return reader::snapWordIndex(words, pt);
     }
     int lineAt(const QPointF& pt) const {
         for (int k = 0; k < (int)lines_.size(); ++k) {
@@ -337,33 +318,94 @@ private:
         }
         return best;
     }
+    // Character offset of a point inside a word, proportional by count.
+    // No per-glyph metrics exist off the engine thread; the fraction still
+    // updates smoothly per mouse move, which is what makes selection feel
+    // character-wise instead of word-wise.
+    static int charOffset(const reader::WordBox& w, double x) {
+        if (w.text.isEmpty() || w.rect.width() <= 0) return 0;
+        const double frac = (x - w.rect.left()) / w.rect.width();
+        return qBound(0, int(std::round(frac * double(w.text.size()))), w.text.size());
+    }
+    static double charEdgeX(const reader::WordBox& w, int chars) {
+        if (w.text.isEmpty() || w.rect.width() <= 0) return w.rect.left();
+        const int c = qBound(0, chars, w.text.size());
+        return w.rect.left() + w.rect.width() * double(c) / double(w.text.size());
+    }
     void updateLive(const QPoint& widgetPos) {
         QPointF pt = toPdf(QPointF(widgetPos));
         if (snap_.ready && anchorIsWord_) {
-            int cur = wordAt(snap_.words, pt);
+            const auto& words = snap_.words;
+            int cur = wordAt(words, pt);
+            int curChar = 0;
+            if (cur < 0 && !words.empty()) {
+                // Dragged past the text: clamp to the nearest document end
+                // instead of dropping the whole selection.
+                const QRectF& first = words.front().rect;
+                if (pt.y() < first.center().y() ||
+                    (pt.y() <= first.bottom() && pt.x() < first.left())) {
+                    cur = 0;
+                    curChar = 0;
+                } else {
+                    cur = (int)words.size() - 1;
+                    curChar = words.back().text.size();
+                }
+            } else if (cur >= 0) {
+                curChar = charOffset(words[cur], pt.x());
+            }
             if (anchorWord_ < 0 || cur < 0) {
                 precise_.clear();
                 liveText_.clear();
                 update();
                 return;
             }
-            // Index-ordered slice: exact reading order, tight word rects.
-            int a = qMin(anchorWord_, cur), b = qMax(anchorWord_, cur);
-            const auto& words = snap_.words;
+            // Order the two character-precise endpoints: updates land
+            // per character, not per word.
+            int aW = anchorWord_, aC = anchorChar_, bW = cur, bC = curChar;
+            if (bW < aW || (bW == aW && bC < aC)) {
+                std::swap(aW, bW);
+                std::swap(aC, bC);
+            }
+            if (aW == bW && aC == bC) {
+                precise_.clear();
+                liveText_.clear();
+                update();
+                return;
+            }
+            const auto& wa = words[aW];
+            const auto& wb = words[bW];
+            const int from = wa.startIndex + qMin(aC, wa.text.size());
+            const int to = wb.startIndex + qMin(bC, wb.text.size());
+            liveText_ = snap_.pageText.mid(from, qMax(0, to - from));
+            // One continuous rect per visual row: inter-word spaces stay
+            // painted, so the highlight has no gaps.
             precise_.clear();
             double x0 = 1e30, y0 = 1e30, x1 = -1e30, y1 = -1e30;
-            for (int k = a; k <= b; ++k) {
-                const QRectF& r = words[k].rect;
-                precise_.push_back(QPolygonF(r));
-                x0 = qMin(x0, r.left());
-                y0 = qMin(y0, r.top());
-                x1 = qMax(x1, r.right());
-                y1 = qMax(y1, r.bottom());
+            int k = aW;
+            while (k <= bW) {
+                double rowTop = words[k].rect.top(), rowBot = words[k].rect.bottom();
+                int j = k;
+                while (j + 1 <= bW) {
+                    const QRectF& n = words[j + 1].rect;
+                    if (n.top() >= rowBot || n.bottom() <= rowTop) break;
+                    ++j;
+                    rowTop = qMin(rowTop, n.top());
+                    rowBot = qMax(rowBot, n.bottom());
+                }
+                const double left =
+                    (k == aW) ? charEdgeX(words[k], aC) : words[k].rect.left();
+                const double right =
+                    (j == bW) ? charEdgeX(words[j], bC) : words[j].rect.right();
+                if (right > left) {
+                    precise_.push_back(QPolygonF(QRectF(left, rowTop, right - left,
+                                                         rowBot - rowTop)));
+                    x0 = qMin(x0, left);
+                    y0 = qMin(y0, rowTop);
+                    x1 = qMax(x1, right);
+                    y1 = qMax(y1, rowBot);
+                }
+                k = j + 1;
             }
-            const auto& wa = words[a];
-            const auto& wb = words[b];
-            liveText_ =
-                snap_.pageText.mid(wa.startIndex, wb.startIndex + wb.length - wa.startIndex);
             liveRect_ = QRectF(x0, y0, x1 - x0, y1 - y0);
             update();
             return;
@@ -447,16 +489,15 @@ private:
     QPoint origin_;
     reader::PageWords snap_;
     int anchorWord_ = -1;
+    int anchorChar_ = 0;
     int anchorLine_ = -1;
     bool anchorIsWord_ = false;
     std::vector<reader::TextSpan> lines_;
     QList<QPolygonF> precise_;
     QString liveText_;
     QRectF liveRect_;
-    QRectF highlight_;
+    QList<QRectF> highlightRows_;
     QRectF hoverHighlight_;
-    QList<QPair<QPointF, QPointF>> aiLines_;
-    QList<QRectF> aiFallback_;
     QList<QPair<QRectF, QString>> userOverlays_;
     QImage cache_;
     QImage preview_;
@@ -465,6 +506,10 @@ private:
     bool renderPending_ = false;
     bool previewPending_ = false;
 };
+
+// Forward: geometric highlight identity, defined with the highlight actions.
+static bool sameHighlightTarget(const reader::DocumentAnchor& a,
+                                const reader::DocumentAnchor& b);
 
 PdfView::PdfView(reader::Application* app, QWidget* parent)
     : QScrollArea(parent), app_(app), docGen_(std::make_shared<std::atomic<unsigned long>>(0)),
@@ -506,6 +551,7 @@ PdfView::PdfView(reader::Application* app, QWidget* parent)
         clearAllSelections();
         app_->context.clearCurrentSelection();
         selection_.reset();
+        selectionRows_.clear();
     });
 }
 
@@ -515,246 +561,18 @@ int PdfView::pageCount() const {
     return pageCount_;
 }
 
-void PdfView::requestThumbnail(int page, const QSize& size,
-                               std::function<void(const QImage&)> callback) {
-    if (!renderer_ || page < 0 || page >= pageCount_ || size.isEmpty()) return;
-    // Fit the page aspect inside the bounding box instead of stretching,
-    // and render at 2x so icons stay sharp on HiDPI. The zoom bucket uses
-    // the fitted width so distinct aspects don't collide in the cache.
-    QSize fitted = size;
-    const QSizeF points = pageSizes_[page];
-    if (!points.isEmpty()) {
-        const double scale = std::min(size.width() / points.width(),
-                                      size.height() / points.height());
-        fitted = QSize(qMax(1, qRound(points.width() * scale * 2)),
-                       qMax(1, qRound(points.height() * scale * 2)));
-    }
-    renderer_->requestPage(page, -fitted.width(), fitted, 0,
-                           [callback = std::move(callback)](const QImage& image) {
-                               if (callback) callback(image);
-                           });
-}
-
-void PdfView::requestAnchorImage(const reader::DocumentAnchor& anchor,
-                                 std::function<void(const QImage&)> callback) {
-    if (!callback || !renderer_ || anchor.page < 0 || anchor.page >= pageCount_ ||
-        !anchor.bounds.valid()) {
-        if (callback) callback({});
-        return;
-    }
-    const QSizeF points = pageSizes_[anchor.page];
-    if (points.isEmpty()) {
-        callback({});
-        return;
-    }
-    // Keep object evidence bounded while retaining enough resolution for a
-    // figure/table card. Rendering is limited to tiles intersecting the crop.
-    const double scale = std::min(2.0, 1400.0 / std::max(points.width(), points.height()));
-    const QSize pageSize(qMax(1, qRound(points.width() * scale)),
-                         qMax(1, qRound(points.height() * scale)));
-    const QRect crop(qFloor(anchor.bounds.x * scale), qFloor(anchor.bounds.y * scale),
-                     qCeil(anchor.bounds.width * scale), qCeil(anchor.bounds.height * scale));
-    const QRect visible = crop.intersected(QRect(QPoint(0, 0), pageSize));
-    if (visible.isEmpty()) {
-        callback({});
-        return;
-    }
-    renderer_->requestTiles(
-        anchor.page, qRound(scale * 1000.0), pageSize, 0, 512,
-        [callback = std::move(callback), visible](const QImage& page) mutable {
-            if (page.isNull()) {
-                callback({});
-                return;
-            }
-            callback(page.copy(visible));
-        },
-        visible);
-}
-
-void PdfView::configureSemantic(const reader::EmbeddingProviderQtConfig& config) {
-    std::lock_guard<std::mutex> lock(semanticState_->mutex);
-    semanticState_->provider = std::make_shared<reader::EmbeddingProviderQt>(config);
-}
-
-std::optional<reader::SemanticSearchSnapshot> PdfView::semanticSnapshot() const {
-    std::lock_guard<std::mutex> lock(semanticState_->mutex);
-    if (!semanticState_->provider || !semanticState_->index.semanticReady())
-        return std::nullopt;
-    return reader::SemanticSearchSnapshot{semanticState_->index, semanticState_->provider};
-}
-
-void PdfView::requestReferenceImage(
-    const reader::ContextReference& reference,
-    std::function<void(std::optional<reader::ReferenceImage>)> callback) {
-    if (!callback) return;
-    if ((reference.type != reader::ReferenceType::Figure &&
-         reference.type != reader::ReferenceType::Table) ||
-        !reference.anchor.bounds.valid()) {
-        callback(std::nullopt);
-        return;
-    }
-    requestAnchorImage(reference.anchor, [callback = std::move(callback)](const QImage& image) mutable {
-        if (image.isNull()) {
-            callback(std::nullopt);
-            return;
-        }
-        QByteArray bytes;
-        QBuffer buffer(&bytes);
-        if (!buffer.open(QIODevice::WriteOnly) || !image.save(&buffer, "PNG")) {
-            callback(std::nullopt);
-            return;
-        }
-        reader::ReferenceImage encoded;
-        encoded.mimeType = "image/png";
-        encoded.bytes.assign(bytes.cbegin(), bytes.cend());
-        encoded.width = image.width();
-        encoded.height = image.height();
-        callback(std::move(encoded));
-    });
-}
-
-void PdfView::loadSemanticCacheAsync(std::function<void(bool, const QString&)> callback) {
-    std::shared_ptr<reader::EmbeddingProviderQt> provider;
-    {
-        std::lock_guard<std::mutex> lock(semanticState_->mutex);
-        provider = semanticState_->provider;
-    }
-    if (!provider || app_->model.document.fileHash.empty()) {
-        if (callback) callback(false, "Embedding cache is not configured for this paper.");
-        return;
-    }
-    const auto state = semanticState_;
-    const auto documentGeneration = docGen_;
-    const unsigned long generation = documentGeneration->load();
-    const reader::DocumentModel model = app_->model;
-    QPointer<PdfView> guard(this);
-    app_->searchPool.submit(
-        [state, provider, documentGeneration, generation, model, guard,
-         callback = std::move(callback)]() mutable {
-            std::string error;
-            bool loaded = false;
-            if (generation == documentGeneration->load()) {
-                std::lock_guard<std::mutex> lock(state->mutex);
-                loaded = state->index.loadSemanticCache(model, model.document.fileHash,
-                                                        *provider, &error);
-            } else {
-                error = "document changed while loading semantic index";
-            }
-            QMetaObject::invokeMethod(
-                QCoreApplication::instance(),
-                [guard, documentGeneration, generation, loaded,
-                 error = QString::fromStdString(error), callback = std::move(callback)]() mutable {
-                    if (!guard || generation != documentGeneration->load()) return;
-                    if (callback) callback(loaded, error);
-                },
-                Qt::QueuedConnection);
-        });
-}
-
-bool PdfView::semanticReady() const {
-    std::lock_guard<std::mutex> lock(semanticState_->mutex);
-    return semanticState_->provider && semanticState_->index.semanticReady();
-}
-
-void PdfView::buildSemanticIndexAsync(
-    std::size_t maxBlocks, std::function<void(bool, const QString&)> callback) {
-    std::shared_ptr<reader::EmbeddingProviderQt> provider;
-    {
-        std::lock_guard<std::mutex> lock(semanticState_->mutex);
-        provider = semanticState_->provider;
-    }
-    if (!provider) {
-        callback(false, "Configure an embedding endpoint before building the semantic index.");
-        return;
-    }
-    const auto state = semanticState_;
-    const auto documentGeneration = docGen_;
-    const unsigned long generation = documentGeneration->load();
-    const reader::DocumentModel model = app_->model;
-    const bool persist = app_->state.settings.storeEmbeddingsLocally;
-    const reader::CancellationToken token = semanticToken_;
-    QPointer<PdfView> guard(this);
-    app_->searchPool.submit(
-        [state, provider, documentGeneration, generation, model, maxBlocks, token, persist, guard,
-         callback = std::move(callback)]() mutable {
-            bool ok = false;
-            std::string error;
-            if (generation != documentGeneration->load()) {
-                error = "document changed while building semantic index";
-            } else {
-                std::lock_guard<std::mutex> lock(state->mutex);
-                ok = state->index.buildSemantic(model, *provider, token, maxBlocks, &error,
-                                                persist);
-            }
-            QCoreApplication* app = QCoreApplication::instance();
-            if (!app) return;
-            QMetaObject::invokeMethod(
-                app,
-                [guard, documentGeneration, generation, ok, error = QString::fromStdString(error),
-                 callback = std::move(callback)]() mutable {
-                    if (!guard) return;
-                    if (generation != documentGeneration->load()) {
-                        callback(false, "document changed while building semantic index");
-                        return;
-                    }
-                    callback(ok, error);
-                },
-                Qt::QueuedConnection);
-        },
-        token);
-}
-
-void PdfView::searchSemanticAsync(
-    const std::string& query, std::size_t limit,
-    std::function<void(std::vector<reader::VectorIndex::Hit>, const QString&)> callback) {
-    std::shared_ptr<reader::EmbeddingProviderQt> provider;
-    {
-        std::lock_guard<std::mutex> lock(semanticState_->mutex);
-        provider = semanticState_->provider;
-        if (!provider || !semanticState_->index.semanticReady()) {
-            callback({}, "Build the semantic index before searching.");
-            return;
-        }
-    }
-    const auto state = semanticState_;
-    const auto documentGeneration = docGen_;
-    const unsigned long generation = documentGeneration->load();
-    const reader::DocumentModel model = app_->model;
-    const reader::CancellationToken token = semanticToken_;
-    QPointer<PdfView> guard(this);
-    app_->searchPool.submit(
-        [state, provider, documentGeneration, generation, model, query, limit, token, guard,
-         callback = std::move(callback)]() mutable {
-            std::vector<reader::VectorIndex::Hit> hits;
-            std::string error;
-            if (generation != documentGeneration->load()) {
-                error = "document changed while searching";
-            } else {
-                std::lock_guard<std::mutex> lock(state->mutex);
-                hits = state->index.querySemantic(model, query, *provider, limit, token, &error);
-            }
-            QCoreApplication* app = QCoreApplication::instance();
-            if (!app) return;
-            QMetaObject::invokeMethod(
-                app,
-                [guard, documentGeneration, generation, hits = std::move(hits),
-                 error = QString::fromStdString(error), callback = std::move(callback)]() mutable {
-                    if (!guard) return;
-                    if (generation != documentGeneration->load()) {
-                        callback({}, "document changed while searching");
-                        return;
-                    }
-                    callback(std::move(hits), error);
-                },
-                Qt::QueuedConnection);
-        },
-        token);
+std::vector<QSizeF> PdfView::pageSizes() const {
+    return pageSizes_;
 }
 
 void PdfView::clearAllSelections() {
     QLayout* layout = pageHost_->layout();
     for (int i = 0; i < layout->count(); ++i)
         if (auto* w = qobject_cast<PageWidget*>(layout->itemAt(i)->widget())) w->clearSelection();
+}
+
+bool PdfView::isSelectionTooLarge(const QString& text) {
+    return text.trimmed().size() > kMaxSelectionChars;
 }
 
 void PdfView::rebuildPages() {
@@ -835,7 +653,19 @@ void PdfView::rebuildPages() {
                 // Plain click: clear AI context, keep reading.
                 app_->context.clearCurrentSelection();
                 selection_.reset();
+                selectionRows_.clear();
                 emit selectionChanged(reader::DocumentAnchor{});
+                return;
+            }
+            if (isSelectionTooLarge(text)) {
+                // An accidental page-size drag (a whole algorithm plus two
+                // sections) must not become context or a wash: drop the
+                // drag, keep the previous selection, and say why.
+                clearAllSelections();
+                QToolTip::showText(
+                    QCursor::pos(),
+                    QString("Selection too large (%1 chars max) — drag a smaller passage.")
+                        .arg(kMaxSelectionChars));
                 return;
             }
             reader::PdfSelection::Drag drag{page,
@@ -849,26 +679,26 @@ void PdfView::rebuildPages() {
             reference.displayName = "Selected paragraph · p." + std::to_string(page + 1);
             reference.extractedText = a.anchorText.substr(0, 500);
             app_->context.setCurrentSelection(std::move(reference));
+            selectionRows_.clear();
+            if (QWidget* w = pageWidget(page))
+                if (auto* pw = qobject_cast<PageWidget*>(w))
+                    selectionRows_ = pw->selectionRows();
             selection_ = a;
             emit selectionChanged(a);
-            // Focus stays in the composer (§18): menu acts without focus.
-            showSelectionMenu(a);
+            // No popup: the selection only feeds AI context (§12). h/n/a
+            // act on it from the window shortcuts; typing never leaves the
+            // focused widget.
         });
         layout->addWidget(w);
     }
     distributeLines();
-    refreshAiOverlays();
 }
 
 void PdfView::attachDocument(std::shared_ptr<QPdfDocument> doc, const QString& path) {
     docGen_->fetch_add(1);
-    semanticToken_.cancel();
-    semanticToken_ = reader::CancellationToken{};
-    {
-        std::lock_guard<std::mutex> lock(semanticState_->mutex);
-        semanticState_->index = reader::VectorIndex{};
-    }
     doc_ = std::move(doc);
+    selection_.reset(); // stale selection (and its rows) dies with the doc
+    selectionRows_.clear();
     selIndex_->clear(); // stale geometry dies with the doc
     {
         std::lock_guard<std::mutex> lock(wordPendingMutex_);
@@ -912,8 +742,17 @@ void PdfView::jumpToAnchor(const reader::DocumentAnchor& anchor, bool highlight)
         pendingHighlight_ = anchor;
         hasHighlight_ = true;
         if (auto* w = qobject_cast<PageWidget*>(pageWidget(anchor.page))) {
+            // Restoring the live selection reuses its exact rows; every
+            // other anchor (equation, figure, chat source) is one rect.
+            QList<QRectF> rows;
+            if (selection_ && selection_->page == anchor.page && !selectionRows_.isEmpty() &&
+                sameHighlightTarget(*selection_, anchor))
+                rows = selectionRows_;
+            else if (anchor.bounds.valid()) {
                 const auto& b = anchor.bounds;
-                w->setHighlight(QRectF(b.x, b.y, b.width, b.height));
+                rows = {QRectF(b.x, b.y, b.width, b.height)};
+            }
+            w->setHighlights(rows);
         }
     }
 }
@@ -940,7 +779,6 @@ void PdfView::setZoom(double z) {
     zoom_ = std::clamp(z, 0.25, 8.0);
     app_->state.zoom = zoom_;
     rebuildPages();
-    refreshAiOverlays();
     emit zoomChanged(zoom_);
     emit viewStateChanged(currentPage_, verticalScrollBar()->value(), zoom_, rotation_);
 }
@@ -988,7 +826,6 @@ void PdfView::setRotation(int degrees) {
         applyFitMode();
     else {
         rebuildPages();
-        refreshAiOverlays();
     }
     emit viewStateChanged(currentPage_, verticalScrollBar()->value(), zoom_, rotation_);
 }
@@ -1021,6 +858,7 @@ void PdfView::restoreState(const reader::PdfViewState& state, bool highlight) {
     zoom_ = std::clamp(state.zoom, 0.25, 8.0);
     currentPage_ = state.page;
     selection_ = state.selection;
+    selectionRows_.clear(); // exact rows are drag-time paint truth; re-drag to renew
     rebuildPages();
     goToPage(state.page);
     verticalScrollBar()->setValue(std::max(0, state.scrollY));
@@ -1032,14 +870,6 @@ std::vector<reader::TextIndex::Hit> PdfView::searchLiteral(const std::string& qu
                                                             std::size_t limit) {
     textIndex_.build(app_->model);
     return textIndex_.search(app_->model, query, limit);
-}
-
-std::vector<reader::VectorIndex::Hit> PdfView::searchSemantic(const std::string& query,
-                                                              std::size_t limit) {
-    std::lock_guard<std::mutex> lock(semanticState_->mutex);
-    if (!semanticState_->provider || !semanticState_->index.semanticReady()) return {};
-    return semanticState_->index.querySemantic(app_->model, query, *semanticState_->provider,
-                                               limit, semanticToken_);
 }
 
 std::vector<reader::PdfOutlineEntry> PdfView::outlineEntries() const {
@@ -1087,20 +917,9 @@ void PdfView::keyPressEvent(QKeyEvent* event) {
         event->accept();
         return;
     }
-    if (mods.testFlag(Qt::ControlModifier) && event->key() == Qt::Key_K) {
-        emit commandPaletteRequested();
-        event->accept();
-        return;
-    }
     if (mods.testFlag(Qt::ControlModifier) && mods.testFlag(Qt::ShiftModifier) &&
         event->key() == Qt::Key_A) {
         emit sidecarToggleRequested();
-        event->accept();
-        return;
-    }
-    if (mods.testFlag(Qt::ControlModifier) && event->key() >= Qt::Key_1 &&
-        event->key() <= Qt::Key_3) {
-        emit tabRequested(event->key() - Qt::Key_1);
         event->accept();
         return;
     }
@@ -1201,34 +1020,112 @@ void PdfView::refreshUserOverlays() {
     }
 }
 
-// Floating selection menu (§38): Highlight (H) | Ask a question (A) |
-// Write a note (N). Single keys act while the menu is open; any other
-// typed character dismisses the menu and is forwarded to the ask box via
-// quickAskRequested so highlighting never blocks typing.
-// Persistence is delegated to the existing AnnotationRepository.
-// Non-modal popup: never blocks the reader (or headless tests).
-void PdfView::showSelectionMenu(const reader::DocumentAnchor& anchor) {
-    auto* menu = new QMenu();
-    menu->setAttribute(Qt::WA_DeleteOnClose);
-    QAction* highlight = menu->addAction("Highlight (H)");
-    QAction* ask = menu->addAction("Ask a question (A)");
-    QAction* note = menu->addAction("Write a note (N)");
+// A highlight is identified by substantial geometric overlap on one
+// page — never by exact text, pixel bounds or volatile block IDs. A
+// sub-selection of a highlight (or a re-drag after zoom/re-extraction)
+// still matches, while nearby distinct passages never do.
+// Degenerate anchors without geometry fall back to page + text.
+static double highlightOverlap(const reader::Rect& a, const reader::Rect& b) {
+    if (!a.valid() || !b.valid()) return 0.0;
+    const float x0 = std::max(a.x, b.x);
+    const float y0 = std::max(a.y, b.y);
+    const float x1 = std::min(a.x + a.width, b.x + b.width);
+    const float y1 = std::min(a.y + a.height, b.y + b.height);
+    const float w = x1 - x0;
+    const float h = y1 - y0;
+    if (w <= 0 || h <= 0) return 0.0;
+    const double inter = double(w) * double(h);
+    const double minArea =
+        std::min(double(a.width) * double(a.height), double(b.width) * double(b.height));
+    return minArea > 0 ? inter / minArea : 0.0;
+}
+
+static bool sameHighlightTarget(const reader::DocumentAnchor& a,
+                                const reader::DocumentAnchor& b) {
+    if (a.page != b.page) return false;
+    if (!a.bounds.valid() || !b.bounds.valid())
+        return a.anchorText == b.anchorText;
+    return highlightOverlap(a.bounds, b.bounds) >= 0.5;
+}
+
+bool PdfView::hasHighlightForCurrentSelection() const {
+    if (!hasLiveSelection() || !app_ || !app_->annotations) return false;
     const reader::DocumentId doc = app_->model.document.id;
-    connect(highlight, &QAction::triggered, this, [this, anchor, doc] {
+    if (doc.empty()) return false;
+    for (const auto& ann : app_->annotations->annotationsFor(doc))
+        if (ann.kind == "highlight" && sameHighlightTarget(ann.anchor, *selection_))
+            return true;
+    return false;
+}
+
+bool PdfView::highlightCurrentSelection() {
+    if (!hasLiveSelection() || !app_ || !app_->annotations) return false;
+    const reader::DocumentId doc = app_->model.document.id;
+    if (doc.empty()) return false;
+    // Apply exactly once: a repeat press is a no-op (removal is the
+    // separate path below, which also cleans up legacy stacks).
+    for (const auto& ann : app_->annotations->annotationsFor(doc))
+        if (ann.kind == "highlight" && sameHighlightTarget(ann.anchor, *selection_))
+            return false;
+    // One annotation per visual row: a multiline highlight hugs the
+    // selected rows instead of painting the whole bounding box.
+    QList<QRectF> rows = selectionRows_;
+    if (rows.isEmpty() && selection_->bounds.valid()) {
+        const auto& b = selection_->bounds;
+        rows = {QRectF(b.x, b.y, b.width, b.height)};
+    }
+    if (rows.isEmpty()) return false;
+    for (const QRectF& row : rows) {
         reader::UserAnnotation ann;
         ann.id = QUuid::createUuid().toString(QUuid::WithoutBraces).toStdString();
-        ann.anchor = anchor;
+        ann.anchor = *selection_;
+        ann.anchor.bounds = {float(row.x()), float(row.y()), float(row.width()),
+                             float(row.height())};
         ann.kind = "highlight";
         ann.color = "#ffe066";
-        if (app_->annotations && app_->annotations->saveAnnotation(doc, ann))
-            refreshUserOverlays();
-    });
-    connect(ask, &QAction::triggered, this, [this] { emit quickAskRequested(QString()); });
-    connect(note, &QAction::triggered, this, [this, anchor, doc] {
-        bool ok = false;
-        QString text = QInputDialog::getMultiLineText(nullptr, "Note",
-                                                      "Note on selected passage:", QString(), &ok);
-        if (ok && !text.trimmed().isEmpty() && app_->annotations) {
+        if (!app_->annotations->saveAnnotation(doc, ann)) return false;
+    }
+    refreshUserOverlays();
+    return true;
+}
+
+bool PdfView::removeHighlightForCurrentSelection() {
+    if (!hasLiveSelection() || !app_ || !app_->annotations) return false;
+    const reader::DocumentId doc = app_->model.document.id;
+    if (doc.empty()) return false;
+    bool removed = false;
+    for (const auto& ann : app_->annotations->annotationsFor(doc))
+        if (ann.kind == "highlight" && sameHighlightTarget(ann.anchor, *selection_)) {
+            app_->annotations->deleteAnnotation(doc, ann.id);
+            removed = true;
+        }
+    if (removed) refreshUserOverlays();
+    return removed;
+}
+
+void PdfView::promptNoteForAnchor(const reader::DocumentAnchor& anchor) {
+    if (anchor.anchorText.empty() || !app_ || !app_->annotations) return;
+    const reader::DocumentId doc = app_->model.document.id;
+    if (doc.empty()) return;
+    // Small editor floating over the selection instead of a modal dialog:
+    // click-away or Esc cancels, Save (or Ctrl+Enter) persists.
+    if (noteEditor_) noteEditor_->close();
+    auto* dialog = new QDialog(window(), Qt::Popup);
+    dialog->setObjectName("noteEditor");
+    dialog->setAttribute(Qt::WA_DeleteOnClose);
+    dialog->setWindowTitle("Note");
+    auto* layout = new QVBoxLayout(dialog);
+    auto* edit = new QTextEdit(dialog);
+    edit->setObjectName("noteText");
+    edit->setPlaceholderText("Note on selected passage…");
+    edit->setMinimumSize(280, 90);
+    auto* buttons =
+        new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel, dialog);
+    layout->addWidget(edit);
+    layout->addWidget(buttons);
+    connect(buttons, &QDialogButtonBox::accepted, dialog, [this, dialog, edit, anchor, doc] {
+        const QString text = edit->toPlainText();
+        if (!text.trimmed().isEmpty() && app_ && app_->annotations) {
             reader::Note n;
             n.id = QUuid::createUuid().toString(QUuid::WithoutBraces).toStdString();
             n.anchor = anchor;
@@ -1237,123 +1134,52 @@ void PdfView::showSelectionMenu(const reader::DocumentAnchor& anchor) {
             if (!app_->annotations->saveNote(doc, n))
                 QToolTip::showText(QCursor::pos(), "Could not save note");
         }
+        dialog->accept();
     });
-    menu->installEventFilter(this);
-    QWidget* focusBeforeMenu = QApplication::focusWidget();
-    menu->setFocusPolicy(Qt::NoFocus);
-    menu->setAttribute(Qt::WA_ShowWithoutActivating);
-    menu->popup(QCursor::pos());
-    if (focusBeforeMenu)
-        QTimer::singleShot(0, focusBeforeMenu, [focusBeforeMenu] {
-            // Never pull focus out of a text input: the ask box owns typing.
-            if (QWidget* now = QApplication::focusWidget();
-                qobject_cast<QLineEdit*>(now) || qobject_cast<QTextEdit*>(now) ||
-                qobject_cast<QPlainTextEdit*>(now))
-                return;
-            focusBeforeMenu->setFocus();
-        });
+    connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
+    auto* saveShortcut = new QShortcut(QKeySequence("Ctrl+Return"), edit);
+    connect(saveShortcut, &QShortcut::activated, buttons, [buttons] {
+        if (auto* save = buttons->button(QDialogButtonBox::Save)) save->click();
+    });
+    dialog->resize(300, 150);
+    dialog->move(noteEditorPos(anchor, dialog->size()));
+    noteEditor_ = dialog;
+    dialog->show();
+    edit->setFocus(Qt::PopupFocusReason);
 }
 
-bool PdfView::eventFilter(QObject* watched, QEvent* event) {
-    if (event->type() == QEvent::KeyPress) {
-        auto* menu = qobject_cast<QMenu*>(watched);
-        auto* key = static_cast<QKeyEvent*>(event);
-        if (menu && !(key->modifiers() & (Qt::ControlModifier | Qt::AltModifier |
-                                          Qt::MetaModifier))) {
-            if (key->key() == Qt::Key_H || key->key() == Qt::Key_A ||
-                key->key() == Qt::Key_N) {
-                for (QAction* action : menu->actions()) {
-                    const QString text = action->text();
-                    if ((key->key() == Qt::Key_H && text.startsWith("Highlight")) ||
-                        (key->key() == Qt::Key_A && text.startsWith("Ask")) ||
-                        (key->key() == Qt::Key_N && text.startsWith("Write"))) {
-                        action->trigger();
-                        return true;
-                    }
-                }
-            } else if (!key->text().isEmpty()) {
-                menu->close();
-                emit quickAskRequested(key->text());
-                return true;
-            }
-        }
+QPoint PdfView::noteEditorPos(const reader::DocumentAnchor& anchor, const QSize& size) const {
+    QPoint anchorPos = QCursor::pos();
+    if (QWidget* w = pageWidget(anchor.page)) {
+        const auto& b = anchor.bounds;
+        if (b.valid())
+            anchorPos = w->mapToGlobal(QPoint(qRound(b.x + b.width / 2.0), qRound(b.y)));
     }
-    return QScrollArea::eventFilter(watched, event);
-}
-    });
-    connect(bookmark, &QAction::triggered, this, [this, anchor] {
-        emit bookmarkRequested(anchor);
-    });
-    connect(region, &QAction::triggered, this, [this, anchor] {
-        // Capture from the PDF raster source on the renderer lane. A widget
-        // screenshot can contain overlays, stale tiles, or a scaled preview.
-        requestAnchorImage(anchor, [this, anchor](const QImage& image) {
-            if (!image.isNull()) emit regionCaptured(anchor, image);
-        });
-    });
-    connect(ask, &QAction::triggered, this, [this] { emit askAiRequested(); });
-    connect(copy, &QAction::triggered, this, [anchor] {
-        QGuiApplication::clipboard()->setText(QString::fromStdString(anchor.anchorText));
-    });
-    QWidget* focusBeforeMenu = QApplication::focusWidget();
-    menu->setFocusPolicy(Qt::NoFocus);
-    menu->setAttribute(Qt::WA_ShowWithoutActivating);
-    menu->popup(QCursor::pos());
-    if (focusBeforeMenu)
-        QTimer::singleShot(0, focusBeforeMenu, [focusBeforeMenu] { focusBeforeMenu->setFocus(); });
+    QPoint pos(anchorPos.x() - size.width() / 2, anchorPos.y() - size.height() - 12);
+    if (QScreen* screen = QGuiApplication::screenAt(anchorPos)) {
+        const QRect available = screen->availableGeometry();
+        pos.setX(std::clamp(pos.x(), available.left(),
+                            std::max(available.left(), available.right() - size.width())));
+        pos.setY(std::clamp(pos.y(), available.top(),
+                            std::max(available.top(), available.bottom() - size.height())));
+    }
+    return pos;
 }
 
-void PdfView::refreshAiOverlays() {
-    QLayout* layout = pageHost_->layout();
-    for (int i = 0; i < layout->count(); ++i)
-        if (auto* w = qobject_cast<PageWidget*>(layout->itemAt(i)->widget()))
-            w->setAiLines({}, {});
-    if (!app_->analysis) return;
-    // Group cached line fragments per page once (no engine calls here).
-    std::unordered_map<int, std::vector<const reader::TextSpan*>> linesByPage;
-    for (const auto& span : app_->model.lineSpans) linesByPage[span.page].push_back(&span);
-    // Honor the per-type emphasis toggles (§5.9); AI stays subtle and off
-    // for methods by default.
-    const auto& st = app_->state.settings;
-    std::unordered_map<int, QList<QPair<QPointF, QPointF>>> linesOut;
-    std::unordered_map<int, QList<QRectF>> fallbackOut;
-    for (const auto& an : app_->analysis->annotations) {
-        bool show = st.showImportant;
-        if (an.type == "definition") show = st.showDefinitions;
-        else if (an.type == "result") show = st.showResults;
-        else if (an.type == "limitation") show = st.showLimitations;
-        else if (an.type == "method") show = st.showMethods;
-        if (!show) continue;
-        const reader::TextBlock* b = app_->model.findBlock(an.blockId);
-        if (!b || !b->bounds.valid()) continue;
-        const auto& bb = b->bounds;
-        QRectF block(bb.x, bb.y, bb.width, bb.height);
-        bool lined = false;
-        auto it = linesByPage.find(b->page);
-        if (it != linesByPage.end()) {
-            for (const reader::TextSpan* span : it->second) {
-                const auto& sb = span->bounds;
-                QRectF frag(sb.x, sb.y, sb.width, sb.height);
-                QRectF hit = frag.intersected(block);
-                if (hit.width() < 4 || hit.height() < 1) continue;
-                linesOut[b->page].push_back(
-                    {QPointF(hit.left(), hit.bottom() + 1.0), QPointF(hit.right(), hit.bottom() + 1.0)});
-                lined = true;
-            }
-        }
-        if (!lined) fallbackOut[b->page].push_back(block);
-    }
-    for (const auto& [page, lines] : linesOut) {
-        QList<QRectF> fb;
-        auto fit = fallbackOut.find(page);
-        if (fit != fallbackOut.end()) fb = fit->second;
-        if (auto* w = qobject_cast<PageWidget*>(pageWidget(page))) w->setAiLines(lines, fb);
-    }
-    for (const auto& [page, rects] : fallbackOut) {
-        if (linesOut.count(page)) continue;
-        if (auto* w = qobject_cast<PageWidget*>(pageWidget(page)))
-            w->setAiLines({}, rects);
-    }
+bool PdfView::hasLiveSelection() const {
+    return selection_ && !selection_->anchorText.empty();
+}
+
+bool PdfView::promptNoteForCurrentSelection() {
+    if (!hasLiveSelection()) return false;
+    promptNoteForAnchor(*selection_);
+    return true;
+}
+
+bool PdfView::askAboutCurrentSelection() {
+    if (!hasLiveSelection()) return false;
+    emit quickAskRequested(QString());
+    return true;
 }
 
 void PdfView::schedulePrefetchAround(int page) {

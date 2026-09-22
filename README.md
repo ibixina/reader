@@ -17,7 +17,7 @@ CONDA_PREFIX=/home/nao/miniforge3 cmake -S . -B /tmp/reader-full3 \
   -DCMAKE_PREFIX_PATH=/home/nao/qtsysroot/usr \
   -DBUILD_UI=ON -DBUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug
 flock /tmp/reader-full3-build.lock cmake --build /tmp/reader-full3 --parallel 1
-ctest --test-dir /tmp/reader-full3 -E '^(webengine|chat_rich)$' --output-on-failure
+ctest --test-dir /tmp/reader-full3 -E '^webengine$' --output-on-failure
 
 # Authorized local runtime: require loopback tests and run WebEngine coverage.
 READER_REQUIRE_LOCAL_HTTP=1 ctest --test-dir /tmp/reader-full3 --output-on-failure
@@ -30,9 +30,9 @@ Tests run with unique HOME and XDG configuration, cache, and data directories.
 The WebEngine tests block external requests; on hosts that restrict Chromium's
 sandbox, run them in the host's authorized test environment. Embedding and
 compatible-chat tests use loopback-only fake HTTP servers; restricted containers
-may skip the bind checks. `chat_rich` also uses WebEngine, so the native command
-excludes it with `webengine`. Test wrappers use isolated HOME/XDG directories and
-unset provider credentials.
+may skip the bind checks. Test wrappers use isolated HOME/XDG directories and
+unset provider credentials. The browser chat is the only AI chat and requires
+Qt WebEngine at build time.
 
 A Qt-free build is supported with `-DBUILD_UI=OFF -DBUILD_TESTS=ON`; it builds
 the core library plus the core and chat-lifecycle tests using only C++20,

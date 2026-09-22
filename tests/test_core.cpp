@@ -291,6 +291,172 @@ int main() {
               result.bibliography.front().doi == "10.1000/example");
     }
 
+    // Outline detection: TOC dot-leaders never become sections, repeated
+    // running heads are page furniture, and unnumbered body-size headings
+    // nest below large-type sections.
+    {
+        DocumentModel m;
+        m.document.id = "outline";
+        m.document.pageCount = 4;
+        IdFactory ids;
+        auto block = [&](int page, const std::string& text, float y, float font) {
+            TextBlock b;
+            b.id = ids.block();
+            b.page = page;
+            b.bounds = {50, y, 400, 20};
+            b.text = text;
+            m.blocks.push_back(b);
+            TextSpan span;
+            span.page = page;
+            span.bounds = {50, y + 4, 400, 12};
+            span.text = text;
+            span.fontSize = font;
+            m.lineSpans.push_back(span);
+        };
+        block(0, "1 Introduction ............ 1", 40, 11);
+        block(0, "2 Methods ................. 3", 70, 11);
+        block(0, "J. SMITH ET AL.", 10, 9);
+        block(1, "J. SMITH ET AL.", 10, 9);
+        block(2, "J. SMITH ET AL.", 10, 9);
+        block(0, "1 Introduction", 120, 16);
+        block(1, "Methods", 60, 11);
+        block(2, "References", 60, 11);
+        NullPdfEngine engine;
+        StructureDetector().detect(m, engine, ids);
+        bool hasToc = false, hasRunningHead = false;
+        int introLevel = 0, methodsLevel = 0;
+        for (const auto& s : m.sections) {
+            if (s.title.find("..") != std::string::npos) hasToc = true;
+            if (s.title == "J. SMITH ET AL.") hasRunningHead = true;
+            if (s.title == "1 Introduction") introLevel = s.level;
+            if (s.title == "Methods") methodsLevel = s.level;
+        }
+        CHECK(!hasToc);
+        CHECK(!hasRunningHead);
+        CHECK(introLevel == 1);
+        CHECK(methodsLevel == 2);
+    }
+
+    // Numbered algorithm/code fragments mimic heading numbering but carry
+    // math symbols, URLs, bare digits, or value labels: none are sections.
+    {
+        DocumentModel m;
+        m.document.id = "outline-math";
+        m.document.pageCount = 2;
+        IdFactory ids;
+        auto block = [&](int page, const std::string& text) {
+            TextBlock b;
+            b.id = ids.block();
+            b.page = page;
+            b.bounds = {50, 60, 400, 20};
+            b.text = text;
+            m.blocks.push_back(b);
+        };
+        block(0, "1 Introduction");
+        block(0, "6 t0 \u2190 Lpost(\u03b8, h0) (prior loss)");
+        block(0, "20 update (\u03c6i, \u03c8i) using \u2207L (gradient step)");
+        block(0, "1 for training iteration n = 1, 2, \u2026 do");
+        block(0, "0 1 2 3 4 5 6");
+        block(1, "2 Background");
+        block(1, "2021. URL https://proceedings.mlr.press/v139/foster21a");
+        block(1, "1.0 and NRMSE than CoDiff and the baselines at all");
+        NullPdfEngine engine;
+        StructureDetector().detect(m, engine, ids);
+        CHECK(m.sections.size() == 2);
+        bool intro = false, background = false;
+        for (const auto& s : m.sections) {
+            if (s.title == "1 Introduction") intro = true;
+            if (s.title == "2 Background") background = true;
+        }
+        CHECK(intro);
+        CHECK(background);
+    }
+
+    // Heading-shape edge cases from a real paper outline: equation
+    // labels, lone symbols, number runs, sentence fragments and
+    // label-like caps are never sections, with or without font hints
+    // (the NullPdfEngine path leaves every block at font 0).
+    {
+        DocumentModel m;
+        m.document.id = "outline-shapes";
+        m.document.pageCount = 2;
+        IdFactory ids;
+        auto block = [&](int page, const std::string& text) {
+            TextBlock b;
+            b.id = ids.block();
+            b.page = page;
+            b.bounds = {50, 60, 400, 20};
+            b.text = text;
+            m.blocks.push_back(b);
+        };
+        block(0, "1 Introduction");
+        block(0, "T (7)");
+        block(0, "TEIGt. (22)");
+        block(0, "X");
+        block(0, "2 L");
+        block(0, "0 1 2 3 4 5 6 Legend");
+        block(0, "3 4 Discussion");
+        block(0, "Body text one.");
+        block(1, "2 Background");
+        block(1, "Section 5.1 and Appendix B).");
+        block(1, "model for which x holds");
+        block(1, "Results L+1 #");
+        block(1, "EIGT");
+        block(1, "99-102 IEEE 2006");
+        block(1, "References");
+        NullPdfEngine engine;
+        StructureDetector().detect(m, engine, ids);
+        CHECK(m.sections.size() == 3);
+        bool intro = false, background = false, references = false;
+        for (const auto& s : m.sections) {
+            if (s.title == "1 Introduction") intro = true;
+            if (s.title == "2 Background") background = true;
+            if (s.title == "References") references = true;
+        }
+        CHECK(intro);
+        CHECK(background);
+        CHECK(references);
+    }
+
+    // Native outline merge: same title on the same page is a duplicate,
+    // the same name far away (appendix) is kept, and ranges stay linear.
+    {
+        struct OutlineEngine : NullPdfEngine {
+            std::vector<PdfOutlineEntry> outline() override {
+                return {{"Introduction", 0, 0}, {"Results", 2, 0}, {"Results", 5, 0}};
+            }
+            std::string name() const override { return "outline"; }
+        } engine;
+        DocumentModel m;
+        m.document.id = "outline-native";
+        m.document.pageCount = 6;
+        IdFactory ids;
+        auto block = [&](int page, const std::string& text) {
+            TextBlock b;
+            b.id = ids.block();
+            b.page = page;
+            b.bounds = {50, 60, 400, 20};
+            b.text = text;
+            m.blocks.push_back(b);
+        };
+        block(0, "1 Introduction");
+        block(1, "Body text for the introduction.");
+        block(2, "Results");
+        block(5, "Body text for the appendix results.");
+        StructureDetector().detect(m, engine, ids);
+        int resultsAt2 = 0, resultsAt5 = 0;
+        for (const auto& s : m.sections) {
+            if (s.title == "Results" && s.startPage == 2) ++resultsAt2;
+            if (s.title == "Results" && s.startPage == 5) ++resultsAt5;
+            CHECK(s.endPage >= s.startPage);
+        }
+        CHECK(resultsAt2 == 1); // native duplicate on the same page skipped
+        CHECK(resultsAt5 == 1); // appendix repeat kept
+        CHECK(!m.sections.empty() && m.sections.back().endPage == 5);
+        CHECK(m.sectionForPage(5) != nullptr &&
+              m.sectionForPage(5)->title == "Results");
+    }
+
     // TextIndex literal search + VectorIndex semantic retrieval.
     {
         DocumentModel m = makeModel();
@@ -798,7 +964,8 @@ int main() {
         CHECK(!docs.loadModel("doc1", "wrong-hash", loadedModel));
         CHECK(db.exec("UPDATE documents SET extraction_version=999 WHERE id='doc1'"));
         CHECK(!docs.loadModel("doc1", loadedModel));
-        CHECK(db.exec("UPDATE documents SET extraction_version=1 WHERE id='doc1'"));
+        CHECK(db.exec("UPDATE documents SET extraction_version=" +
+                      std::to_string(reader::kExtractionSchemaVersion) + " WHERE id='doc1'"));
         CHECK(!loadedModel.equations.empty() && loadedModel.equations.front().latex == "E=mc^2");
         CHECK(loadedModel.citations.size() == 1);
         CHECK(loadedModel.citations.front().title == citation.title);

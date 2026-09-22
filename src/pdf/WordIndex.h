@@ -28,6 +28,12 @@ struct PageWords {
 
 std::vector<WordBox> buildWordBoxes(QPdfDocument& doc, int page, QString& pageTextOut);
 
+// Press/drag endpoint resolution (UI-thread safe: pure geometry, no engine
+// calls). Exact hit first; then the row the point visually sits on (a press
+// in the inter-line gap belongs to its row, not to a word lines away);
+// finally the globally nearest word within a small tolerance, else -1.
+int snapWordIndex(const std::vector<WordBox>& words, const QPointF& pt);
+
 class SelectionIndex {
 public:
     bool ready(int page) const;

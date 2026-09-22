@@ -16,12 +16,16 @@ class OutlinePanel : public QWidget {
 public:
     explicit OutlinePanel(reader::Application* app, QWidget* parent = nullptr);
     void rebuild();
+    void followPage(int page);
 
 signals:
     void anchorActivated(const reader::DocumentAnchor& anchor);
 
 private:
+    void activateRow(int row);
+
     reader::Application* app_;
     QListWidget* sections_ = nullptr;
+    bool following_ = false;
 };
 

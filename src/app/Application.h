@@ -27,11 +27,14 @@ public:
     // still alive. Safe to call more than once.
     void shutdown();
 
-    ThreadPool renderPool{2};
-    ThreadPool extractPool{2};
-    ThreadPool analysisPool{2};
-    ThreadPool searchPool{2};
-    ThreadPool networkPool{2};
+    // One thread per lane: background work must never out-compute the
+    // reader. renderPool is reserved for future renderer jobs (the renderer
+    // currently uses the global pool); the rest serialize their lane.
+    ThreadPool renderPool{1};
+    ThreadPool extractPool{1};
+    ThreadPool analysisPool{1};
+    ThreadPool searchPool{1};
+    ThreadPool networkPool{1};
     // Single lane serializing ALL direct pdfium (QPdfDocument) background
     // use: the engine is not thread-safe, so extraction, word indexing and
     // any other background document work queue here in order.

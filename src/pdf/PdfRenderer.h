@@ -83,7 +83,8 @@ class QtPdfEngineBridge;
 
 class PdfRenderer {
 public:
-    explicit PdfRenderer(std::size_t tileCapacity = 256);
+    // 64 tiles x 512x512x4B ~= 64MB worst case (was 256 ~= 256MB).
+    explicit PdfRenderer(std::size_t tileCapacity = 64);
     ~PdfRenderer();
     void attach(QPdfDocument* doc, const DocumentId& id);
     // The active reader uses the immutable Poppler raster source. It is

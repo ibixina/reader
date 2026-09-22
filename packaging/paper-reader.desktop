@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Paper Reader
+GenericName=PDF Reader
+Comment=Fast distraction-free PDF reader with browser AI chat
+Exec=/home/nao/Documents/Projects/reader/run.sh %f
+Icon=/home/nao/Documents/Projects/reader/packaging/paper-reader.svg
+Terminal=false
+Categories=Office;Viewer;
+MimeType=application/pdf;
+StartupWMClass=paper-reader
+SingleMainWindow=true
