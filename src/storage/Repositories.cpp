@@ -1,4 +1,5 @@
 #include "storage/Repositories.h"
+#include <cstdio>
 #include "core/Json.h"
 #include <algorithm>
 #include <array>
@@ -231,7 +232,7 @@ bool AnnotationRepository::saveNote(const DocumentId& doc, const Note& note) {
 
 std::vector<Note> AnnotationRepository::notesFor(const DocumentId& doc) const {
     std::vector<Note> out;
-    db_->queryPrepared(
+    if (!db_->queryPrepared(
         "SELECT id,document_id,page,x,y,w,h,anchor_text,text,created_at,updated_at,section_id,"
         "block_id,object_type,object_id FROM notes WHERE document_id=? ORDER BY created_at,id",
         [&](sqlite3_stmt* st) { return text(st, 1, doc); },
@@ -245,7 +246,9 @@ std::vector<Note> AnnotationRepository::notesFor(const DocumentId& doc) const {
             n.anchor.objectType = columnText(st, 13);
             n.anchor.objectId = columnText(st, 14);
             out.push_back(std::move(n));
-        });
+        }))
+        std::fprintf(stderr, "paper-reader: notes query failed: %s\n",
+                     db_->error().c_str());
     return out;
 }
 
@@ -278,7 +281,7 @@ bool AnnotationRepository::saveAnnotation(const DocumentId& doc, const UserAnnot
 
 std::vector<UserAnnotation> AnnotationRepository::annotationsFor(const DocumentId& doc) const {
     std::vector<UserAnnotation> out;
-    db_->queryPrepared(
+    if (!db_->queryPrepared(
         "SELECT id,document_id,page,x,y,w,h,anchor_text,kind,color,section_id,block_id,"
         "object_type,object_id "
         "FROM annotations WHERE document_id=? ORDER BY created_at,id",
@@ -292,7 +295,9 @@ std::vector<UserAnnotation> AnnotationRepository::annotationsFor(const DocumentI
             a.anchor.objectType = columnText(st, 12);
             a.anchor.objectId = columnText(st, 13);
             out.push_back(std::move(a));
-        });
+        }))
+        std::fprintf(stderr, "paper-reader: annotations query failed: %s\n",
+                     db_->error().c_str());
     return out;
 }
 

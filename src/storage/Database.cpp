@@ -3,6 +3,15 @@
 #include <sqlite3.h>
 
 namespace reader {
+namespace {
+// sqlite3_finalize must run even when a row callback throws; the guard
+// also keeps the early-return paths leak-free.
+struct StmtGuard {
+    explicit StmtGuard(sqlite3_stmt* st) : st(st) {}
+    ~StmtGuard() { if (st) sqlite3_finalize(st); }
+    sqlite3_stmt* st;
+};
+} // namespace
 
 Database::Database(const std::string& path) {
     sqlite3* opened = nullptr;
@@ -38,9 +47,13 @@ bool Database::query(const std::string& sql, RowCallback cb) {
     if (!db_) return false;
     sqlite3_stmt* st = nullptr;
     if (sqlite3_prepare_v2(db_, sql.c_str(), -1, &st, nullptr) != SQLITE_OK) return false;
+    StmtGuard guard(st);
     int rc = SQLITE_OK;
-    while ((rc = sqlite3_step(st)) == SQLITE_ROW) cb(st);
-    sqlite3_finalize(st);
+    try {
+        while ((rc = sqlite3_step(st)) == SQLITE_ROW) cb(st);
+    } catch (...) {
+        return false;
+    }
     return rc == SQLITE_DONE;
 }
 
@@ -60,13 +73,14 @@ bool Database::queryPrepared(const std::string& sql, BindCallback bind, RowCallb
     if (!db_) return false;
     sqlite3_stmt* st = nullptr;
     if (sqlite3_prepare_v2(db_, sql.c_str(), -1, &st, nullptr) != SQLITE_OK) return false;
-    if (bind && !bind(st)) {
-        sqlite3_finalize(st);
+    StmtGuard guard(st);
+    if (bind && !bind(st)) return false;
+    int rc = SQLITE_OK;
+    try {
+        while ((rc = sqlite3_step(st)) == SQLITE_ROW) cb(st);
+    } catch (...) {
         return false;
     }
-    int rc = SQLITE_OK;
-    while ((rc = sqlite3_step(st)) == SQLITE_ROW) cb(st);
-    sqlite3_finalize(st);
     return rc == SQLITE_DONE;
 }
 
@@ -169,7 +183,12 @@ void Database::migrate() {
       document_id TEXT PRIMARY KEY, file_hash TEXT, schema_version INTEGER,
       prompt_version INTEGER, provider TEXT, model TEXT, generated_at INTEGER,
       json TEXT NOT NULL))",
-    "CREATE INDEX IF NOT EXISTS idx_message_refs_message ON message_references(message_id);"
+    "CREATE INDEX IF NOT EXISTS idx_message_refs_message ON message_references(message_id);",
+    // The live read paths (overlays, notes panel, highlight toggling) filter
+    // by document on every selection/page change: without these indexes the
+    // queries scan the whole tables on the UI thread.
+    "CREATE INDEX IF NOT EXISTS idx_annotations_document ON annotations(document_id);",
+    "CREATE INDEX IF NOT EXISTS idx_notes_document ON notes(document_id);"
     };
     for (const char* statement : statements) {
         if (!exec(statement)) return;

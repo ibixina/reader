@@ -24,12 +24,4 @@ NavEntry NavigationHistory::forward() {
     return current();
 }
 
-void ApplicationState::goTo(NavEntry entry) {
-    page = entry.page;
-    scrollY = entry.scrollY;
-    zoom = entry.zoom;
-    readerState.page = entry.page;
-    history.visit(std::move(entry));
-}
-
 } // namespace reader

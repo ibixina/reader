@@ -2,6 +2,7 @@
 #include <QString>
 #include <QRectF>
 #include <mutex>
+#include <memory>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -27,6 +28,13 @@ struct PageWords {
 };
 
 std::vector<WordBox> buildWordBoxes(QPdfDocument& doc, int page, QString& pageTextOut);
+// Fast path: one poppler layout pass per page (~ms; the legacy path above
+// costs ~1s per dense page in per-word engine queries). pageTextOut is
+// reconstructed from the layout words, so startIndex/length always index
+// it exactly. Empty vector when the layout is unavailable — callers should
+// fall back to buildWordBoxes.
+std::vector<WordBox> buildWordBoxesFromLayout(const QString& path, int page,
+                                              QString& pageTextOut);
 
 // Press/drag endpoint resolution (UI-thread safe: pure geometry, no engine
 // calls). Exact hit first; then the row the point visually sits on (a press

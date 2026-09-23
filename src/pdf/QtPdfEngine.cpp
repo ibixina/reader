@@ -2,16 +2,28 @@
 #include <QEventLoop>
 #include <QPdfBookmarkModel>
 #include <QPdfDocument>
-#include <QPdfLink>
-#include <QPdfLinkModel>
+#include <QPdfSelection>
 #include <QTimer>
 #include <QUrl>
-#include <functional>
 
 bool QtPdfEngine::open(const std::string& path) {
-    if (!doc_) return false;
-    doc_->load(QString::fromStdString(path));
-    return doc_->status() == QPdfDocument::Status::Ready;
+    if (!doc_) {
+        lastError_ = "no document object";
+        return false;
+    }
+    const QPdfDocument::Error err =
+        doc_->load(QString::fromStdString(path));
+    if (doc_->status() != QPdfDocument::Status::Ready) {
+        switch (err) {
+        case QPdfDocument::Error::FileNotFound: lastError_ = "file not found"; break;
+        case QPdfDocument::Error::IncorrectPassword: lastError_ = "password-protected"; break;
+        case QPdfDocument::Error::InvalidFileFormat: lastError_ = "not a valid PDF"; break;
+        default: lastError_ = "unreadable or corrupt"; break;
+        }
+        return false;
+    }
+    lastError_.clear();
+    return true;
 }
 
 int QtPdfEngine::pageCount() const {
@@ -51,49 +63,25 @@ std::vector<reader::TextSpan> QtPdfEngine::extractSpans(int page) {
     return out;
 }
 
-std::vector<reader::PdfLink> QtPdfEngine::links(int page) {
-    std::vector<reader::PdfLink> out;
-    if (!doc_) return out;
-    QPdfLinkModel model;
-    model.setDocument(doc_.get());
-    // The model populates asynchronously; bound the wait (worker lane).
-    if (model.rowCount(QModelIndex{}) == 0) {
-        QEventLoop loop;
-        QTimer timer;
-        timer.setSingleShot(true);
-        QObject::connect(&model, &QPdfLinkModel::rowsInserted, &loop, &QEventLoop::quit);
-        QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-        timer.start(1500);
-        loop.exec();
-    }
-    for (int row = 0; row < model.rowCount(QModelIndex{}); ++row) {
-        QModelIndex idx = model.index(row, 0, QModelIndex{});
-        QPdfLink link = model.data(idx, int(QPdfLinkModel::Role::Link)).value<QPdfLink>();
-        if (link.page() != page) continue;
-        for (const QRectF& r : link.rectangles()) {
-            reader::PdfLink l;
-            l.page = page;
-            l.bounds = {float(r.x()), float(r.y()), float(r.width()), float(r.height())};
-            l.targetPage = -1;
-            l.targetUri = link.url().toString().toStdString();
-            out.push_back(std::move(l));
-        }
-    }
-    return out;
-}
-
 std::vector<reader::PdfOutlineEntry> QtPdfEngine::outline() {
     std::vector<reader::PdfOutlineEntry> out;
     if (!doc_) return out;
     QPdfBookmarkModel model;
     model.setDocument(doc_.get());
+    // The bookmark model populates asynchronously, so rowCount() is always 0
+    // right after setDocument(). A short bounded wait catches healthy
+    // documents (populated in ~10 ms, measured); a 1.5 s wait here used to
+    // stall every cold open of documents whose bookmark tree never loads.
+    // Both signals are needed: trees arrive as row insertions, but some
+    // backends swap the whole model under a reset.
     if (model.rowCount() == 0) {
         QEventLoop loop;
         QTimer timer;
         timer.setSingleShot(true);
         QObject::connect(&model, &QPdfBookmarkModel::rowsInserted, &loop, &QEventLoop::quit);
+        QObject::connect(&model, &QPdfBookmarkModel::modelReset, &loop, &QEventLoop::quit);
         QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
-        timer.start(1500);
+        timer.start(150);
         loop.exec();
     }
     std::function<void(const QModelIndex&, int)> walk = [&](const QModelIndex& parent, int level) {

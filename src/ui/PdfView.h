@@ -59,15 +59,6 @@ public:
     // external shared ownership: background index jobs may outlive a reopen
     void goToPage(int page);
     void jumpToAnchor(const reader::DocumentAnchor& anchor, bool highlight);
-    void setHoverAnchor(const reader::DocumentAnchor& anchor);
-    void clearHoverAnchor();
-    std::optional<reader::DocumentAnchor> highlightedAnchor() const {
-        return hasHighlight_ ? std::optional<reader::DocumentAnchor>(pendingHighlight_)
-                             : std::nullopt;
-    }
-    const std::optional<reader::DocumentAnchor>& hoveredAnchor() const {
-        return hoverAnchor_;
-    }
     void setZoom(double z);
     void setRotation(int degrees);
     void rotate(int quarterTurns = 1);
@@ -78,10 +69,8 @@ public:
     void fitPage();
     int currentPage() const { return currentPage_; }
     reader::PdfViewState captureState() const;
-    void restoreState(const reader::PdfViewState& state, bool highlight = true);
     std::vector<reader::TextIndex::Hit> searchLiteral(const std::string& query,
                                                       std::size_t limit = 20);
-    std::vector<reader::PdfOutlineEntry> outlineEntries() const;
     void clearAllSelections();
     // Page-size accidental drags never become selections: at most
     // kMaxSelectionChars of dragged text is accepted as a live selection.
@@ -111,15 +100,12 @@ signals:
     void objectClicked(const reader::DocumentAnchor& anchor, const QString& kind);
     void sourceActivated(const reader::DocumentAnchor& anchor);
     void linkActivated(int page, const QString& uri);
-    void bookmarkRequested(const reader::DocumentAnchor& anchor);
-    void regionCaptured(const reader::DocumentAnchor& anchor, const QImage& image);
     // Empty seed means the user pressed A on a live selection; focusing the
     // ask box is the whole action.
     void quickAskRequested(const QString& seed);
     void pageChanged(int page);
     void selectionGeometryReady(int page);
     void zoomChanged(double zoom);
-    void viewStateChanged(int page, int scrollY, double zoom, int rotation);
     void findRequested();
     void sidecarToggleRequested();
     void historyBackRequested();
@@ -141,6 +127,7 @@ private:
     QPoint noteEditorPos(const reader::DocumentAnchor& anchor, const QSize& size) const;
     reader::Application* app_;
     std::shared_ptr<QPdfDocument> doc_;
+    QString docPath_;
     // Page count/sizes cached once at attach time. QPdfDocument serializes
     // every query (pagePointSize included) on an internal mutex that the
     // serial doc lane can hold for ~1s per dense page; touching it on the
@@ -161,10 +148,13 @@ private:
     bool applyingFit_ = false;
     reader::DocumentAnchor pendingHighlight_;
     bool hasHighlight_ = false;
-    std::optional<reader::DocumentAnchor> hoverAnchor_;
     std::shared_ptr<PopplerBridge> raster_;
     std::unique_ptr<QPdfLinkModel> linkModel_;
     reader::TextIndex textIndex_;
+    // Literal-search index rebuild guard: the index is rebuilt only when
+    // the underlying model changes, not on every search.
+    std::string textIndexDocId_;
+    std::size_t textIndexBlocks_ = 0;
     std::optional<reader::DocumentAnchor> selection_;
     // Per-row rects (PDF points) of the live selection, stashed at drag
     // time: the paint truth used when a highlight is saved, so multiline
@@ -181,6 +171,10 @@ private:
     QPointer<QDialog> noteEditor_ = nullptr;
     QTimer* prefetchTimer_ = nullptr;
     int pendingPrefetchPage_ = -1;
+    int lastScrollValue_ = 0;
+    // Scroll direction of the last movement (+1/-1): pixel prefetch warms
+    // the pages ahead in the direction the reader is travelling.
+    std::atomic<int> scrollDirection_{1};
     // Latest scroll-driven prefetch target. Word jobs compare against it at
     // start and drop themselves when the user has scrolled far past them.
     std::atomic<int> latestPrefetchPage_{-1};

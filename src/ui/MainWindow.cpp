@@ -6,6 +6,7 @@
 #include "pdf/PopplerBridge.h"
 #include "pdf/QtPdfEngine.h"
 #include "pdf/TextExtractor.h"
+#include "ui/MarksPanel.h"
 #include "ui/OutlinePanel.h"
 #include "ui/PdfView.h"
 #include "ui/SearchPanel.h"
@@ -32,6 +33,8 @@
 #include <QSet>
 #include <QSettings>
 #include <QShortcut>
+#include <QPushButton>
+#include <QAbstractButton>
 #include <QSplitter>
 #include <QStandardPaths>
 #include <QStatusBar>
@@ -130,8 +133,10 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
     readerTabs_ = new QTabWidget(readerOverlay_);
     searchPanel_ = new SearchPanel(app_, pdf_, readerTabs_);
     outlinePanel_ = new OutlinePanel(app_, readerTabs_);
+    marksPanel_ = new MarksPanel(app_, readerTabs_);
     readerTabs_->addTab(searchPanel_, "Search");
     readerTabs_->addTab(outlinePanel_, "Outline");
+    readerTabs_->addTab(marksPanel_, "Marks");
     overlayLayout->addWidget(readerTabs_);
     // Hidden by default: the left edge hover reveals it, moving away
     // hides it again. The Outline tab is pre-selected for reveals.
@@ -199,32 +204,11 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
                     showSelectionHint();
                 }
             });
-    connect(pdf_, &PdfView::bookmarkRequested, this,
+    connect(marksPanel_, &MarksPanel::anchorActivated, this,
             [this](const reader::DocumentAnchor& a) {
-                if (app_->annotations && !app_->model.document.id.empty()) {
-                    reader::UserAnnotation bookmark;
-                    bookmark.id = QUuid::createUuid().toString(QUuid::WithoutBraces).toStdString();
-                    bookmark.anchor = a;
-                    bookmark.kind = "bookmark";
-                    bookmark.color = "#9b59b6";
-                    app_->annotations->saveAnnotation(app_->model.document.id, bookmark);
-                    pdf_->refreshUserOverlays();
-                }
                 navigateToAnchor(a);
-            });
-    connect(pdf_, &PdfView::regionCaptured, this,
-            [this](const reader::DocumentAnchor& a, const QImage&) {
-                // Persist the region as an annotation; no chat image payload.
-                if (app_->annotations && !app_->model.document.id.empty()) {
-                    reader::UserAnnotation region;
-                    region.id =
-                        QUuid::createUuid().toString(QUuid::WithoutBraces).toStdString();
-                    region.anchor = a;
-                    region.kind = "region";
-                    region.color = "#4f8cff";
-                    app_->annotations->saveAnnotation(app_->model.document.id, region);
-                    pdf_->refreshUserOverlays();
-                }
+                edgeRevealActive_ = false;
+                readerOverlay_->hide();
             });
     connect(searchPanel_, &SearchPanel::anchorActivated, this,
             [this](const reader::DocumentAnchor& a) {
@@ -310,6 +294,19 @@ void MainWindow::openFile(const QString& path) {
     const bool switchingDocuments = !currentPath.isEmpty() &&
                                     QFileInfo(currentPath).canonicalFilePath() !=
                                         QFileInfo(path).canonicalFilePath();
+    // Validate the new document BEFORE touching any state that belongs to
+    // the currently open paper: a failed open must leave the reader exactly
+    // as it was (context, history, view), not strand it.
+    auto deleter = [](QPdfDocument* d) { d->deleteLater(); };
+    std::shared_ptr<QPdfDocument> newDoc(new QPdfDocument, deleter);
+    auto newEngine = std::make_shared<QtPdfEngine>(newDoc);
+    if (!newEngine->open(path.toStdString()) || newEngine->pageCount() == 0) {
+        const QString reason = QString::fromStdString(newEngine->lastError());
+        statusPage_->setText(reason.isEmpty() ? "Could not open PDF"
+                                              : "Could not open PDF — " + reason);
+        statusHint_->setText("The previous paper stays open.");
+        return;
+    }
     if (switchingDocuments) {
         const auto context = app_->context.currentContext();
         for (const auto& reference : context.temporary)
@@ -322,13 +319,8 @@ void MainWindow::openFile(const QString& path) {
     documentToken_ = reader::CancellationToken{};
     const unsigned long generation = ++openGeneration_;
     if (web_) web_->cancelPending();
-    auto deleter = [](QPdfDocument* d) { d->deleteLater(); };
-    pdfDoc_ = std::shared_ptr<QPdfDocument>(new QPdfDocument, deleter);
-    engine_ = std::make_shared<QtPdfEngine>(pdfDoc_);
-    if (!engine_->open(path.toStdString()) || engine_->pageCount() == 0) {
-        statusPage_->setText("Could not open PDF");
-        return;
-    }
+    pdfDoc_ = std::move(newDoc);
+    engine_ = std::move(newEngine);
     reader::DocumentModel& model = app_->model;
     model = reader::DocumentModel{};
     model.document.filePath = path.toStdString();
@@ -336,6 +328,7 @@ void MainWindow::openFile(const QString& path) {
     model.document.pageCount = engine_->pageCount();
     pdf_->attachDocument(pdfDoc_, path);
     outlinePanel_->rebuild();
+    marksPanel_->rebuild();
     app_->state.page = 0;
     app_->state.scrollY = 0;
     app_->state.history.clear();
@@ -423,6 +416,7 @@ void MainWindow::openFile(const QString& path) {
                                     pdf_->distributeLines();
                                     pdf_->schedulePrefetchAround(app_->state.page);
                                     outlinePanel_->rebuild();
+                                    marksPanel_->rebuild();
                                     // In-place save reopened the same file: jump back to
                                     // where the reader was instead of page 1.
                                     if (pendingPosition_) {
@@ -608,6 +602,9 @@ void MainWindow::showReaderTools() {
     placeReaderOverlay();
     readerOverlay_->raise();
     if (!readerOverlay_->isVisible()) readerOverlay_->show();
+    // Marks change from inside PdfView (note saves) without a signal back;
+    // refresh when the reader tools become visible.
+    if (marksPanel_) marksPanel_->rebuild();
 }
 
 void MainWindow::placeReaderOverlay() {
@@ -667,6 +664,11 @@ void MainWindow::setupShortcuts() {
         if (typingElsewhere() || !pdf_) return;
         pdf_->promptNoteForCurrentSelection();
     });
+    auto* bookmarkShortcut = new QShortcut(QKeySequence(Qt::Key_B), this);
+    connect(bookmarkShortcut, &QShortcut::activated, this, [this, typingElsewhere] {
+        if (typingElsewhere() || !pdf_) return;
+        toggleBookmark();
+    });
     auto* noteGlobal = new QShortcut(QKeySequence("Ctrl+N"), this);
     connect(noteGlobal, &QShortcut::activated, this, [this] {
         if (QApplication::activeModalWidget() || chatHasFocus() || !pdf_) return;
@@ -703,6 +705,46 @@ void MainWindow::toggleHighlight() {
     showSelectionHint();
 }
 
+void MainWindow::toggleBookmark() {
+    if (!app_->annotations || app_->model.document.id.empty() || !pdf_) return;
+    const reader::DocumentId docId = app_->model.document.id;
+    const int page = pdf_->currentPage();
+    if (page < 0 || page >= pdf_->pageCount()) return;
+    // Anchor geometry: a strip across the top of the page in PDF points.
+    // The overlay paints it as a dot; clicking it in Marks jumps here.
+    QSizeF pts = pdf_->pageCount() > 0 ? QSizeF(595, 842) : QSizeF{};
+    const auto sizes = pdf_->pageSizes();
+    if (page < (int)sizes.size() && sizes[page].isValid()) pts = sizes[page];
+    const reader::Rect strip{0.0f, 0.0f, float(pts.width()), 36.0f};
+    // Toggle: any bookmark on this page overlapping the strip comes off.
+    for (const auto& ann : app_->annotations->annotationsFor(docId)) {
+        if (ann.kind != "bookmark" || ann.anchor.page != page) continue;
+        const auto& b = ann.anchor.bounds;
+        const float x0 = std::max(b.x, strip.x);
+        const float x1 = std::min(b.x + b.width, strip.x + strip.width);
+        const float y0 = std::max(b.y, strip.y);
+        const float y1 = std::min(b.y + b.height, strip.y + strip.height);
+        if (x1 > x0 && y1 > y0) {
+            app_->annotations->deleteAnnotation(docId, ann.id);
+            pdf_->refreshUserOverlays();
+            marksPanel_->rebuild();
+            statusHint_->setText(QString("Bookmark removed (p.%1)").arg(page + 1));
+            return;
+        }
+    }
+    reader::UserAnnotation bookmark;
+    bookmark.id = QUuid::createUuid().toString(QUuid::WithoutBraces).toStdString();
+    bookmark.anchor.document = docId;
+    bookmark.anchor.page = page;
+    bookmark.anchor.bounds = strip;
+    bookmark.kind = "bookmark";
+    bookmark.color = "#9b59b6";
+    app_->annotations->saveAnnotation(docId, bookmark);
+    pdf_->refreshUserOverlays();
+    marksPanel_->rebuild();
+    statusHint_->setText(QString("Bookmarked p.%1 — see the Marks tab").arg(page + 1));
+}
+
 bool MainWindow::chatHasFocus() const {
     const QWidget* focus = QApplication::focusWidget();
     return focus && web_ && web_->isAncestorOf(focus);
@@ -711,8 +753,8 @@ bool MainWindow::chatHasFocus() const {
 bool MainWindow::eventFilter(QObject* watched, QEvent* event) {
     // Space starts typing in the ask box from anywhere: highlighting and
     // selecting never steal focus, so space is the explicit "take me to
-    // the composer" key. Text inputs, the browser chat, and modal dialogs
-    // keep their space.
+    // the composer" key. Text inputs, buttons (space activates a focused
+    // button), the browser chat, and modal dialogs keep their space.
     if (event->type() == QEvent::KeyPress) {
         const auto* key = static_cast<const QKeyEvent*>(event);
         const bool modified =
@@ -723,7 +765,8 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event) {
             if (chatHasFocus()) return false;
             if (QWidget* focus = QApplication::focusWidget();
                 focus && (qobject_cast<QLineEdit*>(focus) || qobject_cast<QTextEdit*>(focus) ||
-                          qobject_cast<QPlainTextEdit*>(focus)))
+                          qobject_cast<QPlainTextEdit*>(focus) ||
+                          qobject_cast<QAbstractButton*>(focus)))
                 return false;
             focusBrowserQuestion();
             return true;

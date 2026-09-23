@@ -83,8 +83,11 @@ class QtPdfEngineBridge;
 
 class PdfRenderer {
 public:
-    // 64 tiles x 512x512x4B ~= 64MB worst case (was 256 ~= 256MB).
-    explicit PdfRenderer(std::size_t tileCapacity = 64);
+    // 192 tiles x 512x512x4B ~= 192MB worst case: enough that scrolling a
+    // long paper at DPR 2 (12 tiles/page) keeps ~16 pages resident instead
+    // of ~5, so going back does not re-render. Widget-level caches hold the
+    // immediate neighborhood only; this is the working-set cache.
+    explicit PdfRenderer(std::size_t tileCapacity = 192);
     ~PdfRenderer();
     void attach(QPdfDocument* doc, const DocumentId& id);
     // The active reader uses the immutable Poppler raster source. It is
@@ -93,10 +96,7 @@ public:
     void attachRaster(std::shared_ptr<PopplerBridge> raster, const DocumentId& id);
     void detach();
 
-    using TileCallback = std::function<void(RenderKey, QImage)>;
-    void requestTile(const RenderKey& key, double dpi, TileCallback cb);
     using PageCallback = std::function<void(const QImage&)>;
-    void requestPage(int page, int zoomBucket, const QSize& size, int rotation, PageCallback cb);
     void requestTiles(int page, int zoomBucket, const QSize& pageSize, int rotation,
                       int tileSize, PageCallback cb, QRect visibleRect = {});
     // Fast blur-up placeholder: tiny render at highest priority so a fresh
@@ -105,7 +105,6 @@ public:
     // Warm the full-page cache for an adjacent page at low priority.
     // No callback: a later requestTiles slices from the cached full render.
     void prefetchPage(int page, const QSize& pageSize);
-    void setTileSize(int px);
 
 private:
     struct State;

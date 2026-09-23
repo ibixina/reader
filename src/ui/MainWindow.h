@@ -24,6 +24,7 @@ class PdfView;
 class WebPanel;
 class SearchPanel;
 class OutlinePanel;
+class MarksPanel;
 class QTimer;
 
 // Minimal reader: PDF viewer + browser chat + outline/search overlay.
@@ -39,6 +40,9 @@ public:
 private slots:
     void toggleAiPane();
     void saveHighlightsToPdf();
+    // b toggles a bookmark on the current page: saved as a top-strip
+    // anchor (painted as a dot by the overlay), press again to remove.
+    void toggleBookmark();
 
 private:
     void setupShortcuts();
@@ -80,6 +84,7 @@ private:
     QFrame* readerOverlay_ = nullptr;
     SearchPanel* searchPanel_ = nullptr;
     OutlinePanel* outlinePanel_ = nullptr;
+    MarksPanel* marksPanel_ = nullptr;
     QToolBar* toolbar_ = nullptr;
     QTimer* toolbarRevealTimer_ = nullptr;
     bool toolbarPinned_ = false;

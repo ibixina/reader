@@ -221,7 +221,6 @@ int main() {
                 return {{"right col", {300, 10, 100, 12}, 10, false, 0},
                         {"left col", {10, 10, 100, 12}, 10, false, 0}};
             }
-            std::vector<PdfLink> links(int) override { return {}; }
             std::vector<PdfOutlineEntry> outline() override { return {}; }
             std::string name() const override { return "fake"; }
         } engine;

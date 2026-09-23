@@ -8,6 +8,7 @@
 #include <QSet>
 #include <QStandardPaths>
 #include <QUuid>
+#include <cstdio>
 
 namespace reader {
 namespace {
@@ -130,9 +131,15 @@ QString embedHighlights(const HighlightExportJob& job) {
             return "Could not stage the highlight layer.";
         }
     }
-    if (QProcess::execute(qpdf, {job.srcPath, "--overlay", overlayPath, "--", outPath}) !=
-            0 ||
-        !QFile::exists(outPath)) {
+    QProcess qpdfProc;
+    qpdfProc.start(qpdf, {job.srcPath, "--overlay", overlayPath, "--", outPath});
+    if (!qpdfProc.waitForStarted(10000) || !qpdfProc.waitForFinished(30000)) {
+        qpdfProc.kill();
+        qpdfProc.waitForFinished(5000);
+        cleanup();
+        return "qpdf timed out merging the highlights.";
+    }
+    if (qpdfProc.exitCode() != 0 || !QFile::exists(outPath)) {
         cleanup();
         return "qpdf could not merge the highlights.";
     }
@@ -143,13 +150,32 @@ QString embedHighlights(const HighlightExportJob& job) {
             return "merged PDF failed verification — nothing written.";
         }
     }
-    if (QFile::exists(job.destPath) && !QFile::remove(job.destPath)) {
+    // Replace destPath via POSIX rename: it swaps the directory entry
+    // atomically, so there is never a moment when the paper is missing
+    // (QFile::rename refuses to overwrite, which is what forced the old
+    // remove-first dance — a failed second step there destroyed the
+    // original). If the platform refuses rename-over-existing, fall back
+    // to a backup swap that can always restore the original.
+    const auto replaceInPlace = [&]() -> QString {
+        if (std::rename(QFile::encodeName(outPath).constData(),
+                        QFile::encodeName(job.destPath).constData()) == 0)
+            return "";
+        if (!QFile::exists(job.destPath))
+            return "Could not move the merged file into place.";
+        const QString backup = swapDir + "/.reader-hl-" + tag + "-backup.pdf";
+        if (!QFile::rename(job.destPath, backup))
+            return "Could not stage the previous version.";
+        if (!QFile::rename(outPath, job.destPath)) {
+            QFile::rename(backup, job.destPath); // restore; original survives
+            return "Could not write " + job.destPath;
+        }
+        QFile::remove(backup);
+        return "";
+    };
+    const QString replaceError = replaceInPlace();
+    if (!replaceError.isEmpty()) {
         cleanup();
-        return "Could not replace " + job.destPath;
-    }
-    if (!QFile::rename(outPath, job.destPath)) {
-        cleanup();
-        return "Could not write " + job.destPath;
+        return replaceError;
     }
     cleanup();
     return "";

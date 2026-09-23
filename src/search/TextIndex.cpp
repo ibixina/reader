@@ -58,7 +58,7 @@ std::vector<TextIndex::Hit> TextIndex::search(const DocumentModel& model, const 
         h.anchor = anchorForBlock(model, b);
         std::size_t pos = blockLower_[ranked[i].first].find(qtoks.empty() ? q : qtoks.front());
         std::size_t from = pos == std::string::npos ? 0 : (pos > 40 ? pos - 40 : 0);
-        h.snippet = b.text.substr(0, 0) + "..." + b.text.substr(from, 160) + "...";
+        h.snippet = (from > 0 ? "..." : "") + b.text.substr(from, 160) + "...";
         out.push_back(std::move(h));
     }
     return out;

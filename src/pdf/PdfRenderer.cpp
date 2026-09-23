@@ -18,7 +18,7 @@
 namespace reader {
 
 struct PdfRenderer::State {
-    explicit State(std::size_t capacity) : cache(capacity), pages(6) {}
+    explicit State(std::size_t capacity) : cache(capacity), pages(10) {}
 
     LruCache<RenderKey, QImage, RenderKeyHash> cache;
     // Full-page renders: one Poppler pass per (page, size); tiles slice
@@ -30,7 +30,6 @@ struct PdfRenderer::State {
     std::unordered_set<PageRenderKey, PageRenderKeyHash> pagesInflight;
     std::shared_ptr<PopplerBridge> raster;
     DocumentId document;
-    int tileSize = 512;
     std::atomic<unsigned long> generation{0};
     std::atomic<unsigned int> activeJobs{0};
     std::mutex rasterMutex;
@@ -71,13 +70,6 @@ PdfRenderer::~PdfRenderer() {
     state->jobsCv.wait(lock, [&] { return state->activeJobs.load() == 0; });
 }
 
-void PdfRenderer::setTileSize(int px) {
-    if (px > 0) {
-        std::lock_guard<std::mutex> lock(state_->attachmentMutex);
-        state_->tileSize = px;
-    }
-}
-
 void PdfRenderer::attach(QPdfDocument* doc, const DocumentId& id) {
     const auto state = state_;
     std::lock_guard<std::mutex> lock(state->attachmentMutex);
@@ -111,119 +103,6 @@ void PdfRenderer::detach() {
     state->document.clear();
     state->cache.clear();
     state->pages.clear();
-}
-
-void PdfRenderer::requestTile(const RenderKey& requestedKey, double dpi, TileCallback cb) {
-    const auto state = state_;
-    RenderKey key = requestedKey;
-    key.kind = 0;
-    std::shared_ptr<PopplerBridge> raster;
-    unsigned long generation = 0;
-    int tile = 0;
-    {
-        std::lock_guard<std::mutex> lock(state->attachmentMutex);
-        key.document = state->document;
-        raster = state->raster;
-        generation = state->generation.load();
-        tile = state->tileSize;
-    }
-    if (auto hit = state->cache.get(key)) {
-        enqueueOnGui([state, generation, cb = std::move(cb), key, image = *hit]() mutable {
-            if (generation == state->generation.load() && cb) cb(key, image);
-        });
-        return;
-    }
-    if (!raster) {
-        enqueueOnGui([state, generation, cb = std::move(cb), key]() mutable {
-            if (generation == state->generation.load() && cb) cb(key, {});
-        });
-        return;
-    }
-
-    auto lease = std::make_shared<State::JobLease>(state);
-    QThreadPool::globalInstance()->start([state, lease, raster, generation, key, dpi,
-                                          tile, cb = std::move(cb)]() mutable {
-        if (generation != state->generation.load()) return;
-        QImage page;
-        if (raster) {
-            const QSizeF points = raster->pageSize(key.page);
-            if (points.isEmpty()) return;
-            const double scale = dpi / 72.0;
-            const QSize target(qMax(1, qRound(points.width() * scale)),
-                               qMax(1, qRound(points.height() * scale)));
-            std::lock_guard<std::mutex> lock(state->rasterMutex);
-            page = raster->renderPage(key.page, target);
-        }
-        if (page.isNull() || generation != state->generation.load()) return;
-        const int x = key.tileX * tile;
-        const int y = key.tileY * tile;
-        if (x < 0 || y < 0 || x >= page.width() || y >= page.height()) return;
-        QImage cropped = page.copy(x, y, std::min(tile, page.width() - x),
-                                   std::min(tile, page.height() - y));
-        if (cropped.isNull() || generation != state->generation.load()) return;
-        state->cache.put(key, cropped);
-        enqueueOnGui([state, generation, cb = std::move(cb), key,
-                      image = std::move(cropped)]() mutable {
-            if (generation == state->generation.load() && cb) cb(key, image);
-        });
-    });
-}
-
-void PdfRenderer::requestPage(int page, int zoomBucket, const QSize& size, int rotation,
-                              PageCallback cb) {
-    const auto state = state_;
-    if (page < 0 || size.isEmpty()) {
-        enqueueOnGui([cb = std::move(cb)]() mutable {
-            if (cb) cb({});
-        });
-        return;
-    }
-    RenderKey key;
-    std::shared_ptr<PopplerBridge> raster;
-    unsigned long generation = 0;
-    {
-        std::lock_guard<std::mutex> lock(state->attachmentMutex);
-        key = {state->document, page, zoomBucket, 0, 0, size.width(), size.height(),
-               ((rotation % 360) + 360) % 360, 1};
-        raster = state->raster;
-        generation = state->generation.load();
-    }
-    if (auto hit = state->cache.get(key)) {
-        enqueueOnGui([state, generation, cb = std::move(cb), image = *hit]() mutable {
-            if (generation == state->generation.load() && cb) cb(image);
-        });
-        return;
-    }
-    if (!raster) {
-        enqueueOnGui([state, generation, cb = std::move(cb)]() mutable {
-            if (generation == state->generation.load() && cb) cb({});
-        });
-        return;
-    }
-
-    auto lease = std::make_shared<State::JobLease>(state);
-    // Thumbnails and single-page previews yield to interactive tiles.
-    QThreadPool::globalInstance()->start([state, lease, raster, generation, key, size,
-                                          cb = std::move(cb)]() mutable {
-        if (generation != state->generation.load()) return;
-        QImage image;
-        {
-            std::lock_guard<std::mutex> lock(state->rasterMutex);
-            image = raster->renderPage(key.page, size);
-        }
-        if (generation != state->generation.load()) return;
-        if (image.isNull()) {
-            enqueueOnGui([state, generation, cb = std::move(cb)]() mutable {
-                if (generation == state->generation.load() && cb) cb({});
-            });
-            return;
-        }
-        state->cache.put(key, image);
-        enqueueOnGui([state, generation, cb = std::move(cb), image = std::move(image)]() mutable {
-            if (generation == state->generation.load() && cb) cb(image);
-        });
-    },
-    -10);
 }
 
 void PdfRenderer::requestTiles(int page, int zoomBucket, const QSize& pageSize, int rotation,

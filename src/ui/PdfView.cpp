@@ -67,14 +67,6 @@ public:
         for (const QPolygonF& poly : precise_) rows.push_back(poly.boundingRect());
         return rows;
     }
-    void setHoverHighlight(QRectF r) {
-        hoverHighlight_ = r;
-        update();
-    }
-    void clearHoverHighlight() {
-        hoverHighlight_ = {};
-        update();
-    }
     // Ready-to-paint underline segments + fallback rects, all in points.
     // Pure data: no engine calls here or in paint (§7).
     void setLines(std::vector<reader::TextSpan> lines) { lines_ = std::move(lines); }
@@ -83,10 +75,13 @@ public:
         userOverlays_ = std::move(overlays);
         update();
     }
-    void setRotation(int rotation) {
-        rotation_ = ((rotation % 360) + 360) % 360;
-        setFixedSize(qMax(1, qRound(rotatedWidth() * zoom_)),
-                     qMax(1, qRound(rotatedHeight() * zoom_)));
+    // Zoom in place: resize and drop stale rasters, keep the widget (and
+    // its layout slot) so zooming never rebuilds the whole page tree.
+    void applyZoom(double zoom) {
+        if (zoom_ == zoom) return;
+        zoom_ = zoom;
+        setFixedSize(qMax(1, qRound(pageWidth_ * zoom_)),
+                     qMax(1, qRound(pageHeight_ * zoom_)));
         cache_ = {};
         preview_ = {};
         previewFor_ = {};
@@ -94,6 +89,19 @@ public:
         renderPending_ = false;
         previewPending_ = false;
         update();
+    }
+    // Drop the widget-level page rasters. They duplicate the renderer's
+    // tile/page caches; without release they grow without bound on long
+    // documents (one full device-pixel image per painted page). In-flight
+    // render callbacks re-populate harmlessly (QPointer-guarded).
+    void releaseCache() {
+        if (cache_.isNull() && preview_.isNull()) return;
+        cache_ = {};
+        preview_ = {};
+        previewFor_ = {};
+        requestedSource_ = {};
+        renderPending_ = false;
+        previewPending_ = false;
     }
     void clearSelection() {
         precise_.clear();
@@ -227,11 +235,6 @@ protected:
             p.setPen(Qt::NoPen);
             p.setBrush(QColor(255, 200, 60, 110));
             for (const QRectF& r : highlightRows_) p.fillRect(mapRect(r), p.brush());
-        }
-        if (hoverHighlight_.isValid()) {
-            p.setBrush(Qt::NoBrush);
-            p.setPen(QPen(QColor(40, 150, 220, 220), 2));
-            p.drawRect(mapRect(hoverHighlight_));
         }
         (void)ev;
     }
@@ -497,7 +500,6 @@ private:
     QString liveText_;
     QRectF liveRect_;
     QList<QRectF> highlightRows_;
-    QRectF hoverHighlight_;
     QList<QPair<QRectF, QString>> userOverlays_;
     QImage cache_;
     QImage preview_;
@@ -697,6 +699,7 @@ void PdfView::rebuildPages() {
 void PdfView::attachDocument(std::shared_ptr<QPdfDocument> doc, const QString& path) {
     docGen_->fetch_add(1);
     doc_ = std::move(doc);
+    docPath_ = path;
     selection_.reset(); // stale selection (and its rows) dies with the doc
     selectionRows_.clear();
     selIndex_->clear(); // stale geometry dies with the doc
@@ -732,7 +735,6 @@ void PdfView::goToPage(int page) {
     if (QWidget* w = pageWidget(page)) {
         ensureWidgetVisible(w);
         emit pageChanged(page);
-        emit viewStateChanged(currentPage_, verticalScrollBar()->value(), zoom_, rotation_);
     }
 }
 
@@ -757,30 +759,39 @@ void PdfView::jumpToAnchor(const reader::DocumentAnchor& anchor, bool highlight)
     }
 }
 
-void PdfView::setHoverAnchor(const reader::DocumentAnchor& anchor) {
-    clearHoverAnchor();
-    hoverAnchor_ = anchor;
-    if (auto* w = qobject_cast<PageWidget*>(pageWidget(anchor.page))) {
-        const auto& b = anchor.bounds;
-        w->setHoverHighlight(QRectF(b.x, b.y, b.width, b.height));
+void PdfView::setZoom(double z) {
+    if (!applyingFit_) fitMode_ = FitMode::None;
+    z = std::clamp(z, 0.25, 8.0);
+    if (z == zoom_) {
+        app_->state.zoom = zoom_;
+        return;
     }
-}
-
-void PdfView::clearHoverAnchor() {
-    hoverAnchor_.reset();
+    // Anchor the reflow at the current page: zooming must not throw the
+    // reader to the top of the document.
+    int anchorPage = currentPage_;
+    double pageFrac = 0;
+    if (QWidget* w = pageWidget(anchorPage)) {
+        const QRect g = w->geometry();
+        const int pageTop = qMax(0, g.top());
+        const int pageH = qMax(1, g.height());
+        pageFrac = std::clamp(double(verticalScrollBar()->value() - pageTop) / pageH, 0.0, 1.0);
+    }
+    zoom_ = z;
+    app_->state.zoom = zoom_;
     QLayout* layout = pageHost_->layout();
     for (int i = 0; i < layout->count(); ++i)
         if (auto* w = qobject_cast<PageWidget*>(layout->itemAt(i)->widget()))
-            w->clearHoverHighlight();
-}
-
-void PdfView::setZoom(double z) {
-    if (!applyingFit_) fitMode_ = FitMode::None;
-    zoom_ = std::clamp(z, 0.25, 8.0);
-    app_->state.zoom = zoom_;
-    rebuildPages();
+            w->applyZoom(zoom_);
+    // Flush the scroll widget's own resize synchronously: QScrollArea only
+    // resizes it on async events, and the anchor below would clamp against
+    // the stale document height.
+    pageHost_->resize(pageHost_->sizeHint().expandedTo(viewport()->size()));
+    layout->activate();
+    if (QWidget* w = pageWidget(anchorPage)) {
+        const QRect g = w->geometry();
+        verticalScrollBar()->setValue(qMax(0, g.top() + int(pageFrac * qMax(1, g.height()))));
+    }
     emit zoomChanged(zoom_);
-    emit viewStateChanged(currentPage_, verticalScrollBar()->value(), zoom_, rotation_);
 }
 
 void PdfView::fitWidth() {
@@ -827,7 +838,6 @@ void PdfView::setRotation(int degrees) {
     else {
         rebuildPages();
     }
-    emit viewStateChanged(currentPage_, verticalScrollBar()->value(), zoom_, rotation_);
 }
 
 void PdfView::rotate(int quarterTurns) {
@@ -838,7 +848,6 @@ void PdfView::setPageMode(bool enabled) {
     if (pageMode_ == enabled) return;
     pageMode_ = enabled;
     rebuildPages();
-    emit viewStateChanged(currentPage_, verticalScrollBar()->value(), zoom_, rotation_);
 }
 
 reader::PdfViewState PdfView::captureState() const {
@@ -852,47 +861,17 @@ reader::PdfViewState PdfView::captureState() const {
     return state;
 }
 
-void PdfView::restoreState(const reader::PdfViewState& state, bool highlight) {
-    pageMode_ = state.pageMode;
-    rotation_ = ((state.rotation % 360) + 360) % 360;
-    zoom_ = std::clamp(state.zoom, 0.25, 8.0);
-    currentPage_ = state.page;
-    selection_ = state.selection;
-    selectionRows_.clear(); // exact rows are drag-time paint truth; re-drag to renew
-    rebuildPages();
-    goToPage(state.page);
-    verticalScrollBar()->setValue(std::max(0, state.scrollY));
-    if (highlight && state.selection) jumpToAnchor(*state.selection, true);
-    emit viewStateChanged(currentPage_, verticalScrollBar()->value(), zoom_, rotation_);
-}
-
 std::vector<reader::TextIndex::Hit> PdfView::searchLiteral(const std::string& query,
                                                             std::size_t limit) {
-    textIndex_.build(app_->model);
+    // Rebuild the index only when the underlying model changed: building
+    // tokenized postings for a 240-page paper per search keystroke is waste.
+    if (app_->model.document.id != textIndexDocId_ ||
+        app_->model.blocks.size() != textIndexBlocks_) {
+        textIndex_.build(app_->model);
+        textIndexDocId_ = app_->model.document.id;
+        textIndexBlocks_ = app_->model.blocks.size();
+    }
     return textIndex_.search(app_->model, query, limit);
-}
-
-std::vector<reader::PdfOutlineEntry> PdfView::outlineEntries() const {
-    std::vector<reader::PdfOutlineEntry> entries;
-    if (!doc_) return entries;
-    QPdfBookmarkModel model;
-    model.setDocument(doc_.get());
-    std::function<void(const QModelIndex&, int)> visit = [&](const QModelIndex& parent,
-                                                              int level) {
-        for (int row = 0; row < model.rowCount(parent); ++row) {
-            const QModelIndex index = model.index(row, 0, parent);
-            reader::PdfOutlineEntry entry;
-            entry.title = model.data(index, int(QPdfBookmarkModel::Role::Title))
-                              .toString()
-                              .toStdString();
-            entry.page = model.data(index, int(QPdfBookmarkModel::Role::Page)).toInt();
-            entry.level = level;
-            entries.push_back(std::move(entry));
-            visit(index, level + 1);
-        }
-    };
-    visit({}, 0);
-    return entries;
 }
 
 QWidget* PdfView::pageWidget(int page) const {
@@ -965,6 +944,11 @@ void PdfView::keyPressEvent(QKeyEvent* event) {
 
 void PdfView::updateCurrentPage() {
     if (!doc_ || pageHost_->layout()->count() == 0) return;
+    const int scrollValue = verticalScrollBar()->value();
+    const int delta = scrollValue - lastScrollValue_;
+    if (delta > 0) scrollDirection_ = 1;
+    else if (delta < 0) scrollDirection_ = -1;
+    lastScrollValue_ = scrollValue;
     QPoint center = viewport()->rect().center();
     QPoint inHost = pageHost_->mapFrom(viewport(), center);
     int bestPage = currentPage_;
@@ -983,17 +967,28 @@ void PdfView::updateCurrentPage() {
             bestPage = widget->pageIndex();
         }
     }
+    // Widget-level page rasters duplicate the renderer's own caches and
+    // otherwise accumulate one full device-pixel image per painted page —
+    // gigabytes over a long session. Keep the reading neighborhood, drop
+    // the rest; revisited pages re-request rasters asynchronously.
+    constexpr int kKeepBefore = 3;
+    constexpr int kKeepAfter = 5;
+    for (int i = 0; i < layout->count(); ++i) {
+        auto* widget = qobject_cast<PageWidget*>(layout->itemAt(i)->widget());
+        if (!widget) continue;
+        const int d = widget->pageIndex() - bestPage;
+        if (d < -kKeepBefore || d > kKeepAfter) widget->releaseCache();
+    }
     bool changed = bestPage != currentPage_;
     currentPage_ = bestPage;
     if (app_) {
         app_->state.page = currentPage_;
-        app_->state.scrollY = verticalScrollBar()->value();
+        app_->state.scrollY = scrollValue;
     }
     if (changed) {
         emit pageChanged(currentPage_);
         schedulePixelPrefetch(currentPage_);
     }
-    emit viewStateChanged(currentPage_, verticalScrollBar()->value(), zoom_, rotation_);
 }
 
 void PdfView::refreshUserOverlays() {
@@ -1023,8 +1018,11 @@ void PdfView::refreshUserOverlays() {
 // A highlight is identified by substantial geometric overlap on one
 // page — never by exact text, pixel bounds or volatile block IDs. A
 // sub-selection of a highlight (or a re-drag after zoom/re-extraction)
-// still matches, while nearby distinct passages never do.
-// Degenerate anchors without geometry fall back to page + text.
+// still matches, while nearby distinct passages never do: overlap is
+// measured against BOTH the stored row and the current selection, so a
+// re-selection of any passage mostly inside an existing row toggles that
+// highlight off instead of stacking a duplicate. Degenerate anchors
+// without geometry fall back to page + text.
 static double highlightOverlap(const reader::Rect& a, const reader::Rect& b) {
     if (!a.valid() || !b.valid()) return 0.0;
     const float x0 = std::max(a.x, b.x);
@@ -1045,7 +1043,16 @@ static bool sameHighlightTarget(const reader::DocumentAnchor& a,
     if (a.page != b.page) return false;
     if (!a.bounds.valid() || !b.bounds.valid())
         return a.anchorText == b.anchorText;
-    return highlightOverlap(a.bounds, b.bounds) >= 0.5;
+    const double inter = highlightOverlap(a.bounds, b.bounds);
+    if (inter <= 0.0) return false;
+    // Overlap measured against the smaller row (>= 0.5) OR against the
+    // selection itself (>= 0.5): re-selecting a sub-passage of a stored
+    // row is a toggle-off, never a second highlight.
+    if (inter >= 0.5) return true;
+    const double selectionArea = double(a.bounds.width) * double(a.bounds.height);
+    const double storedArea = double(b.bounds.width) * double(b.bounds.height);
+    const double intersection = inter * std::min(selectionArea, storedArea);
+    return selectionArea > 0 && intersection / selectionArea >= 0.5;
 }
 
 bool PdfView::hasHighlightForCurrentSelection() const {
@@ -1198,6 +1205,7 @@ void PdfView::prefetchAround(int page) {
     const auto generation = docGen_;
     const unsigned long gen = generation->load();
     std::shared_ptr<QPdfDocument> doc = doc_;
+    const QString path = docPath_;
     const auto index = selIndex_;
     QPointer<PdfView> view(this);
     for (int p = page - 2; p <= page + 2; ++p) {
@@ -1206,11 +1214,12 @@ void PdfView::prefetchAround(int page) {
             std::lock_guard<std::mutex> lock(wordPendingMutex_);
             if (!wordPending_.insert(p).second) continue; // already queued
         }
-        // Serialized doc lane: pdfium is used from one thread at a time.
-        // Each page costs hundreds of per-word engine queries (~1s), so a
-        // job that waited out a fast scroll checks at start whether its
-        // page is still near the reader before burning that second.
-        app_->docLane.submit([doc, index, generation, view, p, gen, this] {
+        // Serialized doc lane. The fast path derives word geometry from one
+        // poppler layout pass per page (~ms); the legacy per-word pdfium
+        // fallback (hundreds of queries, ~1s per dense page) only runs when
+        // the layout is unavailable. A job that waited out a fast scroll
+        // checks at start whether its page is still near the reader.
+        app_->docLane.submit([doc, path, index, generation, view, p, gen, this] {
             const auto release = [this, p] {
                 std::lock_guard<std::mutex> lock(wordPendingMutex_);
                 wordPending_.erase(p);
@@ -1224,7 +1233,8 @@ void PdfView::prefetchAround(int page) {
                 return;
             }
             QString text;
-            auto boxes = reader::buildWordBoxes(*doc, p, text);
+            auto boxes = reader::buildWordBoxesFromLayout(path, p, text);
+            if (boxes.empty() && doc) boxes = reader::buildWordBoxes(*doc, p, text);
             release();
             if (gen != generation->load()) return;
             reader::PageWords pw;
@@ -1244,10 +1254,13 @@ void PdfView::prefetchPixelsAround(int page) {
     if (!renderer_ || page < 0 || page >= pageCount_) return;
     qreal dpr = devicePixelRatioF();
     if (dpr <= 0) dpr = 1;
-    // Next pages first: scrolling down is the common case. Low priority
-    // jobs that only warm the full-page cache; the visible page's tiles
-    // always win the thread pool.
-    const int order[] = {page + 1, page - 1, page + 2, page - 2};
+    // Warm the pages ahead in the direction the reader is travelling first,
+    // then the ones behind: scrolling is directional, and the next page
+    // should already be sharp when it scrolls into view. Low priority jobs
+    // only warm the full-page cache; visible tiles always win the pool.
+    const int dir = scrollDirection_.load();
+    const int order[] = {page + dir, page - dir, page + 2 * dir, page - 2 * dir,
+                         page + 3 * dir};
     for (int p : order) {
         if (p < 0 || p >= pageCount_ || p == page) continue;
         const QSizeF pts = pageSizes_[p];

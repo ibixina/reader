@@ -184,13 +184,77 @@ plain `./run.sh [paper.pdf]`. Verified 2026-09-22: fresh configure+build,
     space keeps focus in the page (verified the test FAILS with the guard
     disabled — focus lands on the ask box) and `n` opens no note editor.
     Suite 10/10 in both dirs.
+16. Performance + correctness round (2026-09-23; all numbers re-measured
+    offscreen against the 240-page dense text fixture and a 24-page
+    figure-dense fixture; suite 11/11 after):
+    - Cold-open stall killed: `QtPdfEngine::outline()` waited up to 1.5 s
+      in a QEventLoop whenever the (asynchronous) bookmark model had 0
+      rows — on documents whose bookmark tree never populated that was a
+      flat +1.5 s per cold open AND the native outline was silently lost
+      (0 entries). Now: bounded 150 ms wait, listens for `modelReset` as
+      well as `rowsInserted`. `StructureDetector::detect` on 240 pages:
+      1513 → 233 ms.
+    - Word geometry rebuilt: `buildWordBoxesFromLayout` derives word boxes
+      from one poppler layout pass per page (~8 ms per 5 pages measured
+      vs 133 ms legacy — and the legacy per-word pdfium loop scaled to
+      ~1 s per dense page). The new path never touches `QPdfDocument`,
+      so UI-thread `linkAt` clicks no longer contend with the word
+      indexer. Legacy per-word path kept only as fallback.
+    - Zoom reflows in place: `PageWidget::applyZoom` keeps widgets (and
+      their layout slots) instead of `rebuildPages()` destroying the tree;
+      the scroll position re-anchors at the current page. Zoom step:
+      101 → 25 ms (DPR1 text), 1388 → 763 ms (figures).
+    - Memory bounded at the widget layer: page widgets release their
+      full-page rasters beyond a ±(3 before / 5 after) page window
+      (previously one full device-pixel image per painted page, forever).
+      Renderer caches widened to match: 64 → 192 tiles, 6 → 10 full pages.
+    - Direction-aware prefetch: pixel prefetch warms pages ahead in the
+      scroll direction first (3 ahead, 2 behind) instead of fixed ±2.
+    - HiDPI scroll de-janked (text fixture, DPR2): frame mean
+      12.3 → 10.3 ms, p95 18.6 → 13.0 ms, frames over 16.7 ms
+      105/1193 → 0/1193, max 48 → 16 ms. Figure fixture (DPR1): frames
+      over 16.7 ms 63/297 → 1/297, p95 23.1 → 8.6 ms.
+    - Data-loss fix: in-place highlight save did remove-then-rename; a
+      failed rename destroyed the original. Now POSIX `std::rename`
+      replaces atomically (backup-swap fallback), and the qpdf merge has
+      a 30 s timeout instead of `QProcess::execute`'s infinite block.
+    - `h` toggle semantics: a re-selection sitting mostly inside a stored
+      highlight row now toggles it off (was: stacked an overlapping
+      duplicate). Exact re-selection still clears the whole group; a
+      partial re-selection clears only the covered rows. Pinned in
+      `test_select`.
+    - Bookmarks are real now: `b` toggles a top-strip bookmark on the
+      current page (was: handlers wired to signals nothing emits). The
+      new Marks tab lists bookmarks + notes, click-to-jump. Pinned in
+      `test_reader_ui`.
+    - Failed opens keep the previous paper: the new document is opened
+      and validated before any context/history/view state is touched,
+      and the status bar reports the reason (file not found, encrypted,
+      corrupt). Pinned in `test_reader_ui`.
+    - Space on a focused button activates the button instead of jumping
+      to the ask box. Pinned in `test_reader_ui`.
+    - Ask timeout: a lost runJavaScript callback no longer wedges Ask
+      until a document switch (20 s release).
+    - Storage: indexes on annotations(document_id) + notes(document_id)
+      (the live overlay/highlight reads ran unindexed on the UI thread),
+      RAII statement finalize, checked query results with stderr report.
+    - Dead surface removed: viewStateChanged/hover/restoreState/
+      outlineEntries/bookmarkRequested/regionCaptured signals,
+      requestTile/requestPage/setTileSize, IPdfEngine::links (its
+      thread-unsafe pageSize call died with it), ApplicationState::goTo,
+      unused AppSettings fields; WebPanel's removed ingest scripts moved
+      to test_webengine as fixtures (~80 lines out of the binary).
+    - TextIndex: snippet no longer prefixes "..." at position 0; the
+      literal-search index rebuilds only when the model changes.
+    - build-qt/ and Testing/ untracked (710 stale artifacts), .gitignore
+      added.
 
 ## 4. Verification log
-- Full `ctest`: **9/9 pass** (core, chat_lifecycle, qt, select,
-  embedding_qt, reader_ui, render, render_stress, webengine).
-- Qt-free `BUILD_UI=OFF` build: 2/2 pass.
-- Zero compiler warnings in touched UI files; zero dangling references to
-  removed symbols (grep-verified); paper-reader + test_reader_ui link clean.
+- Latest full `ctest`: **11/11 pass** (core, chat_lifecycle, qt, select,
+  embedding_qt, reader_ui, shutdown, render, render_stress, export,
+  webengine) — 2026-09-23, Release `build-qt`, with the §3.16 fixes.
+- Qt-free `BUILD_UI=OFF` build: 2/2 pass (re-verified 2026-09-23).
+- Zero compiler warnings in the full build after §3.16.
 
 ## 5. Follow-ups (not yet done)
 - Phase C: remove dead core (ChatManager/OpenAIProvider/EmbeddingProviderQt/

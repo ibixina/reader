@@ -386,6 +386,77 @@ int main(int argc, char** argv) {
         }
     }
 
+    // Bookmarks: b toggles a bookmark on the current page, the Marks tab
+    // lists it, pressing b again removes it.
+    {
+        pdf->goToPage(1);
+        qt.processEvents(QEventLoop::AllEvents, 25);
+        QMetaObject::invokeMethod(&window, "toggleBookmark", Qt::DirectConnection);
+        const auto bookmarks = app.annotations->annotationsFor(app.model.document.id);
+        CHECK(std::any_of(bookmarks.begin(), bookmarks.end(), [](const reader::UserAnnotation& a) {
+            return a.kind == "bookmark" && a.anchor.page == 1;
+        }));
+        auto* marksList = window.findChild<QListWidget*>("marksList");
+        CHECK(marksList != nullptr);
+        CHECK(marksList && marksList->count() >= 1);
+        // The list falls back to a placeholder row once empty.
+        QMetaObject::invokeMethod(&window, "toggleBookmark", Qt::DirectConnection);
+        CHECK(std::none_of(
+            app.annotations->annotationsFor(app.model.document.id).begin(),
+            app.annotations->annotationsFor(app.model.document.id).end(),
+            [](const reader::UserAnnotation& a) { return a.kind == "bookmark"; }));
+        CHECK(marksList && marksList->count() == 1 &&
+              marksList->item(0)->text().contains("No bookmarks"));
+    }
+
+    // Space on a focused button activates the button, never the ask box:
+    // the app-wide space shortcut must exempt button focus.
+    {
+        QPushButton probe(&window);
+        probe.setObjectName("spaceProbeButton");
+        probe.show();
+        probe.setFocus(Qt::OtherFocusReason);
+        qt.processEvents(QEventLoop::AllEvents, 25);
+        CHECK(QApplication::focusWidget() == &probe);
+        QKeyEvent spacePress(QEvent::KeyPress, Qt::Key_Space, Qt::NoModifier);
+        QApplication::sendEvent(&probe, &spacePress);
+        qt.processEvents(QEventLoop::AllEvents, 50);
+        CHECK(QApplication::focusWidget() == &probe);
+        CHECK(QApplication::focusWidget() != browserQuestion);
+    }
+
+    // Zoom reflows in place: same page widgets (no tree rebuild), and the
+    // current page survives the zoom step.
+    {
+        QWidget* page0Before = window.findChild<QWidget*>("pdfPage_0");
+        pdf->goToPage(2);
+        const int pageBefore = pdf->currentPage();
+        pdf->setZoom(1.75);
+        qt.processEvents(QEventLoop::AllEvents, 100);
+        QWidget* page0After = window.findChild<QWidget*>("pdfPage_0");
+        CHECK(page0Before != nullptr);
+        CHECK(page0Before == page0After);
+        CHECK(pdf->currentPage() == pageBefore);
+        pdf->setZoom(1.25);
+        qt.processEvents(QEventLoop::AllEvents, 100);
+    }
+
+    // A failed open must leave the previous paper exactly as it was, with
+    // a diagnosable reason in the status bar.
+    {
+        const auto identityBefore = app.model.document.id;
+        const int pagesBefore = pdf->pageCount();
+        window.openFile("/nonexistent/missing.pdf");
+        qt.processEvents(QEventLoop::AllEvents, 100);
+        CHECK(app.model.document.id == identityBefore);
+        CHECK(pdf->pageCount() == pagesBefore);
+        bool foundReason = false;
+        const QList<QLabel*> labels = window.findChildren<QLabel*>();
+        for (const QLabel* label : labels)
+            if (label->text().contains("Could not open PDF")) foundReason = true;
+        CHECK(foundReason);
+    }
+
     // Pane visibility is exercised through the actual slot.
     QMetaObject::invokeMethod(&window, "toggleAiPane", Qt::DirectConnection);
     QMetaObject::invokeMethod(&window, "toggleAiPane", Qt::DirectConnection);

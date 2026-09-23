@@ -1,0 +1,12 @@
+# Build outputs — the canonical build lives in build-qt/ but is never
+# tracked: binaries, object files, CMake caches and CTest logs are all
+# machine-local and change on every rebuild.
+build-qt/
+Testing/
+build*/
+compile_commands.json
+
+# Editor / tooling
+.zcode/
+.zcodeignore
+*.swp

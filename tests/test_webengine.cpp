@@ -12,6 +12,8 @@
 #include <QWebEngineUrlRequestInfo>
 #include <QWebEngineUrlRequestInterceptor>
 #include <QWebEngineView>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <memory>
 #include <iostream>
 
@@ -25,6 +27,107 @@ static int failures = 0;
             ++failures; \
         } \
     } while (0)
+
+namespace {
+// Former WebPanel ingest-via-chat helpers, removed from the shipped app
+// when the slim-down dropped that flow. They encode the chatgpt.com DOM
+// contract the tests pin, so they live here as test fixtures now.
+
+// JS that stuffs a PDF into the composer's file input. Synchronous
+// result: 'started' (async attach running, outcome in window.__attach),
+// 'no-file-input', or 'error:...'.
+QString attachScript(const QString& base64Pdf, const QString& filename) {
+    return QStringLiteral(
+               "(function(b64, name){"
+               " try {"
+               "  var inp = document.querySelector('input[type=\"file\"]');"
+               "  if (!inp) return 'no-file-input';"
+               "  window.__attach = 'pending';"
+               "  fetch('data:application/pdf;base64,' + b64).then(function(r){"
+               "   return r.arrayBuffer();"
+               "  }).then(function(buf){"
+               "   try {"
+               "    var file = new File([buf], name, {type: 'application/pdf'});"
+               "    var dt = new DataTransfer();"
+               "    dt.items.add(file);"
+               "    inp.files = dt.files;"
+               "    inp.dispatchEvent(new Event('change', {bubbles: true}));"
+               "    inp.dispatchEvent(new Event('input', {bubbles: true}));"
+               "    var check = function(tries){"
+               "     var has = inp.files && inp.files.length > 0;"
+               "     var bodyText = (document.body && (document.body.innerText ||"
+               "                     document.body.textContent)) || '';"
+               "     var chip = bodyText.indexOf(name) !== -1;"
+               "     if (has && chip) { window.__attach = 'attached'; return; }"
+               "     if (tries <= 0) { window.__attach = has ? 'attached' : 'error:no-chip';"
+               "                       return; }"
+               "     setTimeout(function(){ check(tries - 1); }, 500);"
+               "    };"
+               "    check(10);"
+               "   } catch (e) { window.__attach = 'error:' + e; }"
+               "  }).catch(function(e){ window.__attach = 'error:' + e; });"
+               "  return 'started';"
+               " } catch (e) { return 'error:' + e; }"
+               "})(%1, %2)")
+        .arg(WebPanel::jsonQuoted(base64Pdf), WebPanel::jsonQuoted(filename));
+}
+
+// Reads window.__attach ('pending' when unset).
+QString attachPollScript() {
+    return QStringLiteral("(function(){ return window.__attach || 'pending'; })()");
+}
+
+// JS snapshot of send evidence: {"users":int,"composer":int,"generating":bool,"url":"..."}.
+QString confirmScript() {
+    return QStringLiteral(
+        "(function(){"
+        " try {"
+        "  var users = document.querySelectorAll('[data-message-author-role=\"user\"]');"
+        "  var stop = document.querySelector('[data-testid=\"stop-button\"]')"
+        "        || document.querySelector('button[aria-label=\"Stop generating\"]');"
+        "  var ed = document.getElementById('prompt-textarea')"
+        "        || document.querySelector('[data-testid=\"composer-text-input\"]')"
+        "        || document.querySelector('form div[contenteditable=\"true\"]')"
+        "        || document.querySelector('div[contenteditable=\"true\"]');"
+        "  var pm = ed ? (ed.querySelector('.ProseMirror') || ed) : null;"
+        "  var txt = pm ? (pm.innerText || pm.textContent || '') : '';"
+        "  return JSON.stringify({users: users.length, composer: txt.trim().length,"
+        "                         generating: !!stop, url: window.location.href});"
+        " } catch (e) { return JSON.stringify({users: -1, composer: -1,"
+        "                                     generating: false, url: ''}); }"
+        "})()");
+}
+
+// Pure decision rule over two confirmScript snapshots.
+bool sendConfirmed(const QString& beforeJson, const QString& afterJson) {
+    const QJsonObject before = QJsonDocument::fromJson(beforeJson.toUtf8()).object();
+    const QJsonObject after = QJsonDocument::fromJson(afterJson.toUtf8()).object();
+    if (after.value("users").toInt(-1) > before.value("users").toInt(-1)) return true;
+    if (!after.value("url").toString().isEmpty() &&
+        after.value("url").toString() != before.value("url").toString())
+        return true;
+    return after.value("generating").toBool(false) && after.value("composer").toInt(-1) == 0;
+}
+
+// JS polling the latest assistant message: {"generating":bool,"text":"..."}.
+QString pollScript() {
+    return QStringLiteral(
+        "(function(){"
+        " try {"
+        "  var stop = document.querySelector('[data-testid=\"stop-button\"]')"
+        "        || document.querySelector('button[aria-label=\"Stop generating\"]');"
+        "  var nodes = document.querySelectorAll('[data-message-author-role=\"assistant\"]');"
+        "  if (!nodes.length) nodes = document.querySelectorAll('.markdown');"
+        "  var text = '';"
+        "  if (nodes.length) {"
+        "   var el = nodes[nodes.length - 1];"
+        "   text = el.innerText || el.textContent || '';"
+        "  }"
+        "  return JSON.stringify({generating: !!stop, text: text});"
+        " } catch (e) { return JSON.stringify({generating: true, text: '', error: String(e)}); }"
+        "})()");
+}
+} // namespace
 
 static QVariant runJsSync(QWebEngineView& view, const QString& script, int timeoutMs = 15000) {
     struct State {
@@ -139,12 +242,12 @@ int main(int argc, char** argv) {
     loadTimer.start(20000);
     loaded.exec();
     {
-        QString poll = runJsSync(view, WebPanel::pollScript()).toString();
+        QString poll = runJsSync(view, pollScript()).toString();
         CHECK(poll.contains("\"generating\":true"));
     }
     runJsSync(view, "document.querySelector('[data-testid=\"stop-button\"]').remove()");
     {
-        QString poll = runJsSync(view, WebPanel::pollScript()).toString();
+        QString poll = runJsSync(view, pollScript()).toString();
         CHECK(poll.contains("\"generating\":false"));
         CHECK(poll.contains("overview"));
     }
@@ -218,17 +321,17 @@ int main(int argc, char** argv) {
 
     // Send confirmation rule: a mechanical 'sent' means nothing until the
     // conversation shows it. Pure logic, no page needed.
-    CHECK(WebPanel::sendConfirmed("{\"users\":0,\"composer\":0,\"generating\":false,"
+    CHECK(sendConfirmed("{\"users\":0,\"composer\":0,\"generating\":false,"
                                   "\"url\":\"https://chatgpt.com/\"}",
                                   "{\"users\":1,\"composer\":0,\"generating\":true,"
                                   "\"url\":\"https://chatgpt.com/\"}"));
-    CHECK(!WebPanel::sendConfirmed("{\"users\":0,\"composer\":0,\"generating\":false,"
+    CHECK(!sendConfirmed("{\"users\":0,\"composer\":0,\"generating\":false,"
                                    "\"url\":\"https://chatgpt.com/\"}",
                                    "{\"users\":0,\"composer\":140,\"generating\":false,"
                                    "\"url\":\"https://chatgpt.com/\"}"));
     // The screenshot bug: composer still full, nothing generating, no new
     // user message -> unconfirmed, never reported as sent.
-    CHECK(!WebPanel::sendConfirmed("{\"users\":0,\"composer\":0,\"generating\":false,"
+    CHECK(!sendConfirmed("{\"users\":0,\"composer\":0,\"generating\":false,"
                                    "\"url\":\"https://chatgpt.com/?temporary-chat=true\"}",
                                    "{\"users\":0,\"composer\":0,\"generating\":false,"
                                    "\"url\":\"https://chatgpt.com/?temporary-chat=true\"}"));
@@ -243,7 +346,7 @@ int main(int argc, char** argv) {
     loadTimer.start(20000);
     loaded.exec();
     {
-        QString snap = runJsSync(view, WebPanel::confirmScript()).toString();
+        QString snap = runJsSync(view, confirmScript()).toString();
         CHECK(snap.contains("\"users\":1"));
         CHECK(snap.contains("\"generating\":false"));
         CHECK(!snap.contains("\"composer\":0"));
@@ -266,12 +369,12 @@ int main(int argc, char** argv) {
     QObject::connect(view.page(), &QWebEnginePage::loadFinished, &loaded, &QEventLoop::quit);
     loadTimer.start(20000);
     loaded.exec();
-    CHECK(runJsSync(view, WebPanel::attachScript("SGVsbG8=", "paper.pdf")).toString() ==
+    CHECK(runJsSync(view, attachScript("SGVsbG8=", "paper.pdf")).toString() ==
           "started");
     {
         QString state;
         for (int i = 0; i < 15; ++i) {
-            state = runJsSync(view, WebPanel::attachPollScript()).toString();
+            state = runJsSync(view, attachPollScript()).toString();
             if (state == "attached") break;
             QEventLoop pause;
             QTimer::singleShot(1000, &pause, &QEventLoop::quit);
@@ -286,7 +389,7 @@ int main(int argc, char** argv) {
     QObject::connect(view.page(), &QWebEnginePage::loadFinished, &loaded, &QEventLoop::quit);
     loadTimer.start(20000);
     loaded.exec();
-    CHECK(runJsSync(view, WebPanel::attachScript("SGVsbG8=", "paper.pdf")).toString() ==
+    CHECK(runJsSync(view, attachScript("SGVsbG8=", "paper.pdf")).toString() ==
           "no-file-input");
 
     if (failures == 0) std::cout << "ALL WEBENGINE TESTS PASSED\n";

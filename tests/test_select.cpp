@@ -256,7 +256,7 @@ int main(int argc, char** argv) {
                                        int(midY * z)));
             const std::string part = currentText(rapp);
             CHECK(!part.empty());
-            CHECK(part.size() < history->text.size());
+            CHECK(part.size() < size_t(history->text.size()));
             CHECK(history->text.startsWith(QString::fromStdString(part)));
             // Span two words: every background pixel in the inter-word gap
             // must carry the highlight wash (blue tint over white).
@@ -337,6 +337,57 @@ int main(int argc, char** argv) {
             const QImage after = page->grab().toImage();
             const QRgb p = after.pixel(gx, gy);
             CHECK(!(qGray(p) >= 150 && qBlue(p) < 225));
+        }
+    }
+
+    // A sub-passage re-selected inside an existing highlight is a
+    // toggle-off, never a stacked duplicate: pressing h on a re-selection
+    // that sits mostly inside a stored row must find and remove it.
+    {
+        QString pageText;
+        auto boxes = reader::buildWordBoxes(*doc, 0, pageText);
+        const auto findWord = [&](const char* t) {
+            return std::find_if(boxes.begin(), boxes.end(), [&](const reader::WordBox& w) {
+                return w.text == t;
+            });
+        };
+        auto posterior = findWord("Posterior"); // first line
+        auto recurrent = findWord("recurrent"); // second line
+        auto history = findWord("history");     // second line
+        if (posterior != boxes.end() && recurrent != boxes.end() &&
+            history != boxes.end()) {
+            const double z = 1.25;
+            const std::size_t before = rapp.annotations->annotationsFor("testdoc").size();
+            // Full two-row highlight.
+            mousePress(*page, QPoint(int(posterior->rect.center().x() * z),
+                                     int(posterior->rect.center().y() * z)));
+            mouseRelease(*page, QPoint(int(history->rect.center().x() * z),
+                                       int(history->rect.center().y() * z)));
+            CHECK(view.highlightCurrentSelection());
+            CHECK(rapp.annotations->annotationsFor("testdoc").size() == before + 2);
+            // Re-select only part of one word of the second row: the old
+            // rule (overlap >= 0.5 of the smaller rect) found no match here
+            // and pressing h stacked an overlapping duplicate.
+            const double midX = recurrent->rect.left() + recurrent->rect.width() * 0.6;
+            mousePress(*page, QPoint(int(midX * z), int(recurrent->rect.center().y() * z)));
+            mouseRelease(*page, QPoint(int((recurrent->rect.right() - 1.0) * z),
+                                       int(recurrent->rect.center().y() * z)));
+            CHECK(!currentText(rapp).empty());
+            CHECK(view.hasHighlightForCurrentSelection());
+            CHECK(view.removeHighlightForCurrentSelection());
+            // Only the covered row goes; the other row of the group stays
+            // (toggle what you re-selected).
+            const auto left = rapp.annotations->annotationsFor("testdoc");
+            CHECK(left.size() == before + 1);
+            // An exact re-selection of the full passage still clears the
+            // whole group in one press.
+            mousePress(*page, QPoint(int(posterior->rect.center().x() * z),
+                                     int(posterior->rect.center().y() * z)));
+            mouseRelease(*page, QPoint(int(history->rect.center().x() * z),
+                                       int(history->rect.center().y() * z)));
+            CHECK(view.hasHighlightForCurrentSelection());
+            CHECK(view.removeHighlightForCurrentSelection());
+            CHECK(rapp.annotations->annotationsFor("testdoc").size() == before);
         }
     }
 

@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iostream>
 
+#include <QElapsedTimer>
 #include <QGuiApplication>
 #include <QPdfDocument>
 
@@ -19,6 +20,7 @@
 #include "document/DocumentAnchor.h"
 #include "pdf/QtPdfEngine.h"
 #include "pdf/TextExtractor.h"
+#include "../tests/academic_fixture.h"
 #include "../tests/sample_pdf.h"
 
 static int failures = 0;
@@ -44,6 +46,33 @@ int main(int argc, char** argv) {
         &doc, [](QPdfDocument*) {}));
     CHECK(engine->open(pdf));
     CHECK(engine->pageCount() == 1);
+
+    // Outline: the academic fixture carries three native bookmarks. The
+    // engine must return all of them promptly — a 1.5 s stall (and an
+    // empty result) used to run on every cold open of documents whose
+    // bookmark model did not populate within the wait window.
+    {
+        const std::string fixturePdf = std::string(home ? home : "/tmp") + "/qt_outline.pdf";
+        reader_test::writeAcademicPdf(fixturePdf);
+        QPdfDocument doc2;
+        auto engine2 = std::make_shared<QtPdfEngine>(std::shared_ptr<QPdfDocument>(
+            &doc2, [](QPdfDocument*) {}));
+        CHECK(engine2->open(fixturePdf));
+        QElapsedTimer outlineTimer;
+        outlineTimer.start();
+        const auto entries = engine2->outline();
+        const qint64 outlineMs = outlineTimer.elapsed();
+        CHECK(entries.size() == 3);
+        CHECK(outlineMs < 1000);
+        if (entries.size() == 3) {
+            CHECK(entries[0].title == "Introduction");
+            CHECK(entries[0].page == 0);
+            CHECK(entries[1].title == "Methods");
+            CHECK(entries[1].page == 1);
+            CHECK(entries[2].title == "Results");
+            CHECK(entries[2].page == 2);
+        }
+    }
 
     DocumentModel model;
     model.document.id = "qt1";

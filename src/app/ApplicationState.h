@@ -32,14 +32,7 @@ private:
 
 struct AppSettings {
     bool parseLocally = true;
-    bool storeEmbeddingsLocally = true;
-    bool sendOnlyRetrievedPassages = true;
-    bool allowCompleteUpload = false; // §59 default off
     bool copySelectionToClipboard = false; // §13 default off
-    std::string aiEmphasis = "normal"; // off|minimal|normal|extensive
-    bool showImportant = true, showDefinitions = true, showResults = true,
-         showLimitations = true, showSectionSummaries = true, showMethods = false;
-    std::string sectionSummaryLevel = "short"; // off|one_sentence|short|detailed
 };
 
 class ApplicationState {
@@ -49,12 +42,9 @@ public:
     double scrollY = 0;
     double zoom = 1.25;
     bool aiPaneVisible = true;
-    bool aiPaneCollapsed = false;
     ReaderState readerState;
     AppSettings settings;
     NavigationHistory history;
-
-    void goTo(NavEntry entry);
 };
 
 } // namespace reader

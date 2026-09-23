@@ -19,8 +19,9 @@ CONDA_PREFIX=/home/nao/miniforge3 cmake -S . -B /tmp/reader-full3 \
 flock /tmp/reader-full3-build.lock cmake --build /tmp/reader-full3 --parallel 1
 ctest --test-dir /tmp/reader-full3 -E '^webengine$' --output-on-failure
 
-# Authorized local runtime: require loopback tests and run WebEngine coverage.
-READER_REQUIRE_LOCAL_HTTP=1 ctest --test-dir /tmp/reader-full3 --output-on-failure
+# The embedding and compatible-chat tests bind loopback-only fake servers
+# unconditionally; they skip themselves if the bind is unavailable.
+ctest --test-dir /tmp/reader-full3 --output-on-failure
 
 # Launch this build (pass a PDF path as an optional argument).
 PAPER_READER_BUILD_DIR=/tmp/reader-full3 ./run.sh
