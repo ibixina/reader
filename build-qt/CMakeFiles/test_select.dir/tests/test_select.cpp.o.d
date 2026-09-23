@@ -411,10 +411,8 @@ CMakeFiles/test_select.dir/tests/test_select.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qvarlengtharray.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qalloc.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qguiapplication_platform.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/QEventLoop \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLabel \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlabel.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qframe.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDialog \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialog.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qwidget.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qaction.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qkeysequence.h \
@@ -427,6 +425,12 @@ CMakeFiles/test_select.dir/tests/test_select.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qfontinfo.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qfontvariableaxis.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qsizepolicy.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDialogButtonBox \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialogbuttonbox.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QEventLoop \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLabel \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlabel.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qframe.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qpicture.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qiodevice.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextdocument.h \
@@ -455,6 +459,16 @@ CMakeFiles/test_select.dir/tests/test_select.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtPdf/qpdfdocumentrenderoptions.h \
  /home/nao/qtsysroot/usr/include/qt6/QtPdf/qpdfselection.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qclipboard.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QPushButton \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qpushbutton.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractbutton.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QTextEdit \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtextedit.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractscrollarea.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextoption.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextcursor.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextformat.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qpen.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QTimer \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qtimer.h \
  /usr/include/c++/16/iostream \
@@ -494,7 +508,6 @@ CMakeFiles/test_select.dir/tests/test_select.cpp.o: \
  /home/nao/Documents/Projects/reader/src/storage/Database.h \
  /home/nao/Documents/Projects/reader/src/storage/Repositories.h \
  /home/nao/Documents/Projects/reader/src/ui/PdfView.h \
- /home/nao/Documents/Projects/reader/src/ai/EmbeddingProviderQt.h \
  /home/nao/Documents/Projects/reader/src/pdf/PdfRenderer.h \
  /home/nao/Documents/Projects/reader/src/core/LruCache.h \
  /home/nao/Documents/Projects/reader/src/pdf/PopplerBridge.h \
@@ -530,7 +543,10 @@ CMakeFiles/test_select.dir/tests/test_select.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QRectF \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QScrollArea \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qscrollarea.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractscrollarea.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QList \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QPoint \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointer \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qpointer.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QSizeF \
  /home/nao/Documents/Projects/reader/tests/../tests/sample_pdf.h \
  /usr/include/c++/16/fstream \

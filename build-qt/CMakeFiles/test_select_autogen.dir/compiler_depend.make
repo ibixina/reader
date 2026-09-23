@@ -82,7 +82,6 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
   /home/nao/Documents/Projects/reader/src/storage/Repositories.h \
   /home/nao/Documents/Projects/reader/src/ui/PdfView.cpp \
   /home/nao/Documents/Projects/reader/src/ui/PdfView.h \
-  /home/nao/Documents/Projects/reader/src/ui/chat_resources.qrc \
   /home/nao/Documents/Projects/reader/tests/test_select.cpp \
   /home/nao/qtsysroot/usr/include/poppler/qt6/poppler-annotation.h \
   /home/nao/qtsysroot/usr/include/poppler/qt6/poppler-converter.h \
@@ -92,7 +91,6 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
   /home/nao/qtsysroot/usr/include/poppler/qt6/poppler-page-transition.h \
   /home/nao/qtsysroot/usr/include/poppler/qt6/poppler-qt6.h \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QAbstractListModel \
-  /home/nao/qtsysroot/usr/include/qt6/QtCore/QBuffer \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QByteArray \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QCoreApplication \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QDateTime \
@@ -101,6 +99,7 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QList \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QMetaObject \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QObject \
+  /home/nao/qtsysroot/usr/include/qt6/QtCore/QPoint \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointF \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointer \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QRect \
@@ -138,7 +137,6 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
   /home/nao/qtsysroot/usr/include/qt6/QtCore/qbasicatomic.h \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/qbasictimer.h \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/qbindingstorage.h \
-  /home/nao/qtsysroot/usr/include/qt6/QtCore/qbuffer.h \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/qbytearray.h \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/qbytearrayalgorithms.h \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/qbytearraylist.h \
@@ -279,8 +277,10 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
   /home/nao/qtsysroot/usr/include/qt6/QtGui/QMouseEvent \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/QPainter \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/QResizeEvent \
+  /home/nao/qtsysroot/usr/include/qt6/QtGui/QScreen \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/QShortcut \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/QTransform \
+  /home/nao/qtsysroot/usr/include/qt6/QtGui/qabstracttextdocumentlayout.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qaction.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qbitmap.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qbrush.h \
@@ -290,9 +290,11 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qevent.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qeventpoint.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qfont.h \
+  /home/nao/qtsysroot/usr/include/qt6/QtGui/qfontdatabase.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qfontinfo.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qfontmetrics.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qfontvariableaxis.h \
+  /home/nao/qtsysroot/usr/include/qt6/QtGui/qglyphrun.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qguiapplication.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qguiapplication_platform.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qicon.h \
@@ -309,6 +311,7 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qpixmap.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qpointingdevice.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qpolygon.h \
+  /home/nao/qtsysroot/usr/include/qt6/QtGui/qrawfont.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qregion.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qrgb.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qrgba64.h \
@@ -318,6 +321,7 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextcursor.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextdocument.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextformat.h \
+  /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextlayout.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextoption.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qtgui-config.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qtguiexports.h \
@@ -341,30 +345,40 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
   /home/nao/qtsysroot/usr/include/qt6/QtPdf/qpdfselection.h \
   /home/nao/qtsysroot/usr/include/qt6/QtPdf/qtpdfexports.h \
   /home/nao/qtsysroot/usr/include/qt6/QtPdf/qtpdfglobal.h \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QAbstractButton \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QApplication \
-  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QInputDialog \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDialog \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDialogButtonBox \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLabel \
-  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QMenu \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLineEdit \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QPlainTextEdit \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QPushButton \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QScrollArea \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QScrollBar \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QSplitter \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QTextEdit \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QToolTip \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QVBoxLayout \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractbutton.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractscrollarea.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractslider.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qapplication.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qboxlayout.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialog.h \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialogbuttonbox.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qframe.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qgridlayout.h \
-  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qinputdialog.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlabel.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlayout.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlayoutitem.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlineedit.h \
-  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qmenu.h \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qplaintextedit.h \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qpushbutton.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qscrollarea.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qscrollbar.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qsizepolicy.h \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qsplitter.h \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtextedit.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtooltip.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtwidgets-config.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtwidgetsexports.h \
@@ -1813,8 +1827,6 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 
 /usr/include/c++/16/bits/cxxabi_init_exception.h:
 
-/usr/include/c++/16/bits/cxxabi_forced.h:
-
 /usr/include/c++/16/bits/cpp_type_traits.h:
 
 /usr/include/c++/16/bits/concept_check.h:
@@ -1900,6 +1912,8 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 /usr/include/bits/timex.h:
 
 /usr/include/bits/timesize.h:
+
+/usr/include/bits/time64.h:
 
 /usr/include/bits/time.h:
 
@@ -2143,17 +2157,23 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6QmlIntegration/Qt6QmlIntegrationConfigVersionImpl.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevTouchScreenPluginTargets.cmake:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6QmlIntegration/Qt6QmlIntegrationConfigVersion.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevTouchScreenPluginConfig.cmake:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6QmlIntegration/Qt6QmlIntegrationAdditionalTargetInfo.cmake:
 
-/usr/include/c++/16/x86_64-redhat-linux/bits/cpu_defines.h:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlVersionlessAliasTargets.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2basicstylepluginAdditionalTargetInfo.cmake:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlTargetsPrecheck.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevTabletPluginTargets-relwithdebinfo.cmake:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlPublicCMakeHelpers.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6PrintSupport/Qt6PrintSupportDependencies.cmake:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlProperties.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlPlugins.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlMacros.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlDependencies.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevMousePluginTargets-relwithdebinfo.cmake:
 
@@ -2173,8 +2193,6 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSX11IntegrationPluginTargets-relwithdebinfo.cmake:
 
-/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QInputDialog:
-
 /usr/include/c++/16/ext/alloc_traits.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6quickwindowTargets.cmake:
@@ -2182,8 +2200,6 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QApplication:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QDebugMessageServiceFactoryPluginTargets.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSKmsGbmIntegrationPluginConfig.cmake:
 
 /home/nao/Documents/Projects/reader/src/ui/PdfView.h:
 
@@ -2210,14 +2226,6 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QComposePlatformInputContextPluginConfig.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/q20functional.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6GuiTargets-relwithdebinfo.cmake:
-
-/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/Compiler/GNU.cmake:
-
-/usr/include/gnu/stubs.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Network/Qt6QTlsBackendCertOnlyPluginTargetsPrecheck.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6GuiDependencies.cmake:
 
@@ -2267,9 +2275,11 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6DBus/Qt6DBusTargets.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6DBus/Qt6DBusMacros.cmake:
-
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6DBus/Qt6DBusDependencies.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlTargets-relwithdebinfo.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QGifPluginConfig.cmake:
 
 /usr/include/c++/16/x86_64-redhat-linux/bits/error_constants.h:
 
@@ -2277,17 +2287,13 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6DBus/Qt6DBusAdditionalTargetInfo.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QGifPluginAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSKmsEglDeviceIntegrationPluginTargets-relwithdebinfo.cmake:
-
-/home/nao/Documents/Projects/reader/src/app/Application.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2universalstylepluginAdditionalTargetInfo.cmake:
-
 /home/nao/qtsysroot/usr/include/qt6/QtGui/qvectornd.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QICOPluginAdditionalTargetInfo.cmake:
+
+/usr/include/c++/16/bits/cxxabi_forced.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtGui/qabstracttextdocumentlayout.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6CoreTools/Qt6CoreToolsTargets-relwithdebinfo.cmake:
 
@@ -2298,6 +2304,8 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Core/Qt6CoreTargets.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Core/Qt6CoreMacros.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QPlainTextEdit:
 
 /usr/include/c++/16/bits/stdexcept_throw.h:
 
@@ -2437,6 +2445,10 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 
 /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtwidgets-config.h:
 
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qsplitter.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquick2pluginTargets-relwithdebinfo.cmake:
+
 /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qscrollbar.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicCMakeVersionHelpers.cmake:
@@ -2444,6 +2456,10 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qscrollarea.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qmalloc.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6OpenGL/Qt6OpenGLVersionlessAliasTargets.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6labsmodelspluginTargets-relwithdebinfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSIntegrationPluginTargets-relwithdebinfo.cmake:
 
@@ -2455,9 +2471,11 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 
 /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlabel.h:
 
-/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qinputdialog.h:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSKmsGbmIntegrationPluginConfig.cmake:
 
-/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qgridlayout.h:
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialogbuttonbox.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSX11IntegrationPluginAdditionalTargetInfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSX11IntegrationPluginTargetsPrecheck.cmake:
 
@@ -2467,11 +2485,9 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 
 /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialog.h:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevMousePluginTargets.cmake:
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractbutton.h:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicFindPackageHelpers.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlProfilerServiceFactoryPluginConfig.cmake:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlsettingspluginConfig.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6GuiVersionlessAliasTargets.cmake:
 
@@ -2481,7 +2497,29 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 
 /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QScrollArea:
 
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6GuiTargets-relwithdebinfo.cmake:
+
+/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/Compiler/GNU.cmake:
+
+/usr/include/gnu/stubs.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Network/Qt6QTlsBackendCertOnlyPluginTargetsPrecheck.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLineEdit:
+
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QTsLibPluginTargetsPrecheck.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qgridlayout.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDialogButtonBox:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QLibInputPluginConfig.cmake:
+
+/usr/include/c++/16/bits/list.tcc:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtwebenginequickpluginAdditionalTargetInfo.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDialog:
 
 /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qapplication.h:
 
@@ -2541,6 +2579,10 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 
 /home/nao/qtsysroot/usr/include/qt6/QtGui/qrgba64.h:
 
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QAbstractButton:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Pdf/Qt6PdfConfig.cmake:
+
 /usr/include/c++/16/bits/exception_ptr.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtGui/qrgb.h:
@@ -2556,6 +2598,12 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6WebChannel/Qt6WebChannelTargetsPrecheck.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtGui/qregion.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtGui/qrawfont.h:
+
+/usr/include/c++/16/bits/ranges_algo.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QTsLibPluginTargets-relwithdebinfo.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtGui/qpolygon.h:
 
@@ -2573,17 +2621,11 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6PrintSupport/Qt6PrintSupportAdditionalTargetInfo.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2universalstylepluginConfig.cmake:
-
 /home/nao/qtsysroot/usr/include/qt6/QtGui/qpaintdevice.h:
 
 /usr/include/bits/floatn.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qstringconverter.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtGui/qclipboard.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevTouchScreenPluginTargetsPrecheck.cmake:
 
 /usr/include/c++/16/cwchar:
 
@@ -2593,11 +2635,7 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 
 /home/nao/qtsysroot/usr/include/qt6/QtGui/qguiapplication_platform.h:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlDependencies.cmake:
-
-/usr/include/c++/16/mutex:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevTabletPluginConfig.cmake:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicSbomAttributionHelpers.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtGui/qfontinfo.h:
 
@@ -2626,6 +2664,8 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qarraydata.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtGui/QShortcut:
+
+/home/nao/qtsysroot/usr/include/qt6/QtGui/QScreen:
 
 /home/nao/qtsysroot/usr/include/qt6/QtGui/QResizeEvent:
 
@@ -2677,10 +2717,6 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qurl.h:
 
-/home/nao/qtsysroot/usr/include/qt6/QtGui/qwindowdefs.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2fusionstylepluginTargetsPrecheck.cmake:
-
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qnamespace.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6/FindWrapAtomic.cmake:
@@ -2689,11 +2725,13 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 
 /home/nao/qtsysroot/usr/include/poppler/qt6/poppler-optcontent.h:
 
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QSplitter:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qbytearrayview.h:
+
 /home/nao/qtsysroot/usr/include/qt6/QtCore/q20bit.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/QVector:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6QmlIntegration/Qt6QmlIntegrationConfigVersion.cmake:
 
 /home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/Platform/UnixPaths.cmake:
 
@@ -2719,10 +2757,6 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 
 /home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/CMakeCommonLanguageInclude.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qquickvectorimagehelperspluginAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QXcbIntegrationPluginTargetsPrecheck.cmake:
-
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6QuickControlsTestUtilsPrivatepluginTargets.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6DBusTools/Qt6DBusToolsVersionlessTargets.cmake:
@@ -2734,14 +2768,6 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6PrintSupport/Qt6PrintSupportConfigVersion.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6QmlNetworkpluginAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qmenu.h:
-
-/usr/include/bits/floatn-common.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qcontainertools_impl.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6positioningquickpluginTargets-relwithdebinfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6DmaBufServerBufferPluginConfig.cmake:
 
@@ -2764,26 +2790,6 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qassert.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevKeyboardPluginTargets-relwithdebinfo.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtGui/qpen.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevMousePluginTargetsPrecheck.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtooltip.h:
-
-/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/CMakeSystemSpecificInformation.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/QBuffer:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qsharedpointer.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qoverload.h:
-
-/usr/include/bits/errno.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QWaylandWlShellIntegrationPluginAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Positioning/Qt6QGeoPositionInfoSourceFactoryGeoclue2PluginTargetsPrecheck.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/QAbstractListModel:
 
@@ -2845,15 +2851,9 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 
 /home/nao/Documents/Projects/reader/src/ai/ContextManager.h:
 
-/home/nao/Documents/Projects/reader/src/ui/chat_resources.qrc:
+/home/nao/qtsysroot/usr/include/qt6/QtGui/qwindowdefs.h:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Network/Qt6NetworkAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlDebugServerFactoryPluginAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qfunctionpointer.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSKmsEglDeviceIntegrationPluginAdditionalTargetInfo.cmake:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2fusionstylepluginTargetsPrecheck.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6QmlModels/Qt6QmlModelsTargetsPrecheck.cmake:
 
@@ -2889,11 +2889,17 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qttranslation.h:
 
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2universalstylepluginConfig.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtGui/qfontdatabase.h:
+
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicSbomGenerationCycloneDXHelpers.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6effectspluginTargetsPrecheck.cmake:
 
 /home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/CheckIncludeFileCXX.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QPushButton:
 
 /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qsizepolicy.h:
 
@@ -2925,8 +2931,6 @@ test_select_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicTestHelpers.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSX11IntegrationPluginAdditionalTargetInfo.cmake:
-
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicAppleHelpers.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qtdeprecationmarkers.h:
@@ -2940,6 +2944,22 @@ test_select_autogen/moc_predefs.h:
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicWindowsHelpers.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qfunctionaltools_impl.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSKmsEglDeviceIntegrationPluginTargets-relwithdebinfo.cmake:
+
+/home/nao/Documents/Projects/reader/src/app/Application.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSKmsEglDeviceIntegrationPluginAdditionalTargetInfo.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qfunctionpointer.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QGifPluginAdditionalTargetInfo.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QXcbIntegrationPluginTargetsPrecheck.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qquickvectorimagehelperspluginAdditionalTargetInfo.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2universalstylepluginAdditionalTargetInfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6QmlWorkerScript/Qt6QmlWorkerScriptConfig.cmake:
 
@@ -2981,10 +3001,6 @@ test_select_autogen/moc_predefs.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/q20memory.h:
 
-/usr/include/bits/time64.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QMenu:
-
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlfolderlistmodelpluginTargets-relwithdebinfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtwebenginequickpluginTargets-relwithdebinfo.cmake:
@@ -2997,13 +3013,13 @@ test_select_autogen/moc_predefs.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qquickvectorimagepluginTargetsPrecheck.cmake:
 
+/home/nao/qtsysroot/usr/include/qt6/QtCore/QPoint:
+
 /usr/include/time.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6WebEngineWidgets/Qt6WebEngineWidgetsAdditionalTargetInfo.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qforeach.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicSbomAttributionHelpers.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qalgorithms.h:
 
@@ -3037,8 +3053,6 @@ test_select_autogen/moc_predefs.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6GuiConfig.cmake:
 
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qbytearrayview.h:
-
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicPluginHelpers_v2.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qstringlist.h:
@@ -3050,6 +3064,14 @@ test_select_autogen/moc_predefs.h:
 /usr/include/c++/16/bits/streambuf.tcc:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/q20utility.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtooltip.h:
+
+/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/CMakeSystemSpecificInformation.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtGui/qpen.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevMousePluginTargetsPrecheck.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlInspectorServiceFactoryPluginTargets.cmake:
 
@@ -3078,6 +3100,14 @@ test_select_autogen/moc_predefs.h:
 /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qwidget.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qdeadlinetimer.h:
+
+/usr/include/c++/16/bits/chrono_io.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicSbomFileHelpers.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6quickwindowAdditionalTargetInfo.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qiodevice.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/QCoreApplication:
 
@@ -3138,6 +3168,8 @@ test_select_autogen/moc_predefs.h:
 /home/nao/Documents/Projects/reader/src/ui/PdfView.cpp:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6OpenGL/Qt6OpenGLConfig.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtGui/qglyphrun.h:
 
 CMakeFiles/4.4.3/CMakeSystem.cmake:
 
@@ -3231,6 +3263,10 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6DBusTools/Qt6DBusToolsDependencies.cmake:
 
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2basicstyleimplpluginTargets.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractslider.h:
+
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlProfilerServiceFactoryPluginTargetsPrecheck.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6particlespluginTargetsPrecheck.cmake:
@@ -3252,6 +3288,12 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 /home/nao/qtsysroot/usr/include/qt6/QtGui/qeventpoint.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6PdfQuickpluginTargetsPrecheck.cmake:
+
+/usr/include/bits/floatn-common.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qcontainertools_impl.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6positioningquickpluginTargets-relwithdebinfo.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtGui/QMouseEvent:
 
@@ -3351,10 +3393,6 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qframe.h:
 
-/usr/include/c++/16/bits/utility.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevTabletPluginAdditionalTargetInfo.cmake:
-
 /home/nao/Documents/Projects/reader/CMakeLists.txt:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6particlespluginTargets.cmake:
@@ -3369,8 +3407,6 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qarraydataops.h:
 
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qiodevice.h:
-
 /usr/include/c++/16/bits/stl_uninitialized.h:
 
 /home/nao/Documents/Projects/reader/src/pdf/PdfRenderer.cpp:
@@ -3381,7 +3417,11 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qstringfwd.h:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlProperties.cmake:
+/usr/include/c++/16/bits/stringfwd.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2universalstyleimplpluginTargets-relwithdebinfo.cmake:
+
+/home/nao/Documents/Projects/reader/src/analysis/PaperAnalysis.h:
 
 /usr/include/c++/16/debug/debug.h:
 
@@ -3413,41 +3453,17 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QLocalClientConnectionFactoryPluginConfig.cmake:
 
-/usr/include/c++/16/bits/chrono_io.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicSbomFileHelpers.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6quickwindowAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qbuffer.h:
-
-/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/FindCups.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qquickvectorimagehelperspluginConfig.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2materialstyleimplpluginTargetsPrecheck.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6WebEngineWidgets/Qt6WebEngineWidgetsVersionlessAliasTargets.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6PdfQuickpluginTargets-relwithdebinfo.cmake:
-
-/home/nao/Documents/Projects/reader/src/ai/LlmProvider.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qpair.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6DrmEglServerBufferPluginAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qeventloop.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtGui/qtgui-config.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6PrintSupport/Qt6QCupsPrinterSupportPluginAdditionalTargetInfo.cmake:
-
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtFeatureCommon.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QIbusPlatformInputContextPluginTargets.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qbytearraylist.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QTextEdit:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QXcbGlxIntegrationPluginAdditionalTargetInfo.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2fusionstyleimplpluginTargetsPrecheck.cmake:
 
 /usr/include/c++/16/bits/charconv.h:
 
@@ -3456,6 +3472,8 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 /home/nao/qtsysroot/usr/include/qt6/QtPdf/qtpdfexports.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qchar.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qplaintextedit.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qcomparehelpers.h:
 
@@ -3483,19 +3501,33 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qsize.h:
 
+/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/FindCups.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qquickvectorimagehelperspluginConfig.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2materialstyleimplpluginTargetsPrecheck.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6WebEngineWidgets/Qt6WebEngineWidgetsVersionlessAliasTargets.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6PdfQuickpluginTargets-relwithdebinfo.cmake:
+
+/home/nao/Documents/Projects/reader/src/ai/LlmProvider.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qpair.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6DrmEglServerBufferPluginAdditionalTargetInfo.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qeventloop.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtGui/qtgui-config.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6PrintSupport/Qt6QCupsPrinterSupportPluginAdditionalTargetInfo.cmake:
+
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qflags.h:
 
 /home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/FindVulkan.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Positioning/Qt6QGeoPositionInfoSourceFactoryNmeaPluginConfig.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qtversionchecks.h:
-
-/usr/include/c++/16/bits/basic_string.tcc:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QOffscreenIntegrationPluginTargets.cmake:
-
-/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/Internal/CMakeCommonLinkerInformation.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qbindingstorage.h:
 
@@ -3533,8 +3565,6 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/Documents/Projects/reader/src/pdf/PopplerBridge.h:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlVersionlessAliasTargets.cmake:
-
 /usr/include/c++/16/bits/enable_special_members.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qlatin1stringview.h:
@@ -3555,6 +3585,14 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/QObject:
 
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qoverload.h:
+
+/usr/include/bits/errno.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QWaylandWlShellIntegrationPluginAdditionalTargetInfo.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Positioning/Qt6QGeoPositionInfoSourceFactoryGeoclue2PluginTargetsPrecheck.cmake:
+
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qpoint.h:
 
 /usr/include/c++/16/bits/streambuf_iterator.h:
@@ -3569,6 +3607,12 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlfolderlistmodelpluginTargetsPrecheck.cmake:
 
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6DBus/Qt6DBusMacros.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtextedit.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6GuiTools/Qt6GuiToolsTargetsPrecheck.cmake:
+
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qscopedpointer.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QVncIntegrationPluginTargets.cmake:
@@ -3579,6 +3623,8 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qstdlibdetection.h:
 
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qsharedpointer.h:
+
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6/Qt6ConfigVersion.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSKmsGbmIntegrationPluginTargets.cmake:
@@ -3586,8 +3632,6 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qstringbuilder.h:
 
 /home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/MacroAddFileDependencies.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlPublicCMakeHelpers.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Network/Qt6QNetworkManagerNetworkInformationPluginTargets.cmake:
 
@@ -3631,11 +3675,51 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qtcoreglobal.h:
 
+/home/nao/qtsysroot/usr/include/qt6/QtGui/qtextlayout.h:
+
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qtdeprecationdefinitions.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QMinimalEglIntegrationPluginConfig.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qtpreprocessorsupport.h:
+
+/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/Internal/CMakeCommonLinkerInformation.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qtversionchecks.h:
+
+/usr/include/c++/16/bits/basic_string.tcc:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QOffscreenIntegrationPluginTargets.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevMousePluginTargets.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicFindPackageHelpers.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlProfilerServiceFactoryPluginConfig.cmake:
+
+/usr/include/c++/16/bits/utility.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevTabletPluginAdditionalTargetInfo.cmake:
+
+/usr/include/c++/16/mutex:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevTabletPluginConfig.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevTabletPluginTargets-relwithdebinfo.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6PrintSupport/Qt6PrintSupportDependencies.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevTouchScreenPluginConfig.cmake:
+
+/usr/include/c++/16/x86_64-redhat-linux/bits/cpu_defines.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2basicstylepluginAdditionalTargetInfo.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevTouchScreenPluginTargets.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtGui/qclipboard.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevTouchScreenPluginTargetsPrecheck.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QGifPluginTargets.cmake:
 
@@ -3708,12 +3792,6 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QLibInputPluginAdditionalTargetInfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QWaylandEglClientBufferPluginTargets.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QLibInputPluginConfig.cmake:
-
-/usr/include/c++/16/bits/list.tcc:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtwebenginequickpluginAdditionalTargetInfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSEmulatorIntegrationPluginAdditionalTargetInfo.cmake:
 
@@ -3812,10 +3890,6 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QPdfPluginAdditionalTargetInfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QTsLibPluginAdditionalTargetInfo.cmake:
-
-/usr/include/c++/16/bits/ranges_algo.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QTsLibPluginTargets-relwithdebinfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QTsLibPluginTargets.cmake:
 
@@ -3931,6 +4005,8 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlsettingspluginAdditionalTargetInfo.cmake:
 
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qpushbutton.h:
+
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QXcbEglIntegrationPluginConfig.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QXcbEglIntegrationPluginTargets-relwithdebinfo.cmake:
@@ -3938,10 +4014,6 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QXcbEglIntegrationPluginTargets.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QXcbEglIntegrationPluginTargetsPrecheck.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QXcbGlxIntegrationPluginAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2fusionstyleimplpluginTargetsPrecheck.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QXcbGlxIntegrationPluginConfig.cmake:
 
@@ -4003,11 +4075,11 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Network/Qt6QTlsBackendCertOnlyPluginTargets.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlPlugins.cmake:
-
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6GuiTools/Qt6GuiToolsTargets-relwithdebinfo.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6GuiTools/Qt6GuiToolsTargetsPrecheck.cmake:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Network/Qt6NetworkAdditionalTargetInfo.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlDebugServerFactoryPluginAdditionalTargetInfo.cmake:
 
 /usr/include/asm-generic/errno-base.h:
 
@@ -4104,12 +4176,6 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6OpenGL/Qt6OpenGLTargets-relwithdebinfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6OpenGL/Qt6OpenGLTargets.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6OpenGL/Qt6OpenGLVersionlessAliasTargets.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6labsmodelspluginTargets-relwithdebinfo.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Pdf/Qt6PdfConfig.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QICOPluginConfig.cmake:
 
@@ -4237,6 +4303,18 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6PdfQuickpluginTargets.cmake:
 
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6QmlIntegration/Qt6QmlIntegrationConfig.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6QmlNetworkpluginTargets-relwithdebinfo.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlTargets.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlfolderlistmodelpluginConfig.cmake:
+
+/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/Internal/CheckCompilerFlag.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6QmlNetworkpluginTargetsPrecheck.cmake:
+
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QICOPluginTargets-relwithdebinfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6QuickTestpluginConfig.cmake:
@@ -4339,8 +4417,6 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlpluginTargetsPrecheck.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlsettingspluginConfig.cmake:
-
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlsettingspluginTargets-relwithdebinfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlsettingspluginTargets.cmake:
@@ -4375,8 +4451,6 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qquickvectorimagepluginTargets-relwithdebinfo.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlMacros.cmake:
-
 /home/nao/qtsysroot/usr/include/qt6/QtCore/QVariant:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QWaylandIntegrationPluginTargets-relwithdebinfo.cmake:
@@ -4387,23 +4461,11 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtqmlcorepluginTargetsPrecheck.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquick2pluginTargets-relwithdebinfo.cmake:
-
-/usr/include/c++/16/bits/stringfwd.h:
-
-/home/nao/Documents/Projects/reader/src/analysis/PaperAnalysis.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2universalstyleimplpluginTargets-relwithdebinfo.cmake:
-
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquick2pluginTargets.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qtypeinfo.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2basicstyleimplpluginTargets-relwithdebinfo.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractslider.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2basicstyleimplpluginTargets.cmake:
 
 /usr/include/c++/16/cwctype:
 
@@ -4583,9 +4645,9 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QDebugMessageServiceFactoryPluginAdditionalTargetInfo.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevTabletPluginTargets.cmake:
-
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6quicktoolingAdditionalTargetInfo.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevTabletPluginTargets.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QLocalClientConnectionFactoryPluginTargets.cmake:
 
@@ -4632,14 +4694,6 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlPreviewServiceFactoryPluginAdditionalTargetInfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlPreviewServiceFactoryPluginConfig.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlfolderlistmodelpluginConfig.cmake:
-
-/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/Internal/CheckCompilerFlag.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6QmlNetworkpluginTargetsPrecheck.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlTargets.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6QmlWorkerScript/Qt6QmlWorkerScriptConfigVersionImpl.cmake:
 
@@ -4694,15 +4748,3 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlConfigExtras.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlConfigVersion.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QGifPluginConfig.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlTargets-relwithdebinfo.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlTargetsPrecheck.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6QmlIntegration/Qt6QmlIntegrationAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6QmlNetworkpluginTargets-relwithdebinfo.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6QmlIntegration/Qt6QmlIntegrationConfig.cmake:

@@ -1,68 +1,184 @@
-Start testing: Sep 21 21:41 EDT
+Start testing: Sep 23 16:48 EDT
 ----------------------------------------------------------
+1/11 Testing: core
+1/11 Test: core
+Command: "/home/nao/.local/lib/python3.14/site-packages/cmake/data/bin/cmake" "-DTEST_EXECUTABLE=/home/nao/Documents/Projects/reader/build-qt/test_core" "-DTEST_HOME_ROOT=/home/nao/Documents/Projects/reader/build-qt/test-homes" "-P" "/home/nao/Documents/Projects/reader/cmake/RunIsolatedTest.cmake"
+Directory: /home/nao/Documents/Projects/reader/build-qt
+"core" start time: Sep 23 16:48 EDT
+Output:
+----------------------------------------------------------
+ALL CORE TESTS PASSED
+<end of output>
+Test time =   0.05 sec
+----------------------------------------------------------
+Test Passed.
+"core" end time: Sep 23 16:48 EDT
+"core" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/11 Testing: chat_lifecycle
+2/11 Test: chat_lifecycle
+Command: "/home/nao/.local/lib/python3.14/site-packages/cmake/data/bin/cmake" "-DTEST_EXECUTABLE=/home/nao/Documents/Projects/reader/build-qt/test_chat_lifecycle" "-DTEST_HOME_ROOT=/home/nao/Documents/Projects/reader/build-qt/test-homes" "-P" "/home/nao/Documents/Projects/reader/cmake/RunIsolatedTest.cmake"
+Directory: /home/nao/Documents/Projects/reader/build-qt
+"chat_lifecycle" start time: Sep 23 16:48 EDT
+Output:
+----------------------------------------------------------
+chat lifecycle checks passed
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"chat_lifecycle" end time: Sep 23 16:48 EDT
+"chat_lifecycle" time elapsed: 00:00:00
+----------------------------------------------------------
+
 3/11 Testing: qt
 3/11 Test: qt
 Command: "/home/nao/.local/lib/python3.14/site-packages/cmake/data/bin/cmake" "-DTEST_EXECUTABLE=/home/nao/Documents/Projects/reader/build-qt/test_qt" "-DTEST_HOME_ROOT=/home/nao/Documents/Projects/reader/build-qt/test-homes" "-P" "/home/nao/Documents/Projects/reader/cmake/RunIsolatedTest.cmake"
 Directory: /home/nao/Documents/Projects/reader/build-qt
-"qt" start time: Sep 21 21:41 EDT
+"qt" start time: Sep 23 16:48 EDT
 Output:
 ----------------------------------------------------------
 ALL QT INTEGRATION TESTS PASSED
 <end of output>
-Test time =   0.16 sec
+Test time =   1.87 sec
 ----------------------------------------------------------
 Test Passed.
-"qt" end time: Sep 21 21:41 EDT
-"qt" time elapsed: 00:00:00
+"qt" end time: Sep 23 16:48 EDT
+"qt" time elapsed: 00:00:01
 ----------------------------------------------------------
 
-5/11 Testing: chat_ui
-5/11 Test: chat_ui
-Command: "/home/nao/.local/lib/python3.14/site-packages/cmake/data/bin/cmake" "-DTEST_EXECUTABLE=/home/nao/Documents/Projects/reader/build-qt/test_chat_ui" "-DTEST_HOME_ROOT=/home/nao/Documents/Projects/reader/build-qt/test-homes" "-P" "/home/nao/Documents/Projects/reader/cmake/RunIsolatedTest.cmake"
+4/11 Testing: select
+4/11 Test: select
+Command: "/home/nao/.local/lib/python3.14/site-packages/cmake/data/bin/cmake" "-DTEST_EXECUTABLE=/home/nao/Documents/Projects/reader/build-qt/test_select" "-DTEST_HOME_ROOT=/home/nao/Documents/Projects/reader/build-qt/test-homes" "-P" "/home/nao/Documents/Projects/reader/cmake/RunIsolatedTest.cmake"
 Directory: /home/nao/Documents/Projects/reader/build-qt
-"chat_ui" start time: Sep 21 21:41 EDT
+"select" start time: Sep 23 16:48 EDT
 Output:
 ----------------------------------------------------------
-chat UI evidence checks passed; screenshot /tmp/reader-chat-evidence.png
+atIndex(0,6)=[Neural] valid=1
+atIndex(10,5)=[terio] valid=1
+atIndex(30,8)=[.2 Poste] valid=1
+ALL SELECTION TESTS PASSED
 <end of output>
-Test time =   0.23 sec
+Test time =   0.17 sec
 ----------------------------------------------------------
 Test Passed.
-"chat_ui" end time: Sep 21 21:41 EDT
-"chat_ui" time elapsed: 00:00:00
+"select" end time: Sep 23 16:48 EDT
+"select" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-7/11 Testing: reader_ui
-7/11 Test: reader_ui
+5/11 Testing: embedding_qt
+5/11 Test: embedding_qt
+Command: "/home/nao/.local/lib/python3.14/site-packages/cmake/data/bin/cmake" "-DTEST_EXECUTABLE=/home/nao/Documents/Projects/reader/build-qt/test_embedding_qt" "-DTEST_HOME_ROOT=/home/nao/Documents/Projects/reader/build-qt/test-homes" "-P" "/home/nao/Documents/Projects/reader/cmake/RunIsolatedTest.cmake"
+Directory: /home/nao/Documents/Projects/reader/build-qt
+"embedding_qt" start time: Sep 23 16:48 EDT
+Output:
+----------------------------------------------------------
+<end of output>
+Test time =   0.10 sec
+----------------------------------------------------------
+Test Passed.
+"embedding_qt" end time: Sep 23 16:48 EDT
+"embedding_qt" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/11 Testing: reader_ui
+6/11 Test: reader_ui
 Command: "/home/nao/.local/lib/python3.14/site-packages/cmake/data/bin/cmake" "-DTEST_EXECUTABLE=/home/nao/Documents/Projects/reader/build-qt/test_reader_ui" "-DTEST_HOME_ROOT=/home/nao/Documents/Projects/reader/build-qt/test-homes" "-P" "/home/nao/Documents/Projects/reader/cmake/RunIsolatedTest.cmake"
 Directory: /home/nao/Documents/Projects/reader/build-qt
-"reader_ui" start time: Sep 21 21:41 EDT
+"reader_ui" start time: Sep 23 16:48 EDT
 Output:
 ----------------------------------------------------------
-reader timings ms: first_paint=141 delayed_ai_page_round_trip=18 literal_search=0 selection_context=0 fake_provider_first_token=268
+reader timings ms: first_paint=119 literal_search=0 selection_context=1
 reader UI evidence screenshot: /tmp/reader-main-window.png
 <end of output>
-Test time =   3.02 sec
+Test time =   0.86 sec
 ----------------------------------------------------------
 Test Passed.
-"reader_ui" end time: Sep 21 21:41 EDT
-"reader_ui" time elapsed: 00:00:03
+"reader_ui" end time: Sep 23 16:48 EDT
+"reader_ui" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-10/11 Testing: webengine
-10/11 Test: webengine
+7/11 Testing: shutdown
+7/11 Test: shutdown
+Command: "/home/nao/.local/lib/python3.14/site-packages/cmake/data/bin/cmake" "-DTEST_EXECUTABLE=/home/nao/Documents/Projects/reader/build-qt/test_shutdown" "-DTEST_HOME_ROOT=/home/nao/Documents/Projects/reader/build-qt/test-homes" "-P" "/home/nao/Documents/Projects/reader/cmake/RunIsolatedTest.cmake"
+Directory: /home/nao/Documents/Projects/reader/build-qt
+"shutdown" start time: Sep 23 16:48 EDT
+Output:
+----------------------------------------------------------
+shutdown ms: open_to_quit=105 exit=0
+ALL SHUTDOWN TESTS PASSED
+<end of output>
+Test time =   0.68 sec
+----------------------------------------------------------
+Test Passed.
+"shutdown" end time: Sep 23 16:48 EDT
+"shutdown" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/11 Testing: render
+8/11 Test: render
+Command: "/home/nao/.local/lib/python3.14/site-packages/cmake/data/bin/cmake" "-DTEST_EXECUTABLE=/home/nao/Documents/Projects/reader/build-qt/test_render" "-DTEST_HOME_ROOT=/home/nao/Documents/Projects/reader/build-qt/test-homes" "-P" "/home/nao/Documents/Projects/reader/cmake/RunIsolatedTest.cmake"
+Directory: /home/nao/Documents/Projects/reader/build-qt
+"render" start time: Sep 23 16:48 EDT
+Output:
+----------------------------------------------------------
+dark%=0.616459
+ALL RENDER TESTS PASSED
+<end of output>
+Test time =   0.04 sec
+----------------------------------------------------------
+Test Passed.
+"render" end time: Sep 23 16:48 EDT
+"render" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/11 Testing: render_stress
+9/11 Test: render_stress
+Command: "/home/nao/.local/lib/python3.14/site-packages/cmake/data/bin/cmake" "-DTEST_EXECUTABLE=/home/nao/Documents/Projects/reader/build-qt/test_render_stress" "-DTEST_HOME_ROOT=/home/nao/Documents/Projects/reader/build-qt/test-homes" "-P" "/home/nao/Documents/Projects/reader/cmake/RunIsolatedTest.cmake"
+Directory: /home/nao/Documents/Projects/reader/build-qt
+"render_stress" start time: Sep 23 16:48 EDT
+Output:
+----------------------------------------------------------
+ALL RENDER STRESS TESTS PASSED
+<end of output>
+Test time =   0.27 sec
+----------------------------------------------------------
+Test Passed.
+"render_stress" end time: Sep 23 16:48 EDT
+"render_stress" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/11 Testing: export
+10/11 Test: export
+Command: "/home/nao/.local/lib/python3.14/site-packages/cmake/data/bin/cmake" "-DTEST_EXECUTABLE=/home/nao/Documents/Projects/reader/build-qt/test_export" "-DTEST_HOME_ROOT=/home/nao/Documents/Projects/reader/build-qt/test-homes" "-P" "/home/nao/Documents/Projects/reader/cmake/RunIsolatedTest.cmake"
+Directory: /home/nao/Documents/Projects/reader/build-qt
+"export" start time: Sep 23 16:48 EDT
+Output:
+----------------------------------------------------------
+ALL EXPORT TESTS PASSED
+<end of output>
+Test time =   0.09 sec
+----------------------------------------------------------
+Test Passed.
+"export" end time: Sep 23 16:48 EDT
+"export" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/11 Testing: webengine
+11/11 Test: webengine
 Command: "/home/nao/.local/lib/python3.14/site-packages/cmake/data/bin/cmake" "-DTEST_EXECUTABLE=/home/nao/Documents/Projects/reader/build-qt/test_webengine" "-DTEST_HOME_ROOT=/home/nao/Documents/Projects/reader/build-qt/test-homes" "-P" "/home/nao/Documents/Projects/reader/cmake/RunIsolatedTest.cmake"
 Directory: /home/nao/Documents/Projects/reader/build-qt
-"webengine" start time: Sep 21 21:41 EDT
+"webengine" start time: Sep 23 16:48 EDT
 Output:
 ----------------------------------------------------------
 ALL WEBENGINE TESTS PASSED
 <end of output>
-Test time =   4.02 sec
+Test time =   4.84 sec
 ----------------------------------------------------------
 Test Passed.
-"webengine" end time: Sep 21 21:41 EDT
+"webengine" end time: Sep 23 16:48 EDT
 "webengine" time elapsed: 00:00:04
 ----------------------------------------------------------
 
-End testing: Sep 21 21:41 EDT
+End testing: Sep 23 16:48 EDT

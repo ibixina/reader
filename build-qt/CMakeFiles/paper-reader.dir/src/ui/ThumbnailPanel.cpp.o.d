@@ -466,6 +466,9 @@ CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qscrollarea.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractscrollarea.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qframe.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QPoint \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointer \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qpointer.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QSizeF \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QListWidget \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlistwidget.h \
@@ -484,8 +487,6 @@ CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtabwidget.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qrubberband.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QListWidgetItem \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointer \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qpointer.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QTimer \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qtimer.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qbasictimer.h \

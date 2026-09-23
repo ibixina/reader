@@ -69,6 +69,8 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
   /home/nao/Documents/Projects/reader/src/core/Types.h \
   /home/nao/Documents/Projects/reader/src/document/DocumentAnchor.h \
   /home/nao/Documents/Projects/reader/src/document/DocumentModel.h \
+  /home/nao/Documents/Projects/reader/src/pdf/HighlightExport.cpp \
+  /home/nao/Documents/Projects/reader/src/pdf/HighlightExport.h \
   /home/nao/Documents/Projects/reader/src/pdf/PdfEngine.h \
   /home/nao/Documents/Projects/reader/src/pdf/PdfRenderer.cpp \
   /home/nao/Documents/Projects/reader/src/pdf/PdfRenderer.h \
@@ -83,31 +85,16 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
   /home/nao/Documents/Projects/reader/src/search/VectorIndex.h \
   /home/nao/Documents/Projects/reader/src/storage/Database.h \
   /home/nao/Documents/Projects/reader/src/storage/Repositories.h \
-  /home/nao/Documents/Projects/reader/src/ui/ChatPanel.cpp \
-  /home/nao/Documents/Projects/reader/src/ui/ChatPanel.h \
-  /home/nao/Documents/Projects/reader/src/ui/ChatTranscript.cpp \
-  /home/nao/Documents/Projects/reader/src/ui/ChatTranscript.h \
-  /home/nao/Documents/Projects/reader/src/ui/CommandPalette.cpp \
-  /home/nao/Documents/Projects/reader/src/ui/CommandPalette.h \
-  /home/nao/Documents/Projects/reader/src/ui/IngestRawPanel.cpp \
-  /home/nao/Documents/Projects/reader/src/ui/IngestRawPanel.h \
   /home/nao/Documents/Projects/reader/src/ui/MainWindow.cpp \
   /home/nao/Documents/Projects/reader/src/ui/MainWindow.h \
-  /home/nao/Documents/Projects/reader/src/ui/MapPanel.cpp \
-  /home/nao/Documents/Projects/reader/src/ui/MapPanel.h \
   /home/nao/Documents/Projects/reader/src/ui/OutlinePanel.cpp \
   /home/nao/Documents/Projects/reader/src/ui/OutlinePanel.h \
   /home/nao/Documents/Projects/reader/src/ui/PdfView.cpp \
   /home/nao/Documents/Projects/reader/src/ui/PdfView.h \
   /home/nao/Documents/Projects/reader/src/ui/SearchPanel.cpp \
   /home/nao/Documents/Projects/reader/src/ui/SearchPanel.h \
-  /home/nao/Documents/Projects/reader/src/ui/SummaryPanel.cpp \
-  /home/nao/Documents/Projects/reader/src/ui/SummaryPanel.h \
-  /home/nao/Documents/Projects/reader/src/ui/ThumbnailPanel.cpp \
-  /home/nao/Documents/Projects/reader/src/ui/ThumbnailPanel.h \
   /home/nao/Documents/Projects/reader/src/ui/WebPanel.cpp \
   /home/nao/Documents/Projects/reader/src/ui/WebPanel.h \
-  /home/nao/Documents/Projects/reader/src/ui/chat_resources.qrc \
   /home/nao/qtsysroot/usr/include/poppler/qt6/poppler-annotation.h \
   /home/nao/qtsysroot/usr/include/poppler/qt6/poppler-converter.h \
   /home/nao/qtsysroot/usr/include/poppler/qt6/poppler-export.h \
@@ -116,7 +103,6 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
   /home/nao/qtsysroot/usr/include/poppler/qt6/poppler-page-transition.h \
   /home/nao/qtsysroot/usr/include/poppler/qt6/poppler-qt6.h \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QAbstractListModel \
-  /home/nao/qtsysroot/usr/include/qt6/QtCore/QBuffer \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QByteArray \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QCoreApplication \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QDateTime \
@@ -125,6 +111,7 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QList \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QMetaObject \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QObject \
+  /home/nao/qtsysroot/usr/include/qt6/QtCore/QPoint \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointF \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointer \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QRect \
@@ -163,7 +150,6 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
   /home/nao/qtsysroot/usr/include/qt6/QtCore/qbasicatomic.h \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/qbasictimer.h \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/qbindingstorage.h \
-  /home/nao/qtsysroot/usr/include/qt6/QtCore/qbuffer.h \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/qbytearray.h \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/qbytearrayalgorithms.h \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/qbytearraylist.h \
@@ -304,8 +290,10 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
   /home/nao/qtsysroot/usr/include/qt6/QtGui/QMouseEvent \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/QPainter \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/QResizeEvent \
+  /home/nao/qtsysroot/usr/include/qt6/QtGui/QScreen \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/QShortcut \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/QTransform \
+  /home/nao/qtsysroot/usr/include/qt6/QtGui/qabstracttextdocumentlayout.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qaction.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qbitmap.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qbrush.h \
@@ -315,9 +303,11 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qevent.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qeventpoint.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qfont.h \
+  /home/nao/qtsysroot/usr/include/qt6/QtGui/qfontdatabase.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qfontinfo.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qfontmetrics.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qfontvariableaxis.h \
+  /home/nao/qtsysroot/usr/include/qt6/QtGui/qglyphrun.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qguiapplication.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qguiapplication_platform.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qicon.h \
@@ -334,6 +324,7 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qpixmap.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qpointingdevice.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qpolygon.h \
+  /home/nao/qtsysroot/usr/include/qt6/QtGui/qrawfont.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qregion.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qrgb.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qrgba64.h \
@@ -343,6 +334,7 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextcursor.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextdocument.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextformat.h \
+  /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextlayout.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextoption.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qtgui-config.h \
   /home/nao/qtsysroot/usr/include/qt6/QtGui/qtguiexports.h \
@@ -366,35 +358,44 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
   /home/nao/qtsysroot/usr/include/qt6/QtPdf/qpdfselection.h \
   /home/nao/qtsysroot/usr/include/qt6/QtPdf/qtpdfexports.h \
   /home/nao/qtsysroot/usr/include/qt6/QtPdf/qtpdfglobal.h \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QAbstractButton \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QApplication \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDialog \
-  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QInputDialog \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDialogButtonBox \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLabel \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLineEdit \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QMainWindow \
-  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QMenu \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QPlainTextEdit \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QPushButton \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QScrollArea \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QScrollBar \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QSplitter \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QTextEdit \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QToolTip \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QVBoxLayout \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QWidget \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractbutton.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractscrollarea.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractslider.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qapplication.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qboxlayout.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialog.h \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialogbuttonbox.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qframe.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qgridlayout.h \
-  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qinputdialog.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlabel.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlayout.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlayoutitem.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlineedit.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qmainwindow.h \
-  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qmenu.h \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qplaintextedit.h \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qpushbutton.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qscrollarea.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qscrollbar.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qsizepolicy.h \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qsplitter.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtabwidget.h \
+  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtextedit.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtooltip.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtwidgets-config.h \
   /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtwidgetsexports.h \
@@ -1615,6 +1616,8 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /usr/include/sys/single_threaded.h:
 
+/usr/include/strings.h:
+
 /usr/include/sched.h:
 
 /usr/include/pthread.h:
@@ -1839,8 +1842,6 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /usr/include/c++/16/bits/cxxabi_init_exception.h:
 
-/usr/include/c++/16/bits/cxxabi_forced.h:
-
 /usr/include/c++/16/bits/cpp_type_traits.h:
 
 /usr/include/c++/16/bits/concept_check.h:
@@ -1901,6 +1902,8 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /usr/include/bits/types/struct_FILE.h:
 
+/usr/include/bits/types/mbstate_t.h:
+
 /usr/include/bits/types/locale_t.h:
 
 /usr/include/bits/types/error_t.h:
@@ -1924,6 +1927,8 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 /usr/include/bits/timex.h:
 
 /usr/include/bits/timesize.h:
+
+/usr/include/bits/time64.h:
 
 /usr/include/bits/time.h:
 
@@ -2173,6 +2178,8 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlVersionlessAliasTargets.cmake:
 
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlTargetsPrecheck.cmake:
+
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlPublicCMakeHelpers.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlProperties.cmake:
@@ -2215,9 +2222,7 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQuickProfilerAdapterFactoryPluginAdditionalTargetInfo.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSKmsGbmIntegrationPluginConfig.cmake:
-
-/home/nao/Documents/Projects/reader/src/ui/PdfView.h:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQuickEventReplayServiceFactoryPluginTargets-relwithdebinfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSKmsGbmIntegrationPluginAdditionalTargetInfo.cmake:
 
@@ -2239,13 +2244,9 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QComposePlatformInputContextPluginTargets.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6GuiTargets-relwithdebinfo.cmake:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QComposePlatformInputContextPluginConfig.cmake:
 
-/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/Compiler/GNU.cmake:
-
-/usr/include/gnu/stubs.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Network/Qt6QTlsBackendCertOnlyPluginTargetsPrecheck.cmake:
+/home/nao/qtsysroot/usr/include/qt6/QtCore/q20functional.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6GuiDependencies.cmake:
 
@@ -2263,8 +2264,6 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6DmaBufServerBufferPluginTargets.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6DmaBufServerBufferPluginTargets-relwithdebinfo.cmake:
-
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6DBusTools/Qt6DBusToolsTargets-relwithdebinfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickdialogspluginTargets-relwithdebinfo.cmake:
@@ -2275,9 +2274,9 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Concurrent/Qt6ConcurrentConfigVersionImpl.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6DBus/Qt6DBusMacros.cmake:
-
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6DBus/Qt6DBusDependencies.cmake:
+
+/home/nao/Documents/Projects/reader/src/pdf/HighlightExport.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlTargets-relwithdebinfo.cmake:
 
@@ -2288,6 +2287,10 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6WebEngineCore/Qt6WebEngineCoreVersionlessAliasTargets.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6DBus/Qt6DBusAdditionalTargetInfo.cmake:
+
+/usr/include/c++/16/bits/cxxabi_forced.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtGui/qabstracttextdocumentlayout.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6CoreTools/Qt6CoreToolsTargets-relwithdebinfo.cmake:
 
@@ -2311,6 +2314,8 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Core/Qt6CoreMacros.cmake:
 
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QPlainTextEdit:
+
 /usr/include/c++/16/bits/stdexcept_throw.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Core/Qt6CoreConfigVersion.cmake:
@@ -2332,8 +2337,6 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QWaylandIntegrationPluginTargetsPrecheck.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Concurrent/Qt6ConcurrentTargets.cmake:
-
-/home/nao/Documents/Projects/reader/src/ui/SummaryPanel.cpp:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Concurrent/Qt6ConcurrentTargets-relwithdebinfo.cmake:
 
@@ -2441,11 +2444,11 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6/FindWrapOpenGL.cmake:
 
-/usr/include/c++/16/bits/nested_exception.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtwidgets-config.h:
-
 /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtabwidget.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qsplitter.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquick2pluginTargets-relwithdebinfo.cmake:
 
 /usr/include/c++/16/filesystem:
 
@@ -2463,6 +2466,10 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qmalloc.h:
 
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6OpenGL/Qt6OpenGLVersionlessAliasTargets.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6labsmodelspluginTargets-relwithdebinfo.cmake:
+
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSIntegrationPluginTargets-relwithdebinfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6labsmodelspluginTargets.cmake:
@@ -2473,13 +2480,17 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlabel.h:
 
-/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qinputdialog.h:
+/home/nao/Documents/Projects/reader/src/ui/MainWindow.cpp:
 
-/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qgridlayout.h:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSX11IntegrationPluginAdditionalTargetInfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6particlespluginConfig.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialog.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractbutton.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlsettingspluginConfig.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QWidget:
 
@@ -2489,11 +2500,27 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Positioning/Qt6QGeoPositionInfoSourceFactoryPollPluginTargets-relwithdebinfo.cmake:
 
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6GuiTargets-relwithdebinfo.cmake:
+
+/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/Compiler/GNU.cmake:
+
+/usr/include/gnu/stubs.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Network/Qt6QTlsBackendCertOnlyPluginTargetsPrecheck.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLineEdit:
+
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QTsLibPluginTargetsPrecheck.cmake:
 
-/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QInputDialog:
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qgridlayout.h:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSX11IntegrationPluginTargets-relwithdebinfo.cmake:
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDialogButtonBox:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QLibInputPluginConfig.cmake:
+
+/usr/include/c++/16/bits/list.tcc:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtwebenginequickpluginAdditionalTargetInfo.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDialog:
 
@@ -2559,9 +2586,29 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/include/qt6/QtGui/qrgba64.h:
 
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QAbstractButton:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Pdf/Qt6PdfConfig.cmake:
+
 /usr/include/c++/16/bits/exception_ptr.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtGui/qrgb.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qquicklayoutspluginTargets.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6GuiTargets.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickdialogspluginAdditionalTargetInfo.cmake:
+
+/usr/include/c++/16/x86_64-redhat-linux/bits/gthr.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6WebChannel/Qt6WebChannelTargetsPrecheck.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtGui/qregion.h:
+
+/usr/include/c++/16/bits/ranges_algo.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QTsLibPluginTargets-relwithdebinfo.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtGui/qpolygon.h:
 
@@ -2579,8 +2626,6 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6PrintSupport/Qt6PrintSupportAdditionalTargetInfo.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2universalstylepluginConfig.cmake:
-
 /home/nao/qtsysroot/usr/include/qt6/QtGui/qpaintdevice.h:
 
 /usr/include/bits/floatn.h:
@@ -2594,6 +2639,8 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 /home/nao/qtsysroot/usr/include/qt6/QtGui/qicon.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtGui/qguiapplication_platform.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicSbomAttributionHelpers.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtGui/qfontinfo.h:
 
@@ -2622,6 +2669,8 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qarraydata.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtGui/QShortcut:
+
+/home/nao/qtsysroot/usr/include/qt6/QtGui/QScreen:
 
 /home/nao/qtsysroot/usr/include/qt6/QtGui/QResizeEvent:
 
@@ -2691,11 +2740,13 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qttranslation.h:
 
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2universalstylepluginConfig.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtGui/qfontdatabase.h:
+
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicSbomGenerationCycloneDXHelpers.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6effectspluginTargetsPrecheck.cmake:
-
-/home/nao/Documents/Projects/reader/src/ui/ThumbnailPanel.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtGui/QClipboard:
 
@@ -2711,39 +2762,39 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qtextstream.h:
 
-/usr/include/string.h:
+/home/nao/qtsysroot/usr/include/qt6/QtCore/QVector:
 
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qtcoreglobal.h:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Core/Qt6CoreAdditionalTargetInfo.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Widgets/Qt6WidgetsMacros.cmake:
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qgenericatomic.h:
 
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qtcoreexports.h:
+/home/nao/qtsysroot/usr/include/qt6/QtGui/qguiapplication.h:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Widgets/Qt6WidgetsAdditionalTargetInfo.cmake:
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qscopeguard.h:
 
-/home/nao/Documents/Projects/reader/app/main.cpp:
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qutf8stringview.h:
 
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qcborvalue.h:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6CoreTools/Qt6CoreToolsTargetsPrecheck.cmake:
 
-/home/nao/qtsysroot/usr/include/qt6/QtCore/QPointF:
+/home/nao/qtsysroot/usr/include/qt6/QtCore/QString:
 
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qtclasshelpermacros.h:
+/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/CMakeCommonLanguageInclude.cmake:
 
-/home/nao/qtsysroot/usr/include/qt6/QtGui/qevent.h:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6QuickControlsTestUtilsPrivatepluginTargets.cmake:
 
-/usr/include/c++/16/bits/move.h:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6DBusTools/Qt6DBusToolsVersionlessTargets.cmake:
 
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qtaggedpointer.h:
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qfloat16.h:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickdialogspluginTargetsPrecheck.cmake:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Positioning/Qt6PositioningConfigVersionImpl.cmake:
 
-/usr/include/c++/16/backward/auto_ptr.h:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6PrintSupport/Qt6PrintSupportConfigVersion.cmake:
 
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qversiontagging.h:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6QmlNetworkpluginAdditionalTargetInfo.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmllocalstoragepluginAdditionalTargetInfo.cmake:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Network/Qt6NetworkTargetsPrecheck.cmake:
 
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qsystemdetection.h:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlNativeDebugConnectorFactoryPluginTargets.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/QIODevice:
 
@@ -2756,8 +2807,6 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6LabsSynchronizerpluginConfig.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlxmllistmodelpluginTargets.cmake:
-
-/home/nao/Documents/Projects/reader/src/ui/SummaryPanel.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qassert.h:
 
@@ -2772,6 +2821,8 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2fusionstyleimplpluginConfig.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtGui/qtguiexports.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qtclasshelpermacros.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qcoreapplication_platform.h:
 
@@ -2793,47 +2844,19 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2basicstylepluginTargetsPrecheck.cmake:
 
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6DmaBufServerBufferPluginConfig.cmake:
+
+/usr/include/c++/16/numeric:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/q23utility.h:
+
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6GuiAdditionalTargetInfo.cmake:
 
 /home/nao/Documents/Projects/reader/src/ui/OutlinePanel.cpp:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Network/Qt6QTlsBackendOpenSSLPluginTargetsPrecheck.cmake:
 
-/usr/include/strings.h:
-
-/home/nao/Documents/Projects/reader/src/ui/MapPanel.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/QBuffer:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qsharedpointer.h:
-
-/usr/include/bits/types/mbstate_t.h:
-
-/home/nao/Documents/Projects/reader/src/ui/IngestRawPanel.h:
-
-/usr/include/c++/16/cwctype:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2fluentwinui3styleimplpluginConfig.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qoverload.h:
-
-/usr/include/bits/errno.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QWaylandWlShellIntegrationPluginAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Positioning/Qt6QGeoPositionInfoSourceFactoryGeoclue2PluginTargetsPrecheck.cmake:
-
 /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextoption.h:
-
-/home/nao/Documents/Projects/reader/src/ui/MainWindow.cpp:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSX11IntegrationPluginAdditionalTargetInfo.cmake:
-
-/usr/include/c++/16/mutex:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevTabletPluginConfig.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qrefcount.h:
 
 /home/nao/Documents/Projects/reader/src/pdf/PdfRenderer.h:
 
@@ -2844,12 +2867,6 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6CoreTools/Qt6CoreToolsConfig.cmake:
 
 /home/nao/Documents/Projects/reader/src/search/TextIndex.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QWaylandFullScreenShellV1IntegrationPluginTargets.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2implpluginTargets-relwithdebinfo.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6quicktoolingTargetsPrecheck.cmake:
 
 /home/nao/Documents/Projects/reader/src/pdf/WordIndex.h:
 
@@ -2863,12 +2880,6 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/Documents/Projects/reader/src/ai/ContextManager.h:
 
-/home/nao/Documents/Projects/reader/src/ui/chat_resources.qrc:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Network/Qt6NetworkAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlDebugServerFactoryPluginAdditionalTargetInfo.cmake:
-
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6QmlModels/Qt6QmlModelsTargetsPrecheck.cmake:
 
 /home/nao/Documents/Projects/reader/src/pdf/PopplerBridge.cpp:
@@ -2879,6 +2890,30 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qcoreevent.h:
 
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6DmaBufServerBufferPluginTargets-relwithdebinfo.cmake:
+
+/usr/include/bits/pthread_stack_min-dynamic.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6WebEngineCore/Qt6WebEngineCoreTargets.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtGui/qeventpoint.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6PdfQuickpluginTargetsPrecheck.cmake:
+
+/usr/include/bits/floatn-common.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qcontainertools_impl.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6positioningquickpluginTargets-relwithdebinfo.cmake:
+
+/usr/include/c++/16/bits/nested_exception.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtwidgets-config.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtGui/qfontmetrics.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlProfilerServiceFactoryPluginAdditionalTargetInfo.cmake:
+
 /home/nao/Documents/Projects/reader/src/document/DocumentModel.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtqmlcorepluginTargets-relwithdebinfo.cmake:
@@ -2886,10 +2921,6 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 /usr/include/c++/16/bits/stream_iterator.h:
 
 /home/nao/Documents/Projects/reader/src/pdf/QtPdfEngine.cpp:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QComposePlatformInputContextPluginConfig.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/q20functional.h:
 
 /home/nao/Documents/Projects/reader/src/core/Types.h:
 
@@ -2911,13 +2942,17 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QGifPluginAdditionalTargetInfo.cmake:
 
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QXcbIntegrationPluginTargetsPrecheck.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qquickvectorimagehelperspluginAdditionalTargetInfo.cmake:
+
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2universalstylepluginAdditionalTargetInfo.cmake:
 
 /home/nao/Documents/Projects/reader/src/ui/SearchPanel.cpp:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicTestHelpers.cmake:
-
 /home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/CheckIncludeFileCXX.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QPushButton:
 
 /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qsizepolicy.h:
 
@@ -2941,6 +2976,12 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qcompilerdetection.h:
 
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicAppleHelpers.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qtdeprecationmarkers.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlDebugServerFactoryPluginTargets-relwithdebinfo.cmake:
+
 /home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/Platform/UnixPaths.cmake:
 
 /usr/include/features-time64.h:
@@ -2954,6 +2995,12 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Sql/Qt6SqlPlugins.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Pdf/Qt6PdfConfigVersion.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6QmlWorkerScript/Qt6QmlWorkerScriptConfig.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/QSize:
+
+/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/FindPkgConfig.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Core/Qt6CoreTargetsPrecheck.cmake:
 
@@ -2987,10 +3034,6 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/q20memory.h:
 
-/usr/include/bits/time64.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QMenu:
-
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlfolderlistmodelpluginTargets-relwithdebinfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtwebenginequickpluginTargets-relwithdebinfo.cmake:
@@ -3003,6 +3046,8 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qquickvectorimagepluginTargetsPrecheck.cmake:
 
+/home/nao/qtsysroot/usr/include/qt6/QtCore/QPoint:
+
 /usr/include/time.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6WebEngineWidgets/Qt6WebEngineWidgetsAdditionalTargetInfo.cmake:
@@ -3010,22 +3055,6 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qforeach.h:
 
 /home/nao/Documents/Projects/reader/src/app/Application.cpp:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/QVector:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Core/Qt6CoreAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qutf8stringview.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6CoreTools/Qt6CoreToolsTargetsPrecheck.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/QString:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qgenericatomic.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtGui/qguiapplication.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qscopeguard.h:
 
 /home/nao/Documents/Projects/reader/src/pdf/PdfSelection.h:
 
@@ -3035,9 +3064,9 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Network/Qt6QGlibNetworkInformationPluginTargets.cmake:
 
-/home/nao/Documents/Projects/reader/src/ui/ThumbnailPanel.cpp:
-
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qbytearrayview.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QSplitter:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicPluginHelpers_v2.cmake:
 
@@ -3071,7 +3100,37 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QMinimalEglIntegrationPluginConfig.cmake:
 
+/usr/include/c++/16/bits/chrono_io.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicSbomFileHelpers.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6quickwindowAdditionalTargetInfo.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qiodevice.h:
+
 /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QScrollArea:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Widgets/Qt6WidgetsAdditionalTargetInfo.cmake:
+
+/home/nao/Documents/Projects/reader/app/main.cpp:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qcborvalue.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/QPointF:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Widgets/Qt6WidgetsMacros.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qtcoreexports.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/q17memory.h:
+
+/usr/include/c++/16/bits/streambuf.tcc:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/q20utility.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlInspectorServiceFactoryPluginTargets.cmake:
+
+/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/CMakeFindDependencyMacro.cmake:
 
 /home/nao/Documents/Projects/reader/src/ai/RetrievalEngine.h:
 
@@ -3089,11 +3148,23 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qglobalstatic.h:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicAppleHelpers.cmake:
+/usr/include/c++/16/cstdlib:
 
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qtdeprecationmarkers.h:
+/home/nao/qtsysroot/usr/include/qt6/QtCore/QJsonObject:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlDebugServerFactoryPluginTargets-relwithdebinfo.cmake:
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtwidgetsglobal.h:
+
+/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/Internal/CMakeCXXLinkerInformation.cmake:
+
+paper-reader_autogen/moc_predefs.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qconfig.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QWaylandWlShellIntegrationPluginTargets.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/QUrl:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickshapesdesignhelperspluginAdditionalTargetInfo.cmake:
 
 /usr/include/c++/16/bit:
 
@@ -3145,19 +3216,13 @@ paper-reader_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cm
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6OpenGL/Qt6OpenGLConfig.cmake:
 
+/home/nao/qtsysroot/usr/include/qt6/QtGui/qglyphrun.h:
+
 CMakeFiles/4.4.3/CMakeSystem.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qcoreapplication.h:
 
 /home/nao/qtsysroot/usr/include/poppler/qt6/poppler-annotation.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qiterator.h:
-
-/usr/include/c++/16/functional:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QWaylandFullScreenShellV1IntegrationPluginAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qjsondocument.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QApplication:
 
@@ -3219,6 +3284,10 @@ CMakeFiles/4.4.3/CMakeSystem.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2universalstylepluginTargets-relwithdebinfo.cmake:
 
+/home/nao/qtsysroot/usr/include/qt6/QtCore/QSet:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6DBus/Qt6DBusConfig.cmake:
+
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QWaylandXdgShellIntegrationPluginAdditionalTargetInfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2fluentwinui3styleimplpluginAdditionalTargetInfo.cmake:
@@ -3239,14 +3308,6 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Network/Qt6NetworkTargets.cmake:
 
-/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtwidgetsglobal.h:
-
-/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/Internal/CMakeCXXLinkerInformation.cmake:
-
-/usr/include/c++/16/cstdlib:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/QJsonObject:
-
 /usr/include/c++/16/stop_token:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicSbomDocumentNamespaceHelpers.cmake:
@@ -3259,15 +3320,9 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QWaylandBradientDecorationPluginTargets-relwithdebinfo.cmake:
 
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6QmlNetworkpluginConfig.cmake:
+
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6DBusTools/Qt6DBusToolsDependencies.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qstringmatcher.h:
-
-/home/nao/Documents/Projects/reader/src/search/VectorIndex.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2basicstyleimplpluginConfig.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qtdeprecationdefinitions.h:
 
 /home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/Compiler/CMakeCommonCompilerMacros.cmake:
 
@@ -3283,22 +3338,6 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6particlespluginTargetsPrecheck.cmake:
 
-/usr/include/bits/pthread_stack_min-dynamic.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6WebEngineCore/Qt6WebEngineCoreTargets.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtGui/qeventpoint.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6PdfQuickpluginTargetsPrecheck.cmake:
-
-/usr/include/bits/floatn-common.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qcontainertools_impl.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qmenu.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6positioningquickpluginTargets-relwithdebinfo.cmake:
-
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6QuickTools/Qt6SvgToQmlMacros.cmake:
 
 /home/nao/Documents/Projects/reader/src/core/CancellationToken.h:
@@ -3310,28 +3349,6 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicSbomRelationshipHelpers.cmake:
 
 /home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/CMakeCheckCompilerFlagCommonPatterns.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qquicklayoutspluginTargets.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6GuiTargets.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickdialogspluginAdditionalTargetInfo.cmake:
-
-/usr/include/c++/16/x86_64-redhat-linux/bits/gthr.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6WebChannel/Qt6WebChannelTargetsPrecheck.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtGui/qregion.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qscopedpointer.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QVncIntegrationPluginTargets.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qnumeric.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QGifPluginTargets-relwithdebinfo.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qstdlibdetection.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtGui/QMouseEvent:
 
@@ -3369,6 +3386,12 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qshareddata.h:
 
+/home/nao/Documents/Projects/reader/src/ui/PdfView.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialogbuttonbox.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSKmsGbmIntegrationPluginConfig.cmake:
+
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6WidgetsTools/Qt6WidgetsToolsVersionlessTargets.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/QRectF:
@@ -3377,10 +3400,6 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qstring.h:
 
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qtconfigmacros.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qobjectdefs_impl.h:
-
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QXdgDesktopPortalThemePluginTargetsPrecheck.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2pluginConfig.cmake:
@@ -3388,6 +3407,10 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Network/Qt6QNetworkManagerNetworkInformationPluginTargets.cmake:
 
 /home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/MacroAddFileDependencies.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevMousePluginTargetsPrecheck.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtGui/qpen.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6DBus/Qt6DBusTargetsPrecheck.cmake:
 
@@ -3411,23 +3434,9 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/Platform/Linker/Linux-GNU.cmake:
 
-/home/nao/Documents/Projects/reader/src/ui/CommandPalette.cpp:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qdatetime.h:
-
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Core/Qt6CoreConfigExtras.cmake:
 
 /home/nao/Documents/Projects/reader/src/ai/EmbeddingProviderQt.cpp:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6DmaBufServerBufferPluginConfig.cmake:
-
-/usr/include/c++/16/numeric:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/q23utility.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QmlTargetsPrecheck.cmake:
-
-/home/nao/Documents/Projects/reader/src/ui/ChatPanel.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2fusionstyleimplpluginTargets.cmake:
 
@@ -3445,18 +3454,6 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/Documents/Projects/reader/src/ai/ChatManager.h:
 
-/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/CMakeCommonLanguageInclude.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qquickvectorimagehelperspluginAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QXcbIntegrationPluginTargetsPrecheck.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6QmlWorkerScript/Qt6QmlWorkerScriptConfig.cmake:
-
-/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/FindPkgConfig.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/QSize:
-
 /home/nao/Documents/Projects/reader/CMakeLists.txt:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6particlespluginTargets.cmake:
@@ -3471,10 +3468,6 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qarraydataops.h:
 
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qiodevice.h:
-
-/home/nao/Documents/Projects/reader/src/ui/ChatTranscript.h:
-
 /usr/include/c++/16/bits/stl_uninitialized.h:
 
 /home/nao/Documents/Projects/reader/src/pdf/PdfRenderer.cpp:
@@ -3487,57 +3480,27 @@ CMakeFiles/4.4.3/CMakeCXXCompiler.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qstringfwd.h:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6DBus/Qt6DBusConfig.cmake:
+/usr/include/c++/16/bits/stringfwd.h:
 
-/home/nao/qtsysroot/usr/include/qt6/QtCore/QSet:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2universalstyleimplpluginTargets-relwithdebinfo.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Network/Qt6NetworkTargetsPrecheck.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlNativeDebugConnectorFactoryPluginTargets.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6QuickControlsTestUtilsPrivatepluginTargets.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6DBusTools/Qt6DBusToolsVersionlessTargets.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qfloat16.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Positioning/Qt6PositioningConfigVersionImpl.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6PrintSupport/Qt6PrintSupportConfigVersion.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6QmlNetworkpluginAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6QmlNetworkpluginConfig.cmake:
-
-paper-reader_autogen/moc_predefs.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qconfig.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QWaylandWlShellIntegrationPluginTargets.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/QUrl:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickshapesdesignhelperspluginAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qtconfiginclude.h:
-
-/usr/include/c++/16/bits/streambuf.tcc:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/q20utility.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/q17memory.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtGui/qpen.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevMousePluginTargetsPrecheck.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlInspectorServiceFactoryPluginTargets.cmake:
-
-/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/CMakeFindDependencyMacro.cmake:
+/home/nao/Documents/Projects/reader/src/analysis/PaperAnalysis.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/q20bit.h:
 
-/home/nao/Documents/Projects/reader/src/ui/MapPanel.cpp:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicTestHelpers.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qobjectdefs_impl.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qtconfigmacros.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qjsondocument.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qiterator.h:
+
+/usr/include/c++/16/functional:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QWaylandFullScreenShellV1IntegrationPluginAdditionalTargetInfo.cmake:
 
 /home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/CMakeSystemSpecificInformation.cmake:
 
@@ -3552,8 +3515,6 @@ paper-reader_autogen/moc_predefs.h:
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevKeyboardPluginTargetsPrecheck.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qnamespace.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicSbomAttributionHelpers.cmake:
 
 /home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/CMakeInitializeConfigs.cmake:
 
@@ -3589,16 +3550,6 @@ paper-reader_autogen/moc_predefs.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtGui/QPainter:
 
-/home/nao/Documents/Projects/reader/src/ui/ChatPanel.cpp:
-
-/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLabel:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QMinimalEglIntegrationPluginTargetsPrecheck.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6WebEngineCore/Qt6WebEngineCoreTargets-relwithdebinfo.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlNativeDebugServiceFactoryPluginTargets-relwithdebinfo.cmake:
-
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qbasicatomic.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QMinimalIntegrationPluginTargets-relwithdebinfo.cmake:
@@ -3613,13 +3564,61 @@ paper-reader_autogen/moc_predefs.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QLocalClientConnectionFactoryPluginConfig.cmake:
 
-/usr/include/c++/16/bits/chrono_io.h:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtFeatureCommon.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicSbomFileHelpers.cmake:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QIbusPlatformInputContextPluginTargets.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6quickwindowAdditionalTargetInfo.cmake:
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qbytearraylist.h:
 
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qbuffer.h:
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QTextEdit:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QXcbGlxIntegrationPluginAdditionalTargetInfo.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2fusionstyleimplpluginTargetsPrecheck.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qtconfiginclude.h:
+
+/usr/include/c++/16/bits/charconv.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6/Qt6VersionlessAliasTargets.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtPdf/qtpdfexports.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtGui/qrawfont.h:
+
+/home/nao/Documents/Projects/reader/src/ui/MainWindow.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QXcbEglIntegrationPluginTargetsPrecheck.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qchar.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qplaintextedit.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qcomparehelpers.h:
+
+/home/nao/Documents/Projects/reader/src/ui/WebPanel.cpp:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qstringmatcher.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2basicstyleimplpluginConfig.cmake:
+
+/home/nao/Documents/Projects/reader/src/search/VectorIndex.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6quicktoolingTargetsPrecheck.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QWaylandFullScreenShellV1IntegrationPluginTargets.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2implpluginTargets-relwithdebinfo.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qdatetime.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicSbomPurlHelpers.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qswap.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qdebug.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qsize.h:
 
 /home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/FindCups.cmake:
 
@@ -3642,36 +3641,6 @@ paper-reader_autogen/moc_predefs.h:
 /home/nao/qtsysroot/usr/include/qt6/QtGui/qtgui-config.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6PrintSupport/Qt6QCupsPrinterSupportPluginAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtFeatureCommon.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QIbusPlatformInputContextPluginTargets.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qbytearraylist.h:
-
-/usr/include/c++/16/bits/charconv.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6/Qt6VersionlessAliasTargets.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtPdf/qtpdfexports.h:
-
-/home/nao/Documents/Projects/reader/src/ui/MainWindow.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QXcbEglIntegrationPluginTargetsPrecheck.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qchar.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qcomparehelpers.h:
-
-/home/nao/Documents/Projects/reader/src/ui/WebPanel.cpp:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicSbomPurlHelpers.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qswap.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qdebug.h:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qsize.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qflags.h:
 
@@ -3733,17 +3702,65 @@ paper-reader_autogen/moc_predefs.h:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/QObject:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QLocalClientConnectionFactoryPluginTargets-relwithdebinfo.cmake:
-
-/home/nao/qtsysroot/usr/include/qt6/QtCore/qobject_impl.h:
-
 /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QMainWindow:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qoverload.h:
+
+/usr/include/bits/errno.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QWaylandWlShellIntegrationPluginAdditionalTargetInfo.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Positioning/Qt6QGeoPositionInfoSourceFactoryGeoclue2PluginTargetsPrecheck.cmake:
 
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qpoint.h:
 
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qrefcount.h:
+
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlfolderlistmodelpluginTargetsPrecheck.cmake:
 
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6DBus/Qt6DBusMacros.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtextedit.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6GuiTools/Qt6GuiToolsTargetsPrecheck.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qscopedpointer.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QVncIntegrationPluginTargets.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qnumeric.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QGifPluginTargets-relwithdebinfo.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qstdlibdetection.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qsharedpointer.h:
+
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qstringbuilder.h:
+
+/usr/include/c++/16/backward/auto_ptr.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qversiontagging.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmllocalstoragepluginAdditionalTargetInfo.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qsystemdetection.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtGui/qevent.h:
+
+/usr/include/c++/16/bits/move.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qtaggedpointer.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickdialogspluginTargetsPrecheck.cmake:
+
+/usr/include/string.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qtcoreglobal.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtGui/qtextlayout.h:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qtdeprecationdefinitions.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6/Qt6ConfigVersion.cmake:
 
@@ -3756,6 +3773,8 @@ paper-reader_autogen/moc_predefs.h:
 /usr/include/c++/16/ext/alloc_traits.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6quickwindowTargets.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSX11IntegrationPluginTargets-relwithdebinfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSX11IntegrationPluginTargets.cmake:
 
@@ -3780,6 +3799,10 @@ paper-reader_autogen/moc_predefs.h:
 /usr/include/c++/16/bits/utility.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevTabletPluginAdditionalTargetInfo.cmake:
+
+/usr/include/c++/16/mutex:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevTabletPluginConfig.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevTabletPluginTargets-relwithdebinfo.cmake:
 
@@ -3841,7 +3864,7 @@ paper-reader_autogen/moc_predefs.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QIbusPlatformInputContextPluginTargetsPrecheck.cmake:
 
-/home/nao/Documents/Projects/reader/src/ui/IngestRawPanel.cpp:
+/home/nao/Documents/Projects/reader/src/pdf/HighlightExport.cpp:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QVncIntegrationPluginTargetsPrecheck.cmake:
 
@@ -3866,12 +3889,6 @@ paper-reader_autogen/moc_predefs.h:
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QLibInputPluginAdditionalTargetInfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QWaylandEglClientBufferPluginTargets.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QLibInputPluginConfig.cmake:
-
-/usr/include/c++/16/bits/list.tcc:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtwebenginequickpluginAdditionalTargetInfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSEmulatorIntegrationPluginAdditionalTargetInfo.cmake:
 
@@ -3921,6 +3938,18 @@ paper-reader_autogen/moc_predefs.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlxmllistmodelpluginTargetsPrecheck.cmake:
 
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLabel:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QMinimalEglIntegrationPluginTargetsPrecheck.cmake:
+
+/home/nao/qtsysroot/usr/include/qt6/QtCore/qobject_impl.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QLocalClientConnectionFactoryPluginTargets-relwithdebinfo.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6WebEngineCore/Qt6WebEngineCoreTargets-relwithdebinfo.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlNativeDebugServiceFactoryPluginTargets-relwithdebinfo.cmake:
+
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QMinimalIntegrationPluginAdditionalTargetInfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QMinimalIntegrationPluginConfig.cmake:
@@ -3958,10 +3987,6 @@ paper-reader_autogen/moc_predefs.h:
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QPdfPluginAdditionalTargetInfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QTsLibPluginAdditionalTargetInfo.cmake:
-
-/usr/include/c++/16/bits/ranges_algo.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QTsLibPluginTargets-relwithdebinfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QTsLibPluginTargets.cmake:
 
@@ -4073,15 +4098,13 @@ paper-reader_autogen/moc_predefs.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlsettingspluginAdditionalTargetInfo.cmake:
 
+/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qpushbutton.h:
+
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QXcbEglIntegrationPluginConfig.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QXcbEglIntegrationPluginTargets-relwithdebinfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QXcbEglIntegrationPluginTargets.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QXcbGlxIntegrationPluginAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2fusionstyleimplpluginTargetsPrecheck.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QXcbGlxIntegrationPluginConfig.cmake:
 
@@ -4149,7 +4172,9 @@ paper-reader_autogen/moc_predefs.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6GuiTools/Qt6GuiToolsTargets-relwithdebinfo.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6GuiTools/Qt6GuiToolsTargetsPrecheck.cmake:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Network/Qt6NetworkAdditionalTargetInfo.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlDebugServerFactoryPluginAdditionalTargetInfo.cmake:
 
 /usr/include/asm-generic/errno-base.h:
 
@@ -4240,12 +4265,6 @@ paper-reader_autogen/moc_predefs.h:
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6OpenGL/Qt6OpenGLTargets-relwithdebinfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6OpenGL/Qt6OpenGLTargets.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6OpenGL/Qt6OpenGLVersionlessAliasTargets.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6labsmodelspluginTargets-relwithdebinfo.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Pdf/Qt6PdfConfig.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QICOPluginConfig.cmake:
 
@@ -4433,9 +4452,9 @@ paper-reader_autogen/moc_predefs.h:
 
 /usr/include/c++/16/sstream:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2implpluginAdditionalTargetInfo.cmake:
-
 /home/nao/Documents/Projects/reader/src/analysis/PaperIngestor.h:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2implpluginAdditionalTargetInfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6labsanimationpluginTargets.cmake:
 
@@ -4452,8 +4471,6 @@ paper-reader_autogen/moc_predefs.h:
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6labsmodelspluginTargetsPrecheck.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6modelspluginAdditionalTargetInfo.cmake:
-
-/home/nao/Documents/Projects/reader/src/ui/CommandPalette.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6modelspluginConfig.cmake:
 
@@ -4492,8 +4509,6 @@ paper-reader_autogen/moc_predefs.h:
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlpluginTargets.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlpluginTargetsPrecheck.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlsettingspluginConfig.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlsettingspluginTargets-relwithdebinfo.cmake:
 
@@ -4539,14 +4554,6 @@ paper-reader_autogen/moc_predefs.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtqmlcorepluginTargetsPrecheck.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquick2pluginTargets-relwithdebinfo.cmake:
-
-/usr/include/c++/16/bits/stringfwd.h:
-
-/home/nao/Documents/Projects/reader/src/analysis/PaperAnalysis.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2universalstyleimplpluginTargets-relwithdebinfo.cmake:
-
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquick2pluginTargets.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQuickEventReplayServiceFactoryPluginTargetsPrecheck.cmake:
@@ -4556,6 +4563,10 @@ paper-reader_autogen/moc_predefs.h:
 /home/nao/qtsysroot/usr/include/qt6/QtCore/qtypeinfo.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2basicstyleimplpluginTargets-relwithdebinfo.cmake:
+
+/usr/include/c++/16/cwctype:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2fluentwinui3styleimplpluginConfig.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2fluentwinui3styleimplpluginTargets.cmake:
 
@@ -4765,8 +4776,6 @@ paper-reader_autogen/moc_predefs.h:
 
 /usr/include/bits/types/FILE.h:
 
-/home/nao/Documents/Projects/reader/src/ui/ChatTranscript.cpp:
-
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickshapesdesignhelperspluginConfig.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlPreviewServiceFactoryPluginAdditionalTargetInfo.cmake:
@@ -4785,14 +4794,8 @@ paper-reader_autogen/moc_predefs.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlPreviewServiceFactoryPluginTargetsPrecheck.cmake:
 
-/home/nao/qtsysroot/usr/include/qt6/QtGui/qfontmetrics.h:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlProfilerServiceFactoryPluginAdditionalTargetInfo.cmake:
-
 /usr/include/c++/16/bits/shared_ptr_atomic.h:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQuickEventReplayServiceFactoryPluginAdditionalTargetInfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQuickEventReplayServiceFactoryPluginConfig.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQuickEventReplayServiceFactoryPluginTargets-relwithdebinfo.cmake:

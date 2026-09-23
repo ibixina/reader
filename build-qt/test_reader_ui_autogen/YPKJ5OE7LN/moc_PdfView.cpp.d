@@ -1,8 +1,6 @@
 /home/nao/Documents/Projects/reader/build-qt/test_reader_ui_autogen/YPKJ5OE7LN/moc_PdfView.cpp: /home/nao/Documents/Projects/reader/src/ui/PdfView.h \
   /home/nao/Documents/Projects/reader/build-qt/test_reader_ui_autogen/moc_predefs.h \
-  /home/nao/Documents/Projects/reader/src/ai/EmbeddingProviderQt.h \
   /home/nao/Documents/Projects/reader/src/ai/References.h \
-  /home/nao/Documents/Projects/reader/src/core/CancellationToken.h \
   /home/nao/Documents/Projects/reader/src/core/LruCache.h \
   /home/nao/Documents/Projects/reader/src/core/Types.h \
   /home/nao/Documents/Projects/reader/src/document/DocumentAnchor.h \
@@ -13,7 +11,6 @@
   /home/nao/Documents/Projects/reader/src/pdf/PopplerBridge.h \
   /home/nao/Documents/Projects/reader/src/pdf/WordIndex.h \
   /home/nao/Documents/Projects/reader/src/search/TextIndex.h \
-  /home/nao/Documents/Projects/reader/src/search/VectorIndex.h \
   /home/nao/qtsysroot/usr/include/poppler/qt6/poppler-annotation.h \
   /home/nao/qtsysroot/usr/include/poppler/qt6/poppler-converter.h \
   /home/nao/qtsysroot/usr/include/poppler/qt6/poppler-export.h \
@@ -26,7 +23,9 @@
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QDateTime \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QIODevice \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QList \
+  /home/nao/qtsysroot/usr/include/qt6/QtCore/QPoint \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointF \
+  /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointer \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QRect \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QRectF \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/QScopedPointer \
@@ -117,6 +116,7 @@
   /home/nao/qtsysroot/usr/include/qt6/QtCore/qoverload.h \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/qpair.h \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/qpoint.h \
+  /home/nao/qtsysroot/usr/include/qt6/QtCore/qpointer.h \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/qprocessordetection.h \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/qrect.h \
   /home/nao/qtsysroot/usr/include/qt6/QtCore/qrefcount.h \

@@ -83,7 +83,6 @@
  /home/nao/Documents/Projects/reader/src/storage/Repositories.h
  /home/nao/Documents/Projects/reader/src/ui/PdfView.cpp
  /home/nao/Documents/Projects/reader/src/ui/PdfView.h
- /home/nao/Documents/Projects/reader/src/ui/chat_resources.qrc
  /home/nao/Documents/Projects/reader/tests/test_select.cpp
  /home/nao/qtsysroot/usr/include/poppler/qt6/poppler-annotation.h
  /home/nao/qtsysroot/usr/include/poppler/qt6/poppler-converter.h
@@ -93,7 +92,6 @@
  /home/nao/qtsysroot/usr/include/poppler/qt6/poppler-page-transition.h
  /home/nao/qtsysroot/usr/include/poppler/qt6/poppler-qt6.h
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QAbstractListModel
- /home/nao/qtsysroot/usr/include/qt6/QtCore/QBuffer
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QByteArray
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QCoreApplication
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QDateTime
@@ -102,6 +100,7 @@
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QList
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QMetaObject
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QObject
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QPoint
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointF
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointer
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QRect
@@ -139,7 +138,6 @@
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qbasicatomic.h
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qbasictimer.h
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qbindingstorage.h
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qbuffer.h
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qbytearray.h
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qbytearrayalgorithms.h
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qbytearraylist.h
@@ -280,8 +278,10 @@
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QMouseEvent
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QPainter
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QResizeEvent
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/QScreen
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QShortcut
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QTransform
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qabstracttextdocumentlayout.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qaction.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qbitmap.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qbrush.h
@@ -291,9 +291,11 @@
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qevent.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qeventpoint.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qfont.h
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qfontdatabase.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qfontinfo.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qfontmetrics.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qfontvariableaxis.h
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qglyphrun.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qguiapplication.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qguiapplication_platform.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qicon.h
@@ -310,6 +312,7 @@
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qpixmap.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qpointingdevice.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qpolygon.h
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qrawfont.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qregion.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qrgb.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qrgba64.h
@@ -319,6 +322,7 @@
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextcursor.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextdocument.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextformat.h
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextlayout.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextoption.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qtgui-config.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qtguiexports.h
@@ -342,30 +346,40 @@
  /home/nao/qtsysroot/usr/include/qt6/QtPdf/qpdfselection.h
  /home/nao/qtsysroot/usr/include/qt6/QtPdf/qtpdfexports.h
  /home/nao/qtsysroot/usr/include/qt6/QtPdf/qtpdfglobal.h
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QAbstractButton
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QApplication
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QInputDialog
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDialog
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDialogButtonBox
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLabel
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QMenu
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLineEdit
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QPlainTextEdit
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QPushButton
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QScrollArea
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QScrollBar
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QSplitter
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QTextEdit
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QToolTip
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QVBoxLayout
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractbutton.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractscrollarea.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractslider.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qapplication.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qboxlayout.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialog.h
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialogbuttonbox.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qframe.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qgridlayout.h
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qinputdialog.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlabel.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlayout.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlayoutitem.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlineedit.h
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qmenu.h
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qplaintextedit.h
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qpushbutton.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qscrollarea.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qscrollbar.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qsizepolicy.h
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qsplitter.h
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtextedit.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtooltip.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtwidgets-config.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtwidgetsexports.h

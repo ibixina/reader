@@ -255,9 +255,10 @@ CMakeFiles/test_reader_ui.dir/tests/test_reader_ui.cpp.o: \
  /usr/include/c++/16/x86_64-redhat-linux/bits/basic_file.h \
  /usr/include/c++/16/x86_64-redhat-linux/bits/c++io.h \
  /usr/include/c++/16/bits/fstream.tcc \
- /home/nao/Documents/Projects/reader/src/ui/CommandPalette.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDialog \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialog.h \
+ /home/nao/Documents/Projects/reader/src/ui/MainWindow.h \
+ /home/nao/Documents/Projects/reader/src/pdf/QtPdfEngine.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QMainWindow \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qmainwindow.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtwidgetsglobal.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qtguiglobal.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qglobal.h \
@@ -451,15 +452,10 @@ CMakeFiles/test_reader_ui.dir/tests/test_reader_ui.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qsizepolicy.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qcursor.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qbitmap.h \
- /home/nao/Documents/Projects/reader/src/ui/MainWindow.h \
- /home/nao/Documents/Projects/reader/src/pdf/QtPdfEngine.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QMainWindow \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qmainwindow.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtabwidget.h \
- /home/nao/Documents/Projects/reader/src/ui/MapPanel.h \
+ /home/nao/Documents/Projects/reader/src/ui/OutlinePanel.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QWidget \
  /home/nao/Documents/Projects/reader/src/ui/PdfView.h \
- /home/nao/Documents/Projects/reader/src/ai/EmbeddingProviderQt.h \
  /home/nao/Documents/Projects/reader/src/pdf/PdfRenderer.h \
  /home/nao/Documents/Projects/reader/src/core/LruCache.h \
  /home/nao/Documents/Projects/reader/src/pdf/PopplerBridge.h \
@@ -502,8 +498,14 @@ CMakeFiles/test_reader_ui.dir/tests/test_reader_ui.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qscrollarea.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractscrollarea.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qframe.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QList \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QPoint \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointer \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qpointer.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QSizeF \
- /home/nao/Documents/Projects/reader/src/ui/SummaryPanel.h \
+ /home/nao/Documents/Projects/reader/src/ui/WebPanel.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QUrl \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qurl.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QApplication \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qapplication.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qcoreapplication.h \
@@ -517,11 +519,27 @@ CMakeFiles/test_reader_ui.dir/tests/test_reader_ui.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qguiapplication.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qinputmethod.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qguiapplication_platform.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/QAction \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QClipboard \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qclipboard.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QComboBox \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qcombobox.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDialog \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialog.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QElapsedTimer \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qelapsedtimer.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLabel \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlabel.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qpicture.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextdocument.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLineEdit \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlineedit.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextcursor.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextformat.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qpen.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextoption.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QListWidget \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlistwidget.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlistview.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractitemview.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qitemselectionmodel.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractitemdelegate.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qstyleoption.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractspinbox.h \
@@ -532,35 +550,6 @@ CMakeFiles/test_reader_ui.dir/tests/test_reader_ui.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qstyle.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtabbar.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qrubberband.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/QElapsedTimer \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qelapsedtimer.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDockWidget \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdockwidget.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QGraphicsEllipseItem \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qgraphicsitem.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qpainterpath.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QGraphicsView \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qgraphicsview.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qpainter.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextoption.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qpen.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qgraphicsscene.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLabel \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlabel.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qpicture.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextdocument.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qurl.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLineEdit \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlineedit.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextcursor.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextformat.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QListWidget \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlistwidget.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlistview.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractitemview.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qitemselectionmodel.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QMenu \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qmenu.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QMouseEvent \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qevent.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qeventpoint.h \
@@ -578,13 +567,35 @@ CMakeFiles/test_reader_ui.dir/tests/test_reader_ui.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QPushButton \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qpushbutton.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractbutton.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QTabWidget \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/QThread \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qthread.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QTextBrowser \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtextbrowser.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtextedit.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QThread \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qthread.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWebEngineWidgets/QWebEngineView \
+ /home/nao/qtsysroot/usr/include/qt6/QtWebEngineWidgets/qwebengineview.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/QPageLayout \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qpagelayout.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qpagesize.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qpageranges.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWebEngineWidgets/qtwebenginewidgetsglobal.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWebEngineCore/qwebenginepage.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWebEngineCore/qtwebenginecoreglobal.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWebEngineCore/qtwebenginecore-config.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWebEngineCore/qwebengineclientcertificateselection.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtNetwork/qtnetwork-config.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtNetwork/qsslcertificate.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtNetwork/qtnetworkglobal.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtNetwork/qtnetworkexports.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qcryptographichash.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtNetwork/qssl.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QFlags \
+ /home/nao/qtsysroot/usr/include/qt6/QtWebEngineCore/qwebenginedownloadrequest.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWebEngineCore/qwebenginequotarequest.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWebEngineCore/qwebengineframe.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QUrl \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QWeakPointer \
+ /home/nao/qtsysroot/usr/include/qt6/QtWebEngineCore/qwebenginepermission.h \
  /usr/include/c++/16/iostream /usr/include/unistd.h \
  /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
  /usr/include/bits/confname.h /usr/include/bits/getopt_posix.h \

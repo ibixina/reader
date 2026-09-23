@@ -51,7 +51,6 @@
  /home/nao/Documents/Projects/reader/src/pdf/PdfRenderer.h
  /home/nao/Documents/Projects/reader/src/pdf/PopplerBridge.cpp
  /home/nao/Documents/Projects/reader/src/pdf/PopplerBridge.h
- /home/nao/Documents/Projects/reader/src/ui/chat_resources.qrc
  /home/nao/Documents/Projects/reader/tests/test_render_stress.cpp
  /home/nao/qtsysroot/usr/lib64/cmake/Qt6/FindWrapAtomic.cmake
  /home/nao/qtsysroot/usr/lib64/cmake/Qt6/FindWrapOpenGL.cmake

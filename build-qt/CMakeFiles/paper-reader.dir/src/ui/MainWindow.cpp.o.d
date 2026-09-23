@@ -2,9 +2,9 @@ CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: \
  /home/nao/Documents/Projects/reader/src/ui/MainWindow.cpp \
  /usr/include/stdc-predef.h \
  /home/nao/Documents/Projects/reader/src/ui/MainWindow.h \
- /home/nao/Documents/Projects/reader/src/analysis/PaperIngestor.h \
- /home/nao/Documents/Projects/reader/src/analysis/PaperAnalysis.h \
- /home/nao/Documents/Projects/reader/src/core/Json.h \
+ /home/nao/Documents/Projects/reader/src/app/ApplicationState.h \
+ /home/nao/Documents/Projects/reader/src/ai/References.h \
+ /home/nao/Documents/Projects/reader/src/core/Types.h \
  /usr/include/c++/16/cstdint \
  /usr/include/c++/16/x86_64-redhat-linux/bits/c++config.h \
  /usr/include/bits/wordsize.h \
@@ -20,17 +20,26 @@ CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: \
  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
  /usr/include/bits/time64.h /usr/include/bits/wchar.h \
  /usr/include/bits/stdint-intn.h /usr/include/bits/stdint-uintn.h \
- /usr/include/bits/stdint-least.h /usr/include/c++/16/map \
+ /usr/include/bits/stdint-least.h /usr/include/c++/16/string \
  /usr/include/c++/16/bits/requires_hosted.h \
- /usr/include/c++/16/bits/stl_tree.h \
- /usr/include/c++/16/bits/stl_algobase.h \
- /usr/include/c++/16/bits/cpp_type_traits.h \
- /usr/include/c++/16/bits/version.h /usr/include/c++/16/type_traits \
- /usr/include/c++/16/ext/type_traits.h \
- /usr/include/c++/16/ext/numeric_traits.h \
- /usr/include/c++/16/bits/stl_pair.h /usr/include/c++/16/bits/move.h \
- /usr/include/c++/16/bits/utility.h /usr/include/c++/16/compare \
- /usr/include/c++/16/concepts \
+ /usr/include/c++/16/bits/stringfwd.h \
+ /usr/include/c++/16/bits/memoryfwd.h /usr/include/c++/16/bits/version.h \
+ /usr/include/c++/16/bits/char_traits.h \
+ /usr/include/c++/16/bits/postypes.h /usr/include/c++/16/cwchar \
+ /usr/include/wchar.h /usr/include/bits/floatn.h \
+ /usr/include/bits/floatn-common.h \
+ /usr/lib/gcc/x86_64-redhat-linux/16/include/stddef.h \
+ /usr/lib/gcc/x86_64-redhat-linux/16/include/stdarg.h \
+ /usr/include/bits/types/wint_t.h /usr/include/bits/types/mbstate_t.h \
+ /usr/include/bits/types/__mbstate_t.h /usr/include/bits/types/__FILE.h \
+ /usr/include/bits/types/FILE.h /usr/include/bits/types/locale_t.h \
+ /usr/include/bits/types/__locale_t.h /usr/include/c++/16/type_traits \
+ /usr/include/c++/16/compare /usr/include/c++/16/concepts \
+ /usr/include/c++/16/bits/stl_construct.h /usr/include/c++/16/new \
+ /usr/include/c++/16/bits/exception.h \
+ /usr/include/c++/16/bits/new_except.h \
+ /usr/include/c++/16/bits/exception_defines.h \
+ /usr/include/c++/16/bits/move.h \
  /usr/include/c++/16/bits/stl_iterator_base_types.h \
  /usr/include/c++/16/bits/iterator_concepts.h \
  /usr/include/c++/16/bits/ptr_traits.h \
@@ -38,106 +47,59 @@ CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: \
  /usr/include/c++/16/bits/stl_iterator_base_funcs.h \
  /usr/include/c++/16/bits/concept_check.h \
  /usr/include/c++/16/debug/assertions.h \
- /usr/include/c++/16/bits/stl_iterator.h /usr/include/c++/16/new \
- /usr/include/c++/16/bits/exception.h \
- /usr/include/c++/16/bits/new_except.h \
- /usr/include/c++/16/bits/exception_defines.h \
- /usr/include/c++/16/bits/stl_construct.h \
- /usr/include/c++/16/debug/debug.h \
- /usr/include/c++/16/bits/predefined_ops.h \
- /usr/include/c++/16/bits/stl_function.h \
- /usr/include/c++/16/backward/binders.h /usr/include/c++/16/bit \
  /usr/include/c++/16/bits/allocator.h \
  /usr/include/c++/16/x86_64-redhat-linux/bits/c++allocator.h \
  /usr/include/c++/16/bits/new_allocator.h \
  /usr/include/c++/16/bits/new_throw.h \
- /usr/include/c++/16/bits/memoryfwd.h \
- /usr/include/c++/16/ext/alloc_traits.h \
- /usr/include/c++/16/bits/alloc_traits.h \
- /usr/include/c++/16/ext/aligned_buffer.h \
- /usr/include/c++/16/bits/node_handle.h \
- /usr/include/c++/16/bits/stl_map.h \
- /usr/include/c++/16/bits/stdexcept_throw.h \
- /usr/include/c++/16/bits/stdexcept_throwfwd.h \
- /usr/include/c++/16/initializer_list /usr/include/c++/16/tuple \
- /usr/include/c++/16/bits/uses_allocator.h \
- /usr/include/c++/16/bits/invoke.h /usr/include/c++/16/bits/ranges_util.h \
- /usr/include/c++/16/bits/ranges_base.h \
- /usr/include/c++/16/bits/max_size_type.h /usr/include/c++/16/numbers \
- /usr/include/c++/16/limits /usr/include/c++/16/bits/stl_multimap.h \
- /usr/include/c++/16/bits/range_access.h \
- /usr/include/c++/16/bits/erase_if.h \
- /usr/include/c++/16/bits/memory_resource.h /usr/include/c++/16/cstddef \
- /usr/lib/gcc/x86_64-redhat-linux/16/include/stddef.h \
- /usr/include/c++/16/bits/uses_allocator_args.h \
- /usr/include/c++/16/memory /usr/include/c++/16/bits/stl_tempbuf.h \
- /usr/include/c++/16/bits/stl_uninitialized.h \
- /usr/include/c++/16/bits/stl_raw_storage_iter.h \
- /usr/include/c++/16/bits/align.h /usr/include/c++/16/bits/unique_ptr.h \
- /usr/include/c++/16/bits/functional_hash.h \
- /usr/include/c++/16/bits/hash_bytes.h /usr/include/c++/16/bits/ostream.h \
- /usr/include/c++/16/ios /usr/include/c++/16/iosfwd \
- /usr/include/c++/16/bits/stringfwd.h /usr/include/c++/16/bits/postypes.h \
- /usr/include/c++/16/cwchar /usr/include/wchar.h \
- /usr/include/bits/floatn.h /usr/include/bits/floatn-common.h \
- /usr/lib/gcc/x86_64-redhat-linux/16/include/stdarg.h \
- /usr/include/bits/types/wint_t.h /usr/include/bits/types/mbstate_t.h \
- /usr/include/bits/types/__mbstate_t.h /usr/include/bits/types/__FILE.h \
- /usr/include/bits/types/FILE.h /usr/include/bits/types/locale_t.h \
- /usr/include/bits/types/__locale_t.h /usr/include/c++/16/exception \
- /usr/include/c++/16/bits/exception_ptr.h \
- /usr/include/c++/16/bits/cxxabi_init_exception.h \
- /usr/include/c++/16/typeinfo /usr/include/c++/16/bits/nested_exception.h \
- /usr/include/c++/16/bits/char_traits.h \
+ /usr/include/c++/16/bits/cpp_type_traits.h \
  /usr/include/c++/16/bits/localefwd.h \
  /usr/include/c++/16/x86_64-redhat-linux/bits/c++locale.h \
  /usr/include/c++/16/clocale /usr/include/locale.h \
- /usr/include/bits/locale.h /usr/include/c++/16/cctype \
- /usr/include/ctype.h /usr/include/bits/endian.h \
- /usr/include/bits/endianness.h /usr/include/c++/16/bits/ios_base.h \
- /usr/include/c++/16/ext/atomicity.h \
- /usr/include/c++/16/x86_64-redhat-linux/bits/gthr.h \
- /usr/include/c++/16/x86_64-redhat-linux/bits/gthr-default.h \
- /usr/include/pthread.h /usr/include/sched.h \
- /usr/include/bits/types/time_t.h \
- /usr/include/bits/types/struct_timespec.h /usr/include/bits/sched.h \
- /usr/include/linux/sched/types.h /usr/include/linux/types.h \
- /usr/include/asm/types.h /usr/include/asm-generic/types.h \
- /usr/include/asm-generic/int-ll64.h /usr/include/asm/bitsperlong.h \
- /usr/include/asm-generic/bitsperlong.h /usr/include/linux/posix_types.h \
- /usr/include/linux/stddef.h /usr/include/asm/posix_types.h \
- /usr/include/asm/posix_types_64.h /usr/include/asm-generic/posix_types.h \
- /usr/include/bits/types/struct_sched_param.h /usr/include/bits/cpu-set.h \
- /usr/include/time.h /usr/include/bits/time.h /usr/include/bits/timex.h \
- /usr/include/bits/types/struct_timeval.h \
- /usr/include/bits/types/clock_t.h /usr/include/bits/types/struct_tm.h \
- /usr/include/bits/types/clockid_t.h /usr/include/bits/types/timer_t.h \
- /usr/include/bits/types/struct_itimerspec.h \
- /usr/include/bits/pthreadtypes.h /usr/include/bits/thread-shared-types.h \
- /usr/include/bits/pthreadtypes-arch.h \
- /usr/include/bits/atomic_wide_counter.h /usr/include/bits/struct_mutex.h \
- /usr/include/bits/struct_rwlock.h /usr/include/bits/setjmp.h \
- /usr/include/bits/types/__sigset_t.h \
- /usr/include/bits/types/struct___jmp_buf_tag.h \
- /usr/include/bits/pthread_stack_min-dynamic.h \
- /usr/include/c++/16/x86_64-redhat-linux/bits/atomic_word.h \
- /usr/include/sys/single_threaded.h \
- /usr/include/c++/16/bits/locale_classes.h \
- /usr/include/c++/16/bits/functexcept.h /usr/include/c++/16/string \
+ /usr/include/bits/locale.h /usr/include/c++/16/iosfwd \
+ /usr/include/c++/16/cctype /usr/include/ctype.h \
+ /usr/include/bits/endian.h /usr/include/bits/endianness.h \
  /usr/include/c++/16/bits/ostream_insert.h \
  /usr/include/c++/16/bits/cxxabi_forced.h \
- /usr/include/c++/16/bits/basic_string.h /usr/include/c++/16/string_view \
- /usr/include/c++/16/bits/string_view.tcc \
+ /usr/include/c++/16/bits/stl_iterator.h \
+ /usr/include/c++/16/ext/type_traits.h \
+ /usr/include/c++/16/bits/stl_function.h \
+ /usr/include/c++/16/backward/binders.h \
+ /usr/include/c++/16/ext/numeric_traits.h \
+ /usr/include/c++/16/bits/stdexcept_throw.h \
+ /usr/include/c++/16/bits/stdexcept_throwfwd.h \
+ /usr/include/c++/16/bits/stl_algobase.h \
+ /usr/include/c++/16/bits/stl_pair.h /usr/include/c++/16/bits/utility.h \
+ /usr/include/c++/16/debug/debug.h \
+ /usr/include/c++/16/bits/predefined_ops.h /usr/include/c++/16/bit \
+ /usr/include/c++/16/bits/range_access.h \
+ /usr/include/c++/16/initializer_list /usr/include/c++/16/bits/erase_if.h \
+ /usr/include/c++/16/bits/basic_string.h \
+ /usr/include/c++/16/ext/alloc_traits.h \
+ /usr/include/c++/16/bits/alloc_traits.h /usr/include/c++/16/string_view \
+ /usr/include/c++/16/bits/functional_hash.h \
+ /usr/include/c++/16/bits/hash_bytes.h \
+ /usr/include/c++/16/bits/ranges_base.h \
+ /usr/include/c++/16/bits/max_size_type.h /usr/include/c++/16/numbers \
+ /usr/include/c++/16/limits /usr/include/c++/16/bits/string_view.tcc \
  /usr/include/c++/16/ext/string_conversions.h /usr/include/c++/16/cstdlib \
  /usr/include/stdlib.h /usr/include/bits/waitflags.h \
  /usr/include/bits/waitstatus.h /usr/include/sys/types.h \
+ /usr/include/bits/types/clock_t.h /usr/include/bits/types/clockid_t.h \
+ /usr/include/bits/types/time_t.h /usr/include/bits/types/timer_t.h \
  /usr/include/endian.h /usr/include/bits/byteswap.h \
  /usr/include/bits/uintn-identity.h /usr/include/sys/select.h \
  /usr/include/bits/select.h /usr/include/bits/types/sigset_t.h \
- /usr/include/alloca.h /usr/include/bits/stdlib-bsearch.h \
- /usr/include/bits/stdlib-float.h /usr/include/c++/16/bits/std_abs.h \
- /usr/include/c++/16/cstdio /usr/include/stdio.h \
- /usr/include/bits/types/__fpos_t.h /usr/include/bits/types/__fpos64_t.h \
+ /usr/include/bits/types/__sigset_t.h \
+ /usr/include/bits/types/struct_timeval.h \
+ /usr/include/bits/types/struct_timespec.h \
+ /usr/include/bits/pthreadtypes.h /usr/include/bits/thread-shared-types.h \
+ /usr/include/bits/pthreadtypes-arch.h \
+ /usr/include/bits/atomic_wide_counter.h /usr/include/bits/struct_mutex.h \
+ /usr/include/bits/struct_rwlock.h /usr/include/alloca.h \
+ /usr/include/bits/stdlib-bsearch.h /usr/include/bits/stdlib-float.h \
+ /usr/include/c++/16/bits/std_abs.h /usr/include/c++/16/cstdio \
+ /usr/include/stdio.h /usr/include/bits/types/__fpos_t.h \
+ /usr/include/bits/types/__fpos64_t.h \
  /usr/include/bits/types/struct_FILE.h \
  /usr/include/bits/types/cookie_io_functions_t.h \
  /usr/include/bits/stdio_lim.h /usr/include/bits/stdio.h \
@@ -147,6 +109,41 @@ CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: \
  /usr/include/asm-generic/errno-base.h /usr/include/bits/types/error_t.h \
  /usr/include/c++/16/bits/charconv.h \
  /usr/include/c++/16/bits/basic_string.tcc \
+ /usr/include/c++/16/bits/memory_resource.h /usr/include/c++/16/cstddef \
+ /usr/include/c++/16/bits/uses_allocator.h \
+ /usr/include/c++/16/bits/uses_allocator_args.h /usr/include/c++/16/tuple \
+ /usr/include/c++/16/bits/invoke.h /usr/include/c++/16/bits/ranges_util.h \
+ /home/nao/Documents/Projects/reader/src/document/DocumentAnchor.h \
+ /home/nao/Documents/Projects/reader/src/document/DocumentModel.h \
+ /home/nao/Documents/Projects/reader/src/pdf/PdfEngine.h \
+ /usr/include/c++/16/memory /usr/include/c++/16/bits/stl_tempbuf.h \
+ /usr/include/c++/16/bits/stl_uninitialized.h \
+ /usr/include/c++/16/bits/stl_raw_storage_iter.h \
+ /usr/include/c++/16/bits/align.h /usr/include/c++/16/bits/unique_ptr.h \
+ /usr/include/c++/16/bits/ostream.h /usr/include/c++/16/ios \
+ /usr/include/c++/16/exception /usr/include/c++/16/bits/exception_ptr.h \
+ /usr/include/c++/16/bits/cxxabi_init_exception.h \
+ /usr/include/c++/16/typeinfo /usr/include/c++/16/bits/nested_exception.h \
+ /usr/include/c++/16/bits/ios_base.h /usr/include/c++/16/ext/atomicity.h \
+ /usr/include/c++/16/x86_64-redhat-linux/bits/gthr.h \
+ /usr/include/c++/16/x86_64-redhat-linux/bits/gthr-default.h \
+ /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
+ /usr/include/linux/sched/types.h /usr/include/linux/types.h \
+ /usr/include/asm/types.h /usr/include/asm-generic/types.h \
+ /usr/include/asm-generic/int-ll64.h /usr/include/asm/bitsperlong.h \
+ /usr/include/asm-generic/bitsperlong.h /usr/include/linux/posix_types.h \
+ /usr/include/linux/stddef.h /usr/include/asm/posix_types.h \
+ /usr/include/asm/posix_types_64.h /usr/include/asm-generic/posix_types.h \
+ /usr/include/bits/types/struct_sched_param.h /usr/include/bits/cpu-set.h \
+ /usr/include/time.h /usr/include/bits/time.h /usr/include/bits/timex.h \
+ /usr/include/bits/types/struct_tm.h \
+ /usr/include/bits/types/struct_itimerspec.h /usr/include/bits/setjmp.h \
+ /usr/include/bits/types/struct___jmp_buf_tag.h \
+ /usr/include/bits/pthread_stack_min-dynamic.h \
+ /usr/include/c++/16/x86_64-redhat-linux/bits/atomic_word.h \
+ /usr/include/sys/single_threaded.h \
+ /usr/include/c++/16/bits/locale_classes.h \
+ /usr/include/c++/16/bits/functexcept.h \
  /usr/include/c++/16/bits/locale_classes.tcc \
  /usr/include/c++/16/system_error \
  /usr/include/c++/16/x86_64-redhat-linux/bits/error_constants.h \
@@ -164,7 +161,9 @@ CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: \
  /usr/include/c++/16/bits/shared_ptr.h \
  /usr/include/c++/16/bits/shared_ptr_base.h \
  /usr/include/c++/16/bits/allocated_ptr.h \
- /usr/include/c++/16/bits/refwrap.h /usr/include/c++/16/ext/concurrence.h \
+ /usr/include/c++/16/bits/refwrap.h \
+ /usr/include/c++/16/ext/aligned_buffer.h \
+ /usr/include/c++/16/ext/concurrence.h \
  /usr/include/c++/16/bits/shared_ptr_atomic.h \
  /usr/include/c++/16/bits/atomic_base.h \
  /usr/include/c++/16/bits/atomic_lockfree_defines.h \
@@ -173,45 +172,18 @@ CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: \
  /usr/include/c++/16/bits/ranges_uninitialized.h \
  /usr/include/c++/16/bits/ranges_algobase.h \
  /usr/include/c++/16/pstl/glue_memory_defs.h \
- /usr/include/c++/16/pstl/execution_defs.h /usr/include/c++/16/variant \
- /usr/include/c++/16/bits/enable_special_members.h \
- /usr/include/c++/16/bits/monostate.h \
- /usr/include/c++/16/bits/parse_numbers.h /usr/include/c++/16/vector \
+ /usr/include/c++/16/pstl/execution_defs.h /usr/include/c++/16/vector \
  /usr/include/c++/16/bits/stl_vector.h \
  /usr/include/c++/16/bits/stl_bvector.h \
- /usr/include/c++/16/bits/vector.tcc \
- /home/nao/Documents/Projects/reader/src/core/Types.h \
- /usr/include/c++/16/optional \
- /home/nao/Documents/Projects/reader/src/core/CancellationToken.h \
- /usr/include/c++/16/atomic \
- /home/nao/Documents/Projects/reader/src/document/DocumentModel.h \
- /home/nao/Documents/Projects/reader/src/pdf/PdfEngine.h \
+ /usr/include/c++/16/bits/vector.tcc /usr/include/c++/16/optional \
+ /usr/include/c++/16/bits/enable_special_members.h \
  /usr/include/c++/16/unordered_map \
  /usr/include/c++/16/bits/unordered_map.h \
  /usr/include/c++/16/bits/hashtable.h \
  /usr/include/c++/16/bits/hashtable_policy.h \
- /usr/include/c++/16/filesystem /usr/include/c++/16/bits/fs_fwd.h \
- /usr/include/c++/16/bits/chrono.h /usr/include/c++/16/ratio \
- /usr/include/c++/16/ctime /usr/include/c++/16/bits/fs_path.h \
- /usr/include/c++/16/locale \
- /usr/include/c++/16/bits/locale_facets_nonio.h \
- /usr/include/c++/16/x86_64-redhat-linux/bits/time_members.h \
- /usr/include/c++/16/x86_64-redhat-linux/bits/messages_members.h \
- /usr/include/libintl.h /usr/include/c++/16/bits/codecvt.h \
- /usr/include/c++/16/bits/locale_facets_nonio.tcc \
- /usr/include/c++/16/bits/locale_conv.h /usr/include/c++/16/iomanip \
- /usr/include/c++/16/bits/quoted_string.h /usr/include/c++/16/sstream \
- /usr/include/c++/16/istream /usr/include/c++/16/ostream \
- /usr/include/c++/16/bits/ostream_print.h \
- /usr/include/c++/16/bits/ostream.tcc \
- /usr/include/c++/16/bits/istream.tcc \
- /usr/include/c++/16/bits/sstream.tcc /usr/include/c++/16/codecvt \
- /usr/include/c++/16/bits/fs_dir.h /usr/include/c++/16/bits/fs_ops.h \
- /usr/include/c++/16/functional /usr/include/c++/16/bits/std_function.h \
- /usr/include/c++/16/array /usr/include/c++/16/bits/binders.h \
- /home/nao/Documents/Projects/reader/src/ai/LlmProvider.h \
- /home/nao/Documents/Projects/reader/src/ai/References.h \
- /home/nao/Documents/Projects/reader/src/document/DocumentAnchor.h \
+ /usr/include/c++/16/bits/node_handle.h \
+ /home/nao/Documents/Projects/reader/src/core/CancellationToken.h \
+ /usr/include/c++/16/atomic \
  /home/nao/Documents/Projects/reader/src/pdf/QtPdfEngine.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QMainWindow \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qmainwindow.h \
@@ -263,6 +235,8 @@ CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qexceptionhandling.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qforeach.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qttypetraits.h \
+ /usr/include/c++/16/variant /usr/include/c++/16/bits/monostate.h \
+ /usr/include/c++/16/bits/parse_numbers.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qfunctionpointer.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qglobalstatic.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qmalloc.h \
@@ -305,6 +279,8 @@ CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qcompare.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qstdlibdetection.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qcomparehelpers.h \
+ /usr/include/c++/16/functional /usr/include/c++/16/bits/std_function.h \
+ /usr/include/c++/16/array /usr/include/c++/16/bits/binders.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qtmetamacros.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qobjectdefs_impl.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qfunctionaltools_impl.h \
@@ -358,6 +334,13 @@ CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qmath.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qtformat_impl.h \
  /usr/include/c++/16/format /usr/include/c++/16/charconv \
+ /usr/include/c++/16/locale \
+ /usr/include/c++/16/bits/locale_facets_nonio.h /usr/include/c++/16/ctime \
+ /usr/include/c++/16/x86_64-redhat-linux/bits/time_members.h \
+ /usr/include/c++/16/x86_64-redhat-linux/bits/messages_members.h \
+ /usr/include/libintl.h /usr/include/c++/16/bits/codecvt.h \
+ /usr/include/c++/16/bits/locale_facets_nonio.tcc \
+ /usr/include/c++/16/bits/locale_conv.h \
  /usr/include/c++/16/bits/formatfwd.h /usr/include/c++/16/bits/unicode.h \
  /usr/include/c++/16/bits/unicode-data.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qiterable.h \
@@ -366,10 +349,19 @@ CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qcontainerinfo.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qscopeguard.h \
  /usr/include/c++/16/list /usr/include/c++/16/bits/stl_list.h \
- /usr/include/c++/16/bits/list.tcc \
+ /usr/include/c++/16/bits/list.tcc /usr/include/c++/16/map \
+ /usr/include/c++/16/bits/stl_tree.h /usr/include/c++/16/bits/stl_map.h \
+ /usr/include/c++/16/bits/stl_multimap.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qobject_impl.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qbindingstorage.h \
- /usr/include/c++/16/chrono /usr/include/c++/16/bits/chrono_io.h \
+ /usr/include/c++/16/chrono /usr/include/c++/16/bits/chrono.h \
+ /usr/include/c++/16/ratio /usr/include/c++/16/sstream \
+ /usr/include/c++/16/istream /usr/include/c++/16/ostream \
+ /usr/include/c++/16/bits/ostream_print.h \
+ /usr/include/c++/16/bits/ostream.tcc \
+ /usr/include/c++/16/bits/istream.tcc \
+ /usr/include/c++/16/bits/sstream.tcc \
+ /usr/include/c++/16/bits/chrono_io.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qmargins.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qcheckedint_impl.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/q23utility.h \
@@ -429,31 +421,23 @@ CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qcursor.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qbitmap.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtabwidget.h \
- /home/nao/Documents/Projects/reader/src/ai/OpenAIProvider.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/QJsonObject \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qjsonobject.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qjsonvalue.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qcborvalue.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qcborcommon.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qdatetime.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qcalendar.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qlocale.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qregularexpression.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qurl.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/quuid.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qjsondocument.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qjsonparseerror.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/QObject \
  /home/nao/Documents/Projects/reader/src/analysis/StructureDetector.h \
  /home/nao/Documents/Projects/reader/src/app/Application.h \
  /home/nao/Documents/Projects/reader/src/ai/ChatManager.h \
+ /home/nao/Documents/Projects/reader/src/ai/LlmProvider.h \
  /usr/include/c++/16/mutex /usr/include/c++/16/bits/std_mutex.h \
  /usr/include/c++/16/bits/unique_lock.h \
  /home/nao/Documents/Projects/reader/src/ai/ContextManager.h \
  /home/nao/Documents/Projects/reader/src/ai/RetrievalEngine.h \
+ /home/nao/Documents/Projects/reader/src/analysis/PaperAnalysis.h \
+ /home/nao/Documents/Projects/reader/src/core/Json.h \
  /home/nao/Documents/Projects/reader/src/search/TextIndex.h \
  /home/nao/Documents/Projects/reader/src/search/VectorIndex.h \
- /home/nao/Documents/Projects/reader/src/app/ApplicationState.h \
+ /home/nao/Documents/Projects/reader/src/analysis/PaperIngestor.h \
+ /usr/include/c++/16/filesystem /usr/include/c++/16/bits/fs_fwd.h \
+ /usr/include/c++/16/bits/fs_path.h /usr/include/c++/16/iomanip \
+ /usr/include/c++/16/bits/quoted_string.h /usr/include/c++/16/codecvt \
+ /usr/include/c++/16/bits/fs_dir.h /usr/include/c++/16/bits/fs_ops.h \
  /home/nao/Documents/Projects/reader/src/core/ThreadPool.h \
  /usr/include/c++/16/condition_variable /usr/include/c++/16/stop_token \
  /usr/include/c++/16/bits/std_thread.h /usr/include/c++/16/semaphore \
@@ -466,27 +450,21 @@ CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: \
  /usr/include/c++/16/bits/stl_queue.h /usr/include/c++/16/thread \
  /home/nao/Documents/Projects/reader/src/storage/Database.h \
  /home/nao/Documents/Projects/reader/src/storage/Repositories.h \
- /home/nao/Documents/Projects/reader/src/pdf/TextExtractor.h \
- /home/nao/Documents/Projects/reader/src/ui/ChatPanel.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QWidget \
- /home/nao/Documents/Projects/reader/src/ui/CommandPalette.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDialog \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialog.h \
- /home/nao/Documents/Projects/reader/src/ui/IngestRawPanel.h \
- /home/nao/Documents/Projects/reader/src/ui/MapPanel.h \
- /home/nao/Documents/Projects/reader/src/ui/OutlinePanel.h \
- /home/nao/Documents/Projects/reader/src/ui/PdfView.h \
- /home/nao/Documents/Projects/reader/src/ai/EmbeddingProviderQt.h \
- /home/nao/Documents/Projects/reader/src/pdf/PdfRenderer.h \
- /home/nao/Documents/Projects/reader/src/core/LruCache.h \
+ /home/nao/Documents/Projects/reader/src/pdf/HighlightExport.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QByteArray \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QRectF \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QSizeF \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QString \
  /home/nao/Documents/Projects/reader/src/pdf/PopplerBridge.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QImage \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QRect \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QSize \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/QString \
  /home/nao/qtsysroot/usr/include/poppler/qt6/poppler-qt6.h \
  /home/nao/qtsysroot/usr/include/poppler/qt6/poppler-annotation.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QDateTime \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qdatetime.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qcalendar.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qlocale.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QSharedDataPointer \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QList \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointF \
@@ -509,19 +487,26 @@ CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qabstractitemmodel.h \
  /home/nao/qtsysroot/usr/include/poppler/qt6/poppler-page-transition.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QSet \
+ /home/nao/Documents/Projects/reader/src/pdf/TextExtractor.h \
+ /home/nao/Documents/Projects/reader/src/ui/OutlinePanel.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QWidget \
+ /home/nao/Documents/Projects/reader/src/ui/PdfView.h \
+ /home/nao/Documents/Projects/reader/src/pdf/PdfRenderer.h \
+ /home/nao/Documents/Projects/reader/src/core/LruCache.h \
  /home/nao/Documents/Projects/reader/src/pdf/PdfSelection.h \
  /home/nao/Documents/Projects/reader/src/pdf/WordIndex.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/QRectF \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QScrollArea \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qscrollarea.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractscrollarea.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qframe.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/QSizeF \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QList \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QPoint \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointer \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qpointer.h \
  /home/nao/Documents/Projects/reader/src/ui/SearchPanel.h \
- /home/nao/Documents/Projects/reader/src/ui/SummaryPanel.h \
- /home/nao/Documents/Projects/reader/src/ui/ThumbnailPanel.h \
  /home/nao/Documents/Projects/reader/src/ui/WebPanel.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QUrl \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qurl.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QFileDialog \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qfiledialog.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qdir.h \
@@ -530,6 +515,7 @@ CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qfile.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qfileinfo.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qtimezone.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialog.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QApplication \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qapplication.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qcoreapplication.h \
@@ -543,49 +529,58 @@ CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qguiapplication.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qinputmethod.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qguiapplication_platform.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QFile \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QFileInfo \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QCheckBox \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qcheckbox.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractbutton.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/QBuffer \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qbuffer.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QComboBox \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qcombobox.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractitemdelegate.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qstyleoption.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractspinbox.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qvalidator.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qslider.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractslider.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qstyle.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtabbar.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qrubberband.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDialogButtonBox \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialogbuttonbox.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDockWidget \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdockwidget.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QDesktopServices \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qdesktopservices.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QDir \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QFormLayout \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qformlayout.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLayout \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlayout.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlayoutitem.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qboxlayout.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qgridlayout.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QFrame \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QFutureWatcher \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qfuturewatcher.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qfuture.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qfutureinterface.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qmutex.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qtsan_impl.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qresultstore.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qfuture_impl.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qthreadpool.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qthread.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qrunnable.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qexception.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qpromise.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QGuiApplication \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/QKeyEvent \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qevent.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qeventpoint.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qvector2d.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qvectornd.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qpointingdevice.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qinputdevice.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qscreen.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QObject \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QRect \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QSize \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QSizeF \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/QTransform \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qscreen_platform.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLabel \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlabel.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qpicture.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextdocument.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QListWidget \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlistwidget.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlistview.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractitemview.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qitemselectionmodel.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QMenu \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qmenu.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLineEdit \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlineedit.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextcursor.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextformat.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qpen.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextoption.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QPlainTextEdit \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qplaintextedit.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtextedit.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qabstracttextdocumentlayout.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextlayout.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qglyphrun.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qrawfont.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qfontdatabase.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QMetaObject \
  /home/nao/qtsysroot/usr/include/qt6/QtPdf/QPdfDocument \
  /home/nao/qtsysroot/usr/include/qt6/QtPdf/qpdfdocument.h \
@@ -594,35 +589,37 @@ CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtPdf/qpdfdocumentrenderoptions.h \
  /home/nao/qtsysroot/usr/include/qt6/QtPdf/qpdfselection.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qclipboard.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QInputDialog \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qinputdialog.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlineedit.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextcursor.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextformat.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qpen.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextoption.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QPushButton \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qpushbutton.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointer \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qpointer.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/QSettings \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qsettings.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/QStandardPaths \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qstandardpaths.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QProcess \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qprocess.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QRegularExpression \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qregularexpression.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QScrollBar \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qscrollbar.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractslider.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QSet \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QSettings \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qsettings.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QShortcut \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qshortcut.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QSplitter \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qsplitter.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QStandardPaths \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qstandardpaths.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QStatusBar \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qstatusbar.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QTabWidget \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QTextEdit \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QTimer \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qtimer.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QToolBar \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtoolbar.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QUuid \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/quuid.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QVBoxLayout \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qboxlayout.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlayout.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlayoutitem.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qgridlayout.h \
  /home/nao/qtsysroot/usr/include/qt6/QtConcurrent/QtConcurrent \
  /home/nao/qtsysroot/usr/include/qt6/QtConcurrent/QtConcurrentDepends \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QtCore \
@@ -640,14 +637,15 @@ CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qanimationgroup.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qapplicationstatic.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QMutex \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qmutex.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qtsan_impl.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qassociativeiterable.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qatomicscopedvaluerollback.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qbitarray.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qbuffer.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qbytearraymatcher.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qcache.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qcborarray.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qcborvalue.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qcborcommon.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qcbormap.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qcborstream.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qcborstreamreader.h \
@@ -665,24 +663,18 @@ CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qdiriterator.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qeasingcurve.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qelapsedtimer.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qexception.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qfactoryinterface.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qfileselector.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/QObject \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QStringList \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qfilesystemwatcher.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qfuture.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qfutureinterface.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qresultstore.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qfuture_impl.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qthreadpool.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qthread.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qrunnable.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qpromise.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qfuturesynchronizer.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qfuturewatcher.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qidentityproxymodel.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qitemselectionmodel.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qjsonarray.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qjsonvalue.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qjsondocument.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qjsonparseerror.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qjsonobject.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qlatin1stringmatcher.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qlibrary.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qlibraryinfo.h \
@@ -705,7 +697,6 @@ CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qpermissions.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qplugin.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qpluginloader.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qprocess.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qpropertyanimation.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qvariantanimation.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qqueue.h \

@@ -30,7 +30,10 @@ CMakeFiles/test_webengine.dir/src/ui/WebPanel.cpp.o
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QJsonDocument
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QJsonObject
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QList
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QObject
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointer
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QRect
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QSize
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QSizeF
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QString
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QTimer
@@ -194,13 +197,18 @@ CMakeFiles/test_webengine.dir/src/ui/WebPanel.cpp.o
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qxptype_traits.h
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qyieldcpu.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QClipboard
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/QCursor
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QPageLayout
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/QShowEvent
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/QTransform
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qaction.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qbitmap.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qbrush.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qclipboard.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qcolor.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qcursor.h
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qevent.h
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qeventpoint.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qfont.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qfontinfo.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qfontmetrics.h
@@ -209,6 +217,7 @@ CMakeFiles/test_webengine.dir/src/ui/WebPanel.cpp.o
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qguiapplication_platform.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qicon.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qimage.h
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qinputdevice.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qinputmethod.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qkeysequence.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qpagelayout.h
@@ -220,10 +229,13 @@ CMakeFiles/test_webengine.dir/src/ui/WebPanel.cpp.o
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qpicture.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qpixelformat.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qpixmap.h
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qpointingdevice.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qpolygon.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qregion.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qrgb.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qrgba64.h
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qscreen.h
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qscreen_platform.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextcursor.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextdocument.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextformat.h
@@ -232,6 +244,8 @@ CMakeFiles/test_webengine.dir/src/ui/WebPanel.cpp.o
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qtguiexports.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qtguiglobal.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qtransform.h
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qvector2d.h
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qvectornd.h
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qwindowdefs.h
  /home/nao/qtsysroot/usr/include/qt6/QtNetwork/qssl.h
  /home/nao/qtsysroot/usr/include/qt6/QtNetwork/qsslcertificate.h
@@ -257,9 +271,11 @@ CMakeFiles/test_webengine.dir/src/ui/WebPanel.cpp.o
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLabel
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLineEdit
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QPushButton
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QTextBrowser
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QVBoxLayout
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QWidget
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractbutton.h
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractscrollarea.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qapplication.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qboxlayout.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qframe.h
@@ -270,6 +286,8 @@ CMakeFiles/test_webengine.dir/src/ui/WebPanel.cpp.o
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlineedit.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qpushbutton.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qsizepolicy.h
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtextbrowser.h
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtextedit.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtwidgets-config.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtwidgetsexports.h
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtwidgetsglobal.h

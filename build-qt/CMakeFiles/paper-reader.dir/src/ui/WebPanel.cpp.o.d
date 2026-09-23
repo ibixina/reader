@@ -465,6 +465,7 @@ CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qguiapplication_platform.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QClipboard \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qclipboard.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/QCursor \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QFile \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qfile.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qfiledevice.h \
@@ -505,6 +506,21 @@ CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QPushButton \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qpushbutton.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractbutton.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/QShowEvent \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qevent.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qeventpoint.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qvector2d.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qvectornd.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qpointingdevice.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qinputdevice.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qscreen.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QList \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QObject \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QRect \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QSize \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QSizeF \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/QTransform \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qscreen_platform.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QTextBrowser \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtextbrowser.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtextedit.h \
@@ -527,8 +543,6 @@ CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtWebEngineCore/qwebenginedownloadrequest.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWebEngineCore/qwebenginequotarequest.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWebEngineCore/qwebengineframe.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/QList \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/QSizeF \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QString \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QUrl \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QWeakPointer \

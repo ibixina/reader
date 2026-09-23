@@ -180,30 +180,6 @@ CMakeFiles/test_select.dir/src/ui/PdfView.cpp.o: \
  /usr/include/c++/16/bits/hashtable.h \
  /usr/include/c++/16/bits/hashtable_policy.h \
  /usr/include/c++/16/bits/node_handle.h \
- /home/nao/Documents/Projects/reader/src/ai/EmbeddingProviderQt.h \
- /home/nao/Documents/Projects/reader/src/search/VectorIndex.h \
- /home/nao/Documents/Projects/reader/src/core/CancellationToken.h \
- /usr/include/c++/16/atomic /usr/include/c++/16/cmath /usr/include/math.h \
- /usr/include/bits/math-vector.h /usr/include/bits/libm-simd-decl-stubs.h \
- /usr/include/bits/flt-eval-method.h /usr/include/bits/fp-logb.h \
- /usr/include/bits/fp-fast.h /usr/include/bits/mathcalls-macros.h \
- /usr/include/bits/mathcalls-helper-functions.h \
- /usr/include/bits/mathcalls.h /usr/include/bits/mathcalls-narrow.h \
- /usr/include/bits/iscanonical.h /usr/include/c++/16/bits/specfun.h \
- /usr/include/c++/16/tr1/gamma.tcc \
- /usr/include/c++/16/tr1/special_function_util.h \
- /usr/include/c++/16/tr1/bessel_function.tcc \
- /usr/include/c++/16/tr1/beta_function.tcc \
- /usr/include/c++/16/tr1/ell_integral.tcc \
- /usr/include/c++/16/tr1/exp_integral.tcc \
- /usr/include/c++/16/tr1/hypergeometric.tcc \
- /usr/include/c++/16/tr1/legendre_function.tcc \
- /usr/include/c++/16/tr1/modified_bessel_func.tcc \
- /usr/include/c++/16/tr1/poly_hermite.tcc \
- /usr/include/c++/16/tr1/poly_laguerre.tcc \
- /usr/include/c++/16/tr1/riemann_zeta.tcc /usr/include/c++/16/functional \
- /usr/include/c++/16/bits/std_function.h /usr/include/c++/16/array \
- /usr/include/c++/16/bits/binders.h \
  /home/nao/Documents/Projects/reader/src/pdf/PdfRenderer.h \
  /home/nao/Documents/Projects/reader/src/core/LruCache.h \
  /usr/include/c++/16/list /usr/include/c++/16/bits/stl_list.h \
@@ -257,6 +233,7 @@ CMakeFiles/test_select.dir/src/ui/PdfView.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qatomic_cxx11.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qgenericatomic.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qyieldcpu.h \
+ /usr/include/c++/16/atomic \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qconstructormacros.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qdarwinhelpers.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qexceptionhandling.h \
@@ -268,6 +245,25 @@ CMakeFiles/test_select.dir/src/ui/PdfView.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qmalloc.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qminmax.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qnumeric.h \
+ /usr/include/c++/16/cmath /usr/include/math.h \
+ /usr/include/bits/math-vector.h /usr/include/bits/libm-simd-decl-stubs.h \
+ /usr/include/bits/flt-eval-method.h /usr/include/bits/fp-logb.h \
+ /usr/include/bits/fp-fast.h /usr/include/bits/mathcalls-macros.h \
+ /usr/include/bits/mathcalls-helper-functions.h \
+ /usr/include/bits/mathcalls.h /usr/include/bits/mathcalls-narrow.h \
+ /usr/include/bits/iscanonical.h /usr/include/c++/16/bits/specfun.h \
+ /usr/include/c++/16/tr1/gamma.tcc \
+ /usr/include/c++/16/tr1/special_function_util.h \
+ /usr/include/c++/16/tr1/bessel_function.tcc \
+ /usr/include/c++/16/tr1/beta_function.tcc \
+ /usr/include/c++/16/tr1/ell_integral.tcc \
+ /usr/include/c++/16/tr1/exp_integral.tcc \
+ /usr/include/c++/16/tr1/hypergeometric.tcc \
+ /usr/include/c++/16/tr1/legendre_function.tcc \
+ /usr/include/c++/16/tr1/modified_bessel_func.tcc \
+ /usr/include/c++/16/tr1/poly_hermite.tcc \
+ /usr/include/c++/16/tr1/poly_laguerre.tcc \
+ /usr/include/c++/16/tr1/riemann_zeta.tcc \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/q20type_traits.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qoverload.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qswap.h \
@@ -283,6 +279,8 @@ CMakeFiles/test_select.dir/src/ui/PdfView.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qcompare.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qstdlibdetection.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qcomparehelpers.h \
+ /usr/include/c++/16/functional /usr/include/c++/16/bits/std_function.h \
+ /usr/include/c++/16/array /usr/include/c++/16/bits/binders.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qtmetamacros.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qstringlist.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qlist.h \
@@ -463,14 +461,20 @@ CMakeFiles/test_select.dir/src/ui/PdfView.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qsizepolicy.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qcursor.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qbitmap.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QList \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QPoint \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointer \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qpointer.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QSizeF \
  /home/nao/Documents/Projects/reader/src/app/Application.h \
  /home/nao/Documents/Projects/reader/src/ai/ChatManager.h \
  /home/nao/Documents/Projects/reader/src/ai/LlmProvider.h \
+ /home/nao/Documents/Projects/reader/src/core/CancellationToken.h \
  /home/nao/Documents/Projects/reader/src/ai/ContextManager.h \
  /home/nao/Documents/Projects/reader/src/ai/RetrievalEngine.h \
  /home/nao/Documents/Projects/reader/src/analysis/PaperAnalysis.h \
  /home/nao/Documents/Projects/reader/src/core/Json.h \
+ /home/nao/Documents/Projects/reader/src/search/VectorIndex.h \
  /home/nao/Documents/Projects/reader/src/analysis/PaperIngestor.h \
  /usr/include/c++/16/filesystem /usr/include/c++/16/bits/fs_fwd.h \
  /usr/include/c++/16/bits/fs_path.h /usr/include/c++/16/iomanip \
@@ -498,8 +502,8 @@ CMakeFiles/test_select.dir/src/ui/PdfView.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qdeadlinetimer.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qnativeinterface.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qcoreapplication_platform.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/QBuffer \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qbuffer.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QAbstractButton \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractbutton.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QApplication \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qapplication.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qguiapplication.h \
@@ -507,19 +511,14 @@ CMakeFiles/test_select.dir/src/ui/PdfView.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qguiapplication_platform.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QClipboard \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qclipboard.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/QGuiApplication \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QInputDialog \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qinputdialog.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlineedit.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextcursor.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextdocument.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qurl.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextformat.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qpen.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextoption.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDialog \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialog.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDialogButtonBox \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialogbuttonbox.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/QGuiApplication \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QKeyEvent \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qevent.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qurl.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qeventpoint.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qvector2d.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qvectornd.h \
@@ -532,12 +531,25 @@ CMakeFiles/test_select.dir/src/ui/PdfView.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QSizeF \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QTransform \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qscreen_platform.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLineEdit \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlineedit.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextcursor.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextdocument.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextformat.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qpen.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextoption.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QMetaObject \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QMenu \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qmenu.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QMouseEvent \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QPainter \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qpainter.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QPlainTextEdit \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qplaintextedit.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtextedit.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qabstracttextdocumentlayout.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextlayout.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qglyphrun.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qrawfont.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qfontdatabase.h \
  /home/nao/qtsysroot/usr/include/qt6/QtPdf/QPdfBookmarkModel \
  /home/nao/qtsysroot/usr/include/qt6/QtPdf/qpdfbookmarkmodel.h \
  /home/nao/qtsysroot/usr/include/qt6/QtPdf/qtpdfglobal.h \
@@ -553,14 +565,18 @@ CMakeFiles/test_select.dir/src/ui/PdfView.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtPdf/QPdfPageNavigator \
  /home/nao/qtsysroot/usr/include/qt6/QtPdf/qpdfpagenavigator.h \
  /home/nao/qtsysroot/usr/include/qt6/QtPdf/QPdfSelection \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointer \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qpointer.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QPushButton \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qpushbutton.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/QScreen \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QScrollBar \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qscrollbar.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractslider.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QResizeEvent \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QShortcut \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qshortcut.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QSplitter \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qsplitter.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QTextEdit \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QTimer \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qtimer.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/QTransform \

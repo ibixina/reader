@@ -7598,3 +7598,227 @@ events:
       CMAKE_SYSTEM_INCLUDE_PATH:
         - "/usr/include/X11"
 ...
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "CMakeLists.txt:108 (find_file)"
+    mode: "file"
+    variable: "EXPAT_LIBRARY"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "libexpat.so"
+      - "libexpat.so.1"
+    candidate_directories:
+      - "/usr/lib64/"
+      - "/home/nao/miniforge3/lib/"
+      - "/usr/lib/"
+    searched_directories:
+      - "/usr/lib64/libexpat.so"
+      - "/home/nao/miniforge3/lib/libexpat.so"
+      - "/usr/lib/libexpat.so"
+    found: "/usr/lib64/libexpat.so.1"
+    search_context:
+      CMAKE_PREFIX_PATH:
+        - "/home/nao/qtsysroot/usr"
+      ENV{PATH}:
+        - "/home/nao/.bun/bin"
+        - "/home/nao/miniforge3/condabin"
+        - "/home/nao/.npm-global/bin"
+        - "/home/nao/.opencode/bin"
+        - "/home/nao/miniforge3/condabin"
+        - "/home/nao/.local/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/home/nao/.lmstudio/bin"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/home/nao/.local/lib/python3.14/site-packages/cmake/data"
+        - "/usr/local"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+      CMAKE_SYSTEM_INCLUDE_PATH:
+        - "/usr/include/X11"
+...
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "CMakeLists.txt:100 (find_file)"
+    mode: "file"
+    variable: "EXPAT_LIBRARY"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "libexpat.so"
+      - "libexpat.so.1"
+    candidate_directories:
+      - "/usr/lib64/"
+      - "/home/nao/miniforge3/lib/"
+      - "/usr/lib/"
+    searched_directories:
+      - "/usr/lib64/libexpat.so"
+      - "/home/nao/miniforge3/lib/libexpat.so"
+      - "/usr/lib/libexpat.so"
+    found: "/usr/lib64/libexpat.so.1"
+    search_context:
+      CMAKE_PREFIX_PATH:
+        - "/home/nao/qtsysroot/usr"
+      ENV{PATH}:
+        - "/home/nao/.bun/bin"
+        - "/home/nao/miniforge3/condabin"
+        - "/home/nao/.npm-global/bin"
+        - "/home/nao/.opencode/bin"
+        - "/home/nao/miniforge3/condabin"
+        - "/home/nao/.local/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/home/nao/.lmstudio/bin"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/home/nao/.local/lib/python3.14/site-packages/cmake/data"
+        - "/usr/local"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+      CMAKE_SYSTEM_INCLUDE_PATH:
+        - "/usr/include/X11"
+...
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "CMakeLists.txt:100 (find_file)"
+    mode: "file"
+    variable: "EXPAT_LIBRARY"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "libexpat.so"
+      - "libexpat.so.1"
+    candidate_directories:
+      - "/usr/lib64/"
+      - "/lib/"
+      - "/usr/lib/"
+    searched_directories:
+      - "/usr/lib64/libexpat.so"
+      - "/lib/libexpat.so"
+      - "/usr/lib/libexpat.so"
+    found: "/usr/lib64/libexpat.so.1"
+    search_context:
+      CMAKE_PREFIX_PATH:
+        - "/home/nao/qtsysroot/usr"
+      ENV{PATH}:
+        - "/home/nao/.bun/bin"
+        - "/home/nao/miniforge3/condabin"
+        - "/home/nao/.npm-global/bin"
+        - "/home/nao/.opencode/bin"
+        - "/home/nao/miniforge3/condabin"
+        - "/home/nao/.local/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/home/nao/.lmstudio/bin"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/home/nao/.local/lib/python3.14/site-packages/cmake/data"
+        - "/usr/local"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+      CMAKE_SYSTEM_INCLUDE_PATH:
+        - "/usr/include/X11"
+...
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "CMakeLists.txt:101 (find_file)"
+    mode: "file"
+    variable: "EXPAT_LIBRARY"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "libexpat.so"
+      - "libexpat.so.1"
+    candidate_directories:
+      - "/usr/lib64/"
+      - "/home/nao/miniforge3/lib/"
+      - "/usr/lib/"
+    searched_directories:
+      - "/usr/lib64/libexpat.so"
+      - "/home/nao/miniforge3/lib/libexpat.so"
+      - "/usr/lib/libexpat.so"
+    found: "/usr/lib64/libexpat.so.1"
+    search_context:
+      CMAKE_PREFIX_PATH:
+        - "/home/nao/qtsysroot/usr"
+      ENV{PATH}:
+        - "/home/nao/.bun/bin"
+        - "/home/nao/miniforge3/condabin"
+        - "/home/nao/.npm-global/bin"
+        - "/home/nao/.opencode/bin"
+        - "/home/nao/miniforge3/condabin"
+        - "/home/nao/.local/bin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/home/nao/.lmstudio/bin"
+      CMAKE_INSTALL_PREFIX: "/usr/local"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/home/nao/.local/lib/python3.14/site-packages/cmake/data"
+        - "/usr/local"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+      CMAKE_SYSTEM_INCLUDE_PATH:
+        - "/usr/include/X11"
+...

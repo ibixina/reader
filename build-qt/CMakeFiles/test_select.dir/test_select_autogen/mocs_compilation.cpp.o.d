@@ -399,8 +399,6 @@ CMakeFiles/test_select.dir/test_select_autogen/mocs_compilation.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/q20algorithm.h \
  /home/nao/Documents/Projects/reader/build-qt/test_select_autogen/YPKJ5OE7LN/moc_PdfView.cpp \
  /home/nao/Documents/Projects/reader/build-qt/test_select_autogen/YPKJ5OE7LN/../../../src/ui/PdfView.h \
- /home/nao/Documents/Projects/reader/src/ai/EmbeddingProviderQt.h \
- /home/nao/Documents/Projects/reader/src/search/VectorIndex.h \
  /home/nao/Documents/Projects/reader/src/pdf/PdfRenderer.h \
  /home/nao/Documents/Projects/reader/src/core/LruCache.h \
  /usr/include/c++/16/mutex /usr/include/c++/16/bits/std_mutex.h \
@@ -482,4 +480,8 @@ CMakeFiles/test_select.dir/test_select_autogen/mocs_compilation.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qsizepolicy.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qcursor.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qbitmap.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QList \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QPoint \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointer \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qpointer.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QSizeF

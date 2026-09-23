@@ -7,23 +7,16 @@ paper-reader: \
   CMakeFiles/paper-reader.dir/src/ai/EmbeddingProviderQt.cpp.o \
   CMakeFiles/paper-reader.dir/src/ai/OpenAIProvider.cpp.o \
   CMakeFiles/paper-reader.dir/src/app/Application.cpp.o \
+  CMakeFiles/paper-reader.dir/src/pdf/HighlightExport.cpp.o \
   CMakeFiles/paper-reader.dir/src/pdf/PdfRenderer.cpp.o \
   CMakeFiles/paper-reader.dir/src/pdf/PopplerBridge.cpp.o \
   CMakeFiles/paper-reader.dir/src/pdf/QtPdfEngine.cpp.o \
   CMakeFiles/paper-reader.dir/src/pdf/WordBoxes.cpp.o \
-  CMakeFiles/paper-reader.dir/src/ui/ChatPanel.cpp.o \
-  CMakeFiles/paper-reader.dir/src/ui/ChatTranscript.cpp.o \
-  CMakeFiles/paper-reader.dir/src/ui/CommandPalette.cpp.o \
-  CMakeFiles/paper-reader.dir/src/ui/IngestRawPanel.cpp.o \
   CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o \
-  CMakeFiles/paper-reader.dir/src/ui/MapPanel.cpp.o \
   CMakeFiles/paper-reader.dir/src/ui/OutlinePanel.cpp.o \
   CMakeFiles/paper-reader.dir/src/ui/PdfView.cpp.o \
   CMakeFiles/paper-reader.dir/src/ui/SearchPanel.cpp.o \
-  CMakeFiles/paper-reader.dir/src/ui/SummaryPanel.cpp.o \
-  CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.o \
   CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.o \
-  CMakeFiles/paper-reader.dir/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o \
   libreader_core.a \
   /home/nao/qtsysroot/usr/lib64/libpoppler-qt6.so \
   /home/nao/qtsysroot/usr/lib64/libQt6Pdf.so.6.11.2 \
@@ -435,6 +428,8 @@ CMakeFiles/paper-reader.dir/src/ai/OpenAIProvider.cpp.o:
 
 CMakeFiles/paper-reader.dir/src/app/Application.cpp.o:
 
+CMakeFiles/paper-reader.dir/src/pdf/HighlightExport.cpp.o:
+
 CMakeFiles/paper-reader.dir/src/pdf/PdfRenderer.cpp.o:
 
 CMakeFiles/paper-reader.dir/src/pdf/PopplerBridge.cpp.o:
@@ -443,17 +438,7 @@ CMakeFiles/paper-reader.dir/src/pdf/QtPdfEngine.cpp.o:
 
 CMakeFiles/paper-reader.dir/src/pdf/WordBoxes.cpp.o:
 
-CMakeFiles/paper-reader.dir/src/ui/ChatPanel.cpp.o:
-
-CMakeFiles/paper-reader.dir/src/ui/ChatTranscript.cpp.o:
-
-CMakeFiles/paper-reader.dir/src/ui/CommandPalette.cpp.o:
-
-CMakeFiles/paper-reader.dir/src/ui/IngestRawPanel.cpp.o:
-
 CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o:
-
-CMakeFiles/paper-reader.dir/src/ui/MapPanel.cpp.o:
 
 CMakeFiles/paper-reader.dir/src/ui/OutlinePanel.cpp.o:
 
@@ -461,13 +446,7 @@ CMakeFiles/paper-reader.dir/src/ui/PdfView.cpp.o:
 
 CMakeFiles/paper-reader.dir/src/ui/SearchPanel.cpp.o:
 
-CMakeFiles/paper-reader.dir/src/ui/SummaryPanel.cpp.o:
-
-CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.o:
-
 CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.o:
-
-CMakeFiles/paper-reader.dir/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o:
 
 libreader_core.a:
 

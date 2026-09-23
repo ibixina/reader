@@ -142,10 +142,24 @@ CMakeFiles/test_reader_ui.dir/src/app/Application.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/test_reader_ui.dir/src/app/Application.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/app/Application.cpp -o CMakeFiles/test_reader_ui.dir/src/app/Application.cpp.s
 
+CMakeFiles/test_reader_ui.dir/src/pdf/HighlightExport.cpp.o: CMakeFiles/test_reader_ui.dir/flags.make
+CMakeFiles/test_reader_ui.dir/src/pdf/HighlightExport.cpp.o: /home/nao/Documents/Projects/reader/src/pdf/HighlightExport.cpp
+CMakeFiles/test_reader_ui.dir/src/pdf/HighlightExport.cpp.o: CMakeFiles/test_reader_ui.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/test_reader_ui.dir/src/pdf/HighlightExport.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test_reader_ui.dir/src/pdf/HighlightExport.cpp.o -MF CMakeFiles/test_reader_ui.dir/src/pdf/HighlightExport.cpp.o.d -o CMakeFiles/test_reader_ui.dir/src/pdf/HighlightExport.cpp.o -c /home/nao/Documents/Projects/reader/src/pdf/HighlightExport.cpp
+
+CMakeFiles/test_reader_ui.dir/src/pdf/HighlightExport.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/test_reader_ui.dir/src/pdf/HighlightExport.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/nao/Documents/Projects/reader/src/pdf/HighlightExport.cpp > CMakeFiles/test_reader_ui.dir/src/pdf/HighlightExport.cpp.i
+
+CMakeFiles/test_reader_ui.dir/src/pdf/HighlightExport.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/test_reader_ui.dir/src/pdf/HighlightExport.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/pdf/HighlightExport.cpp -o CMakeFiles/test_reader_ui.dir/src/pdf/HighlightExport.cpp.s
+
 CMakeFiles/test_reader_ui.dir/src/pdf/PdfRenderer.cpp.o: CMakeFiles/test_reader_ui.dir/flags.make
 CMakeFiles/test_reader_ui.dir/src/pdf/PdfRenderer.cpp.o: /home/nao/Documents/Projects/reader/src/pdf/PdfRenderer.cpp
 CMakeFiles/test_reader_ui.dir/src/pdf/PdfRenderer.cpp.o: CMakeFiles/test_reader_ui.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/test_reader_ui.dir/src/pdf/PdfRenderer.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/test_reader_ui.dir/src/pdf/PdfRenderer.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test_reader_ui.dir/src/pdf/PdfRenderer.cpp.o -MF CMakeFiles/test_reader_ui.dir/src/pdf/PdfRenderer.cpp.o.d -o CMakeFiles/test_reader_ui.dir/src/pdf/PdfRenderer.cpp.o -c /home/nao/Documents/Projects/reader/src/pdf/PdfRenderer.cpp
 
 CMakeFiles/test_reader_ui.dir/src/pdf/PdfRenderer.cpp.i: cmake_force
@@ -159,7 +173,7 @@ CMakeFiles/test_reader_ui.dir/src/pdf/PdfRenderer.cpp.s: cmake_force
 CMakeFiles/test_reader_ui.dir/src/pdf/PopplerBridge.cpp.o: CMakeFiles/test_reader_ui.dir/flags.make
 CMakeFiles/test_reader_ui.dir/src/pdf/PopplerBridge.cpp.o: /home/nao/Documents/Projects/reader/src/pdf/PopplerBridge.cpp
 CMakeFiles/test_reader_ui.dir/src/pdf/PopplerBridge.cpp.o: CMakeFiles/test_reader_ui.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/test_reader_ui.dir/src/pdf/PopplerBridge.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/test_reader_ui.dir/src/pdf/PopplerBridge.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test_reader_ui.dir/src/pdf/PopplerBridge.cpp.o -MF CMakeFiles/test_reader_ui.dir/src/pdf/PopplerBridge.cpp.o.d -o CMakeFiles/test_reader_ui.dir/src/pdf/PopplerBridge.cpp.o -c /home/nao/Documents/Projects/reader/src/pdf/PopplerBridge.cpp
 
 CMakeFiles/test_reader_ui.dir/src/pdf/PopplerBridge.cpp.i: cmake_force
@@ -173,7 +187,7 @@ CMakeFiles/test_reader_ui.dir/src/pdf/PopplerBridge.cpp.s: cmake_force
 CMakeFiles/test_reader_ui.dir/src/pdf/QtPdfEngine.cpp.o: CMakeFiles/test_reader_ui.dir/flags.make
 CMakeFiles/test_reader_ui.dir/src/pdf/QtPdfEngine.cpp.o: /home/nao/Documents/Projects/reader/src/pdf/QtPdfEngine.cpp
 CMakeFiles/test_reader_ui.dir/src/pdf/QtPdfEngine.cpp.o: CMakeFiles/test_reader_ui.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/test_reader_ui.dir/src/pdf/QtPdfEngine.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/test_reader_ui.dir/src/pdf/QtPdfEngine.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test_reader_ui.dir/src/pdf/QtPdfEngine.cpp.o -MF CMakeFiles/test_reader_ui.dir/src/pdf/QtPdfEngine.cpp.o.d -o CMakeFiles/test_reader_ui.dir/src/pdf/QtPdfEngine.cpp.o -c /home/nao/Documents/Projects/reader/src/pdf/QtPdfEngine.cpp
 
 CMakeFiles/test_reader_ui.dir/src/pdf/QtPdfEngine.cpp.i: cmake_force
@@ -187,7 +201,7 @@ CMakeFiles/test_reader_ui.dir/src/pdf/QtPdfEngine.cpp.s: cmake_force
 CMakeFiles/test_reader_ui.dir/src/pdf/WordBoxes.cpp.o: CMakeFiles/test_reader_ui.dir/flags.make
 CMakeFiles/test_reader_ui.dir/src/pdf/WordBoxes.cpp.o: /home/nao/Documents/Projects/reader/src/pdf/WordBoxes.cpp
 CMakeFiles/test_reader_ui.dir/src/pdf/WordBoxes.cpp.o: CMakeFiles/test_reader_ui.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/test_reader_ui.dir/src/pdf/WordBoxes.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/test_reader_ui.dir/src/pdf/WordBoxes.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test_reader_ui.dir/src/pdf/WordBoxes.cpp.o -MF CMakeFiles/test_reader_ui.dir/src/pdf/WordBoxes.cpp.o.d -o CMakeFiles/test_reader_ui.dir/src/pdf/WordBoxes.cpp.o -c /home/nao/Documents/Projects/reader/src/pdf/WordBoxes.cpp
 
 CMakeFiles/test_reader_ui.dir/src/pdf/WordBoxes.cpp.i: cmake_force
@@ -198,66 +212,10 @@ CMakeFiles/test_reader_ui.dir/src/pdf/WordBoxes.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/test_reader_ui.dir/src/pdf/WordBoxes.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/pdf/WordBoxes.cpp -o CMakeFiles/test_reader_ui.dir/src/pdf/WordBoxes.cpp.s
 
-CMakeFiles/test_reader_ui.dir/src/ui/ChatPanel.cpp.o: CMakeFiles/test_reader_ui.dir/flags.make
-CMakeFiles/test_reader_ui.dir/src/ui/ChatPanel.cpp.o: /home/nao/Documents/Projects/reader/src/ui/ChatPanel.cpp
-CMakeFiles/test_reader_ui.dir/src/ui/ChatPanel.cpp.o: CMakeFiles/test_reader_ui.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/test_reader_ui.dir/src/ui/ChatPanel.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test_reader_ui.dir/src/ui/ChatPanel.cpp.o -MF CMakeFiles/test_reader_ui.dir/src/ui/ChatPanel.cpp.o.d -o CMakeFiles/test_reader_ui.dir/src/ui/ChatPanel.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/ChatPanel.cpp
-
-CMakeFiles/test_reader_ui.dir/src/ui/ChatPanel.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/test_reader_ui.dir/src/ui/ChatPanel.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/nao/Documents/Projects/reader/src/ui/ChatPanel.cpp > CMakeFiles/test_reader_ui.dir/src/ui/ChatPanel.cpp.i
-
-CMakeFiles/test_reader_ui.dir/src/ui/ChatPanel.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/test_reader_ui.dir/src/ui/ChatPanel.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/ui/ChatPanel.cpp -o CMakeFiles/test_reader_ui.dir/src/ui/ChatPanel.cpp.s
-
-CMakeFiles/test_reader_ui.dir/src/ui/ChatTranscript.cpp.o: CMakeFiles/test_reader_ui.dir/flags.make
-CMakeFiles/test_reader_ui.dir/src/ui/ChatTranscript.cpp.o: /home/nao/Documents/Projects/reader/src/ui/ChatTranscript.cpp
-CMakeFiles/test_reader_ui.dir/src/ui/ChatTranscript.cpp.o: CMakeFiles/test_reader_ui.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/test_reader_ui.dir/src/ui/ChatTranscript.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test_reader_ui.dir/src/ui/ChatTranscript.cpp.o -MF CMakeFiles/test_reader_ui.dir/src/ui/ChatTranscript.cpp.o.d -o CMakeFiles/test_reader_ui.dir/src/ui/ChatTranscript.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/ChatTranscript.cpp
-
-CMakeFiles/test_reader_ui.dir/src/ui/ChatTranscript.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/test_reader_ui.dir/src/ui/ChatTranscript.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/nao/Documents/Projects/reader/src/ui/ChatTranscript.cpp > CMakeFiles/test_reader_ui.dir/src/ui/ChatTranscript.cpp.i
-
-CMakeFiles/test_reader_ui.dir/src/ui/ChatTranscript.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/test_reader_ui.dir/src/ui/ChatTranscript.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/ui/ChatTranscript.cpp -o CMakeFiles/test_reader_ui.dir/src/ui/ChatTranscript.cpp.s
-
-CMakeFiles/test_reader_ui.dir/src/ui/CommandPalette.cpp.o: CMakeFiles/test_reader_ui.dir/flags.make
-CMakeFiles/test_reader_ui.dir/src/ui/CommandPalette.cpp.o: /home/nao/Documents/Projects/reader/src/ui/CommandPalette.cpp
-CMakeFiles/test_reader_ui.dir/src/ui/CommandPalette.cpp.o: CMakeFiles/test_reader_ui.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/test_reader_ui.dir/src/ui/CommandPalette.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test_reader_ui.dir/src/ui/CommandPalette.cpp.o -MF CMakeFiles/test_reader_ui.dir/src/ui/CommandPalette.cpp.o.d -o CMakeFiles/test_reader_ui.dir/src/ui/CommandPalette.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/CommandPalette.cpp
-
-CMakeFiles/test_reader_ui.dir/src/ui/CommandPalette.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/test_reader_ui.dir/src/ui/CommandPalette.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/nao/Documents/Projects/reader/src/ui/CommandPalette.cpp > CMakeFiles/test_reader_ui.dir/src/ui/CommandPalette.cpp.i
-
-CMakeFiles/test_reader_ui.dir/src/ui/CommandPalette.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/test_reader_ui.dir/src/ui/CommandPalette.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/ui/CommandPalette.cpp -o CMakeFiles/test_reader_ui.dir/src/ui/CommandPalette.cpp.s
-
-CMakeFiles/test_reader_ui.dir/src/ui/IngestRawPanel.cpp.o: CMakeFiles/test_reader_ui.dir/flags.make
-CMakeFiles/test_reader_ui.dir/src/ui/IngestRawPanel.cpp.o: /home/nao/Documents/Projects/reader/src/ui/IngestRawPanel.cpp
-CMakeFiles/test_reader_ui.dir/src/ui/IngestRawPanel.cpp.o: CMakeFiles/test_reader_ui.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/test_reader_ui.dir/src/ui/IngestRawPanel.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test_reader_ui.dir/src/ui/IngestRawPanel.cpp.o -MF CMakeFiles/test_reader_ui.dir/src/ui/IngestRawPanel.cpp.o.d -o CMakeFiles/test_reader_ui.dir/src/ui/IngestRawPanel.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/IngestRawPanel.cpp
-
-CMakeFiles/test_reader_ui.dir/src/ui/IngestRawPanel.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/test_reader_ui.dir/src/ui/IngestRawPanel.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/nao/Documents/Projects/reader/src/ui/IngestRawPanel.cpp > CMakeFiles/test_reader_ui.dir/src/ui/IngestRawPanel.cpp.i
-
-CMakeFiles/test_reader_ui.dir/src/ui/IngestRawPanel.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/test_reader_ui.dir/src/ui/IngestRawPanel.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/ui/IngestRawPanel.cpp -o CMakeFiles/test_reader_ui.dir/src/ui/IngestRawPanel.cpp.s
-
 CMakeFiles/test_reader_ui.dir/src/ui/MainWindow.cpp.o: CMakeFiles/test_reader_ui.dir/flags.make
 CMakeFiles/test_reader_ui.dir/src/ui/MainWindow.cpp.o: /home/nao/Documents/Projects/reader/src/ui/MainWindow.cpp
 CMakeFiles/test_reader_ui.dir/src/ui/MainWindow.cpp.o: CMakeFiles/test_reader_ui.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/test_reader_ui.dir/src/ui/MainWindow.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/test_reader_ui.dir/src/ui/MainWindow.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test_reader_ui.dir/src/ui/MainWindow.cpp.o -MF CMakeFiles/test_reader_ui.dir/src/ui/MainWindow.cpp.o.d -o CMakeFiles/test_reader_ui.dir/src/ui/MainWindow.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/MainWindow.cpp
 
 CMakeFiles/test_reader_ui.dir/src/ui/MainWindow.cpp.i: cmake_force
@@ -268,24 +226,10 @@ CMakeFiles/test_reader_ui.dir/src/ui/MainWindow.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/test_reader_ui.dir/src/ui/MainWindow.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/ui/MainWindow.cpp -o CMakeFiles/test_reader_ui.dir/src/ui/MainWindow.cpp.s
 
-CMakeFiles/test_reader_ui.dir/src/ui/MapPanel.cpp.o: CMakeFiles/test_reader_ui.dir/flags.make
-CMakeFiles/test_reader_ui.dir/src/ui/MapPanel.cpp.o: /home/nao/Documents/Projects/reader/src/ui/MapPanel.cpp
-CMakeFiles/test_reader_ui.dir/src/ui/MapPanel.cpp.o: CMakeFiles/test_reader_ui.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/test_reader_ui.dir/src/ui/MapPanel.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test_reader_ui.dir/src/ui/MapPanel.cpp.o -MF CMakeFiles/test_reader_ui.dir/src/ui/MapPanel.cpp.o.d -o CMakeFiles/test_reader_ui.dir/src/ui/MapPanel.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/MapPanel.cpp
-
-CMakeFiles/test_reader_ui.dir/src/ui/MapPanel.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/test_reader_ui.dir/src/ui/MapPanel.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/nao/Documents/Projects/reader/src/ui/MapPanel.cpp > CMakeFiles/test_reader_ui.dir/src/ui/MapPanel.cpp.i
-
-CMakeFiles/test_reader_ui.dir/src/ui/MapPanel.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/test_reader_ui.dir/src/ui/MapPanel.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/ui/MapPanel.cpp -o CMakeFiles/test_reader_ui.dir/src/ui/MapPanel.cpp.s
-
 CMakeFiles/test_reader_ui.dir/src/ui/OutlinePanel.cpp.o: CMakeFiles/test_reader_ui.dir/flags.make
 CMakeFiles/test_reader_ui.dir/src/ui/OutlinePanel.cpp.o: /home/nao/Documents/Projects/reader/src/ui/OutlinePanel.cpp
 CMakeFiles/test_reader_ui.dir/src/ui/OutlinePanel.cpp.o: CMakeFiles/test_reader_ui.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/test_reader_ui.dir/src/ui/OutlinePanel.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/test_reader_ui.dir/src/ui/OutlinePanel.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test_reader_ui.dir/src/ui/OutlinePanel.cpp.o -MF CMakeFiles/test_reader_ui.dir/src/ui/OutlinePanel.cpp.o.d -o CMakeFiles/test_reader_ui.dir/src/ui/OutlinePanel.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/OutlinePanel.cpp
 
 CMakeFiles/test_reader_ui.dir/src/ui/OutlinePanel.cpp.i: cmake_force
@@ -299,7 +243,7 @@ CMakeFiles/test_reader_ui.dir/src/ui/OutlinePanel.cpp.s: cmake_force
 CMakeFiles/test_reader_ui.dir/src/ui/PdfView.cpp.o: CMakeFiles/test_reader_ui.dir/flags.make
 CMakeFiles/test_reader_ui.dir/src/ui/PdfView.cpp.o: /home/nao/Documents/Projects/reader/src/ui/PdfView.cpp
 CMakeFiles/test_reader_ui.dir/src/ui/PdfView.cpp.o: CMakeFiles/test_reader_ui.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object CMakeFiles/test_reader_ui.dir/src/ui/PdfView.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/test_reader_ui.dir/src/ui/PdfView.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test_reader_ui.dir/src/ui/PdfView.cpp.o -MF CMakeFiles/test_reader_ui.dir/src/ui/PdfView.cpp.o.d -o CMakeFiles/test_reader_ui.dir/src/ui/PdfView.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/PdfView.cpp
 
 CMakeFiles/test_reader_ui.dir/src/ui/PdfView.cpp.i: cmake_force
@@ -313,7 +257,7 @@ CMakeFiles/test_reader_ui.dir/src/ui/PdfView.cpp.s: cmake_force
 CMakeFiles/test_reader_ui.dir/src/ui/SearchPanel.cpp.o: CMakeFiles/test_reader_ui.dir/flags.make
 CMakeFiles/test_reader_ui.dir/src/ui/SearchPanel.cpp.o: /home/nao/Documents/Projects/reader/src/ui/SearchPanel.cpp
 CMakeFiles/test_reader_ui.dir/src/ui/SearchPanel.cpp.o: CMakeFiles/test_reader_ui.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object CMakeFiles/test_reader_ui.dir/src/ui/SearchPanel.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/test_reader_ui.dir/src/ui/SearchPanel.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test_reader_ui.dir/src/ui/SearchPanel.cpp.o -MF CMakeFiles/test_reader_ui.dir/src/ui/SearchPanel.cpp.o.d -o CMakeFiles/test_reader_ui.dir/src/ui/SearchPanel.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/SearchPanel.cpp
 
 CMakeFiles/test_reader_ui.dir/src/ui/SearchPanel.cpp.i: cmake_force
@@ -324,33 +268,19 @@ CMakeFiles/test_reader_ui.dir/src/ui/SearchPanel.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/test_reader_ui.dir/src/ui/SearchPanel.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/ui/SearchPanel.cpp -o CMakeFiles/test_reader_ui.dir/src/ui/SearchPanel.cpp.s
 
-CMakeFiles/test_reader_ui.dir/src/ui/SummaryPanel.cpp.o: CMakeFiles/test_reader_ui.dir/flags.make
-CMakeFiles/test_reader_ui.dir/src/ui/SummaryPanel.cpp.o: /home/nao/Documents/Projects/reader/src/ui/SummaryPanel.cpp
-CMakeFiles/test_reader_ui.dir/src/ui/SummaryPanel.cpp.o: CMakeFiles/test_reader_ui.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object CMakeFiles/test_reader_ui.dir/src/ui/SummaryPanel.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test_reader_ui.dir/src/ui/SummaryPanel.cpp.o -MF CMakeFiles/test_reader_ui.dir/src/ui/SummaryPanel.cpp.o.d -o CMakeFiles/test_reader_ui.dir/src/ui/SummaryPanel.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/SummaryPanel.cpp
+CMakeFiles/test_reader_ui.dir/src/ui/WebPanel.cpp.o: CMakeFiles/test_reader_ui.dir/flags.make
+CMakeFiles/test_reader_ui.dir/src/ui/WebPanel.cpp.o: /home/nao/Documents/Projects/reader/src/ui/WebPanel.cpp
+CMakeFiles/test_reader_ui.dir/src/ui/WebPanel.cpp.o: CMakeFiles/test_reader_ui.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/test_reader_ui.dir/src/ui/WebPanel.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test_reader_ui.dir/src/ui/WebPanel.cpp.o -MF CMakeFiles/test_reader_ui.dir/src/ui/WebPanel.cpp.o.d -o CMakeFiles/test_reader_ui.dir/src/ui/WebPanel.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/WebPanel.cpp
 
-CMakeFiles/test_reader_ui.dir/src/ui/SummaryPanel.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/test_reader_ui.dir/src/ui/SummaryPanel.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/nao/Documents/Projects/reader/src/ui/SummaryPanel.cpp > CMakeFiles/test_reader_ui.dir/src/ui/SummaryPanel.cpp.i
+CMakeFiles/test_reader_ui.dir/src/ui/WebPanel.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/test_reader_ui.dir/src/ui/WebPanel.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/nao/Documents/Projects/reader/src/ui/WebPanel.cpp > CMakeFiles/test_reader_ui.dir/src/ui/WebPanel.cpp.i
 
-CMakeFiles/test_reader_ui.dir/src/ui/SummaryPanel.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/test_reader_ui.dir/src/ui/SummaryPanel.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/ui/SummaryPanel.cpp -o CMakeFiles/test_reader_ui.dir/src/ui/SummaryPanel.cpp.s
-
-CMakeFiles/test_reader_ui.dir/src/ui/ThumbnailPanel.cpp.o: CMakeFiles/test_reader_ui.dir/flags.make
-CMakeFiles/test_reader_ui.dir/src/ui/ThumbnailPanel.cpp.o: /home/nao/Documents/Projects/reader/src/ui/ThumbnailPanel.cpp
-CMakeFiles/test_reader_ui.dir/src/ui/ThumbnailPanel.cpp.o: CMakeFiles/test_reader_ui.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object CMakeFiles/test_reader_ui.dir/src/ui/ThumbnailPanel.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/test_reader_ui.dir/src/ui/ThumbnailPanel.cpp.o -MF CMakeFiles/test_reader_ui.dir/src/ui/ThumbnailPanel.cpp.o.d -o CMakeFiles/test_reader_ui.dir/src/ui/ThumbnailPanel.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/ThumbnailPanel.cpp
-
-CMakeFiles/test_reader_ui.dir/src/ui/ThumbnailPanel.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/test_reader_ui.dir/src/ui/ThumbnailPanel.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/nao/Documents/Projects/reader/src/ui/ThumbnailPanel.cpp > CMakeFiles/test_reader_ui.dir/src/ui/ThumbnailPanel.cpp.i
-
-CMakeFiles/test_reader_ui.dir/src/ui/ThumbnailPanel.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/test_reader_ui.dir/src/ui/ThumbnailPanel.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/ui/ThumbnailPanel.cpp -o CMakeFiles/test_reader_ui.dir/src/ui/ThumbnailPanel.cpp.s
+CMakeFiles/test_reader_ui.dir/src/ui/WebPanel.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/test_reader_ui.dir/src/ui/WebPanel.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/ui/WebPanel.cpp -o CMakeFiles/test_reader_ui.dir/src/ui/WebPanel.cpp.s
 
 # Object files for target test_reader_ui
 test_reader_ui_OBJECTS = \
@@ -359,21 +289,16 @@ test_reader_ui_OBJECTS = \
 "CMakeFiles/test_reader_ui.dir/src/ai/EmbeddingProviderQt.cpp.o" \
 "CMakeFiles/test_reader_ui.dir/src/ai/OpenAIProvider.cpp.o" \
 "CMakeFiles/test_reader_ui.dir/src/app/Application.cpp.o" \
+"CMakeFiles/test_reader_ui.dir/src/pdf/HighlightExport.cpp.o" \
 "CMakeFiles/test_reader_ui.dir/src/pdf/PdfRenderer.cpp.o" \
 "CMakeFiles/test_reader_ui.dir/src/pdf/PopplerBridge.cpp.o" \
 "CMakeFiles/test_reader_ui.dir/src/pdf/QtPdfEngine.cpp.o" \
 "CMakeFiles/test_reader_ui.dir/src/pdf/WordBoxes.cpp.o" \
-"CMakeFiles/test_reader_ui.dir/src/ui/ChatPanel.cpp.o" \
-"CMakeFiles/test_reader_ui.dir/src/ui/ChatTranscript.cpp.o" \
-"CMakeFiles/test_reader_ui.dir/src/ui/CommandPalette.cpp.o" \
-"CMakeFiles/test_reader_ui.dir/src/ui/IngestRawPanel.cpp.o" \
 "CMakeFiles/test_reader_ui.dir/src/ui/MainWindow.cpp.o" \
-"CMakeFiles/test_reader_ui.dir/src/ui/MapPanel.cpp.o" \
 "CMakeFiles/test_reader_ui.dir/src/ui/OutlinePanel.cpp.o" \
 "CMakeFiles/test_reader_ui.dir/src/ui/PdfView.cpp.o" \
 "CMakeFiles/test_reader_ui.dir/src/ui/SearchPanel.cpp.o" \
-"CMakeFiles/test_reader_ui.dir/src/ui/SummaryPanel.cpp.o" \
-"CMakeFiles/test_reader_ui.dir/src/ui/ThumbnailPanel.cpp.o"
+"CMakeFiles/test_reader_ui.dir/src/ui/WebPanel.cpp.o"
 
 # External object files for target test_reader_ui
 test_reader_ui_EXTERNAL_OBJECTS =
@@ -383,37 +308,41 @@ test_reader_ui: CMakeFiles/test_reader_ui.dir/tests/test_reader_ui.cpp.o
 test_reader_ui: CMakeFiles/test_reader_ui.dir/src/ai/EmbeddingProviderQt.cpp.o
 test_reader_ui: CMakeFiles/test_reader_ui.dir/src/ai/OpenAIProvider.cpp.o
 test_reader_ui: CMakeFiles/test_reader_ui.dir/src/app/Application.cpp.o
+test_reader_ui: CMakeFiles/test_reader_ui.dir/src/pdf/HighlightExport.cpp.o
 test_reader_ui: CMakeFiles/test_reader_ui.dir/src/pdf/PdfRenderer.cpp.o
 test_reader_ui: CMakeFiles/test_reader_ui.dir/src/pdf/PopplerBridge.cpp.o
 test_reader_ui: CMakeFiles/test_reader_ui.dir/src/pdf/QtPdfEngine.cpp.o
 test_reader_ui: CMakeFiles/test_reader_ui.dir/src/pdf/WordBoxes.cpp.o
-test_reader_ui: CMakeFiles/test_reader_ui.dir/src/ui/ChatPanel.cpp.o
-test_reader_ui: CMakeFiles/test_reader_ui.dir/src/ui/ChatTranscript.cpp.o
-test_reader_ui: CMakeFiles/test_reader_ui.dir/src/ui/CommandPalette.cpp.o
-test_reader_ui: CMakeFiles/test_reader_ui.dir/src/ui/IngestRawPanel.cpp.o
 test_reader_ui: CMakeFiles/test_reader_ui.dir/src/ui/MainWindow.cpp.o
-test_reader_ui: CMakeFiles/test_reader_ui.dir/src/ui/MapPanel.cpp.o
 test_reader_ui: CMakeFiles/test_reader_ui.dir/src/ui/OutlinePanel.cpp.o
 test_reader_ui: CMakeFiles/test_reader_ui.dir/src/ui/PdfView.cpp.o
 test_reader_ui: CMakeFiles/test_reader_ui.dir/src/ui/SearchPanel.cpp.o
-test_reader_ui: CMakeFiles/test_reader_ui.dir/src/ui/SummaryPanel.cpp.o
-test_reader_ui: CMakeFiles/test_reader_ui.dir/src/ui/ThumbnailPanel.cpp.o
+test_reader_ui: CMakeFiles/test_reader_ui.dir/src/ui/WebPanel.cpp.o
 test_reader_ui: CMakeFiles/test_reader_ui.dir/build.make
 test_reader_ui: CMakeFiles/test_reader_ui.dir/compiler_depend.ts
 test_reader_ui: libreader_core.a
 test_reader_ui: /home/nao/qtsysroot/usr/lib64/libpoppler-qt6.so
-test_reader_ui: /home/nao/qtsysroot/usr/lib64/libQt6Widgets.so.6.11.2
 test_reader_ui: /home/nao/qtsysroot/usr/lib64/libQt6Pdf.so.6.11.2
 test_reader_ui: /home/nao/qtsysroot/usr/lib64/libQt6Sql.so.6.11.2
 test_reader_ui: /home/nao/qtsysroot/usr/lib64/libQt6Concurrent.so.6.11.2
+test_reader_ui: /home/nao/qtsysroot/usr/lib64/libQt6WebEngineWidgets.so.6.11.2
+test_reader_ui: /usr/lib64/libexpat.so.1
 test_reader_ui: /home/nao/miniforge3/lib/libsqlite3.so
-test_reader_ui: /home/nao/qtsysroot/usr/lib64/libQt6Network.so.6.11.2
+test_reader_ui: /home/nao/qtsysroot/usr/lib64/libQt6WebEngineCore.so.6.11.2
+test_reader_ui: /home/nao/qtsysroot/usr/lib64/libQt6WebChannel.so.6.11.2
+test_reader_ui: /home/nao/qtsysroot/usr/lib64/libQt6Positioning.so.6.11.2
+test_reader_ui: /home/nao/qtsysroot/usr/lib64/libQt6PrintSupport.so.6.11.2
+test_reader_ui: /home/nao/qtsysroot/usr/lib64/libQt6Widgets.so.6.11.2
+test_reader_ui: /home/nao/qtsysroot/usr/lib64/libQt6Quick.so.6.11.2
+test_reader_ui: /home/nao/qtsysroot/usr/lib64/libQt6OpenGL.so.6.11.2
 test_reader_ui: /home/nao/qtsysroot/usr/lib64/libQt6Gui.so.6.11.2
 test_reader_ui: /home/nao/qtsysroot/usr/lib64/libGLX.so
 test_reader_ui: /home/nao/qtsysroot/usr/lib64/libOpenGL.so
+test_reader_ui: /home/nao/qtsysroot/usr/lib64/libQt6Qml.so.6.11.2
+test_reader_ui: /home/nao/qtsysroot/usr/lib64/libQt6Network.so.6.11.2
 test_reader_ui: /home/nao/qtsysroot/usr/lib64/libQt6Core.so.6.11.2
 test_reader_ui: CMakeFiles/test_reader_ui.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Linking CXX executable test_reader_ui"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Linking CXX executable test_reader_ui"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/test_reader_ui.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

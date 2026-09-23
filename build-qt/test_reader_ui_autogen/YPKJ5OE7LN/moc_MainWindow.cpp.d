@@ -1,11 +1,8 @@
 /home/nao/Documents/Projects/reader/build-qt/test_reader_ui_autogen/YPKJ5OE7LN/moc_MainWindow.cpp: /home/nao/Documents/Projects/reader/src/ui/MainWindow.h \
   /home/nao/Documents/Projects/reader/build-qt/test_reader_ui_autogen/moc_predefs.h \
-  /home/nao/Documents/Projects/reader/src/ai/LlmProvider.h \
   /home/nao/Documents/Projects/reader/src/ai/References.h \
-  /home/nao/Documents/Projects/reader/src/analysis/PaperAnalysis.h \
-  /home/nao/Documents/Projects/reader/src/analysis/PaperIngestor.h \
+  /home/nao/Documents/Projects/reader/src/app/ApplicationState.h \
   /home/nao/Documents/Projects/reader/src/core/CancellationToken.h \
-  /home/nao/Documents/Projects/reader/src/core/Json.h \
   /home/nao/Documents/Projects/reader/src/core/Types.h \
   /home/nao/Documents/Projects/reader/src/document/DocumentAnchor.h \
   /home/nao/Documents/Projects/reader/src/document/DocumentModel.h \
@@ -384,7 +381,6 @@
   /usr/include/c++/16/ext/numeric_traits.h \
   /usr/include/c++/16/ext/string_conversions.h \
   /usr/include/c++/16/ext/type_traits.h \
-  /usr/include/c++/16/filesystem \
   /usr/include/c++/16/format \
   /usr/include/c++/16/functional \
   /usr/include/c++/16/initializer_list \

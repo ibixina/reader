@@ -397,17 +397,19 @@ CMakeFiles/paper-reader.dir/paper-reader_autogen/mocs_compilation.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qtmochelpers.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qtmocconstants.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/q20algorithm.h \
- /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/moc_ChatPanel.cpp \
- /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/../../../src/ui/ChatPanel.h \
- /home/nao/Documents/Projects/reader/src/search/VectorIndex.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QWidget \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qwidget.h \
+ /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/moc_MainWindow.cpp \
+ /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/../../../src/ui/MainWindow.h \
+ /home/nao/Documents/Projects/reader/src/app/ApplicationState.h \
+ /home/nao/Documents/Projects/reader/src/pdf/QtPdfEngine.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QMainWindow \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qmainwindow.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtwidgetsglobal.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qtguiglobal.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qtgui-config.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qtguiexports.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtwidgets-config.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtwidgetsexports.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qwidget.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qwindowdefs.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qmargins.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/qcheckedint_impl.h \
@@ -440,34 +442,12 @@ CMakeFiles/paper-reader.dir/paper-reader_autogen/mocs_compilation.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qsizepolicy.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qcursor.h \
  /home/nao/qtsysroot/usr/include/qt6/QtGui/qbitmap.h \
- /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/moc_ChatTranscript.cpp \
- /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/../../../src/ui/ChatTranscript.h \
- /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/moc_CommandPalette.cpp \
- /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/../../../src/ui/CommandPalette.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDialog \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialog.h \
- /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/moc_IngestRawPanel.cpp \
- /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/../../../src/ui/IngestRawPanel.h \
- /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/moc_MainWindow.cpp \
- /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/../../../src/ui/MainWindow.h \
- /home/nao/Documents/Projects/reader/src/analysis/PaperIngestor.h \
- /home/nao/Documents/Projects/reader/src/analysis/PaperAnalysis.h \
- /home/nao/Documents/Projects/reader/src/core/Json.h \
- /usr/include/c++/16/filesystem /usr/include/c++/16/bits/fs_fwd.h \
- /usr/include/c++/16/bits/fs_path.h /usr/include/c++/16/iomanip \
- /usr/include/c++/16/bits/quoted_string.h /usr/include/c++/16/codecvt \
- /usr/include/c++/16/bits/fs_dir.h /usr/include/c++/16/bits/fs_ops.h \
- /home/nao/Documents/Projects/reader/src/pdf/QtPdfEngine.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QMainWindow \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qmainwindow.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtabwidget.h \
- /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/moc_MapPanel.cpp \
- /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/../../../src/ui/MapPanel.h \
  /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/moc_OutlinePanel.cpp \
  /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/../../../src/ui/OutlinePanel.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QWidget \
  /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/moc_PdfView.cpp \
  /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/../../../src/ui/PdfView.h \
- /home/nao/Documents/Projects/reader/src/ai/EmbeddingProviderQt.h \
  /home/nao/Documents/Projects/reader/src/pdf/PdfRenderer.h \
  /home/nao/Documents/Projects/reader/src/core/LruCache.h \
  /usr/include/c++/16/mutex /usr/include/c++/16/bits/std_mutex.h \
@@ -510,13 +490,13 @@ CMakeFiles/paper-reader.dir/paper-reader_autogen/mocs_compilation.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qscrollarea.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractscrollarea.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qframe.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QList \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QPoint \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointer \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qpointer.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QSizeF \
  /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/moc_SearchPanel.cpp \
  /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/../../../src/ui/SearchPanel.h \
- /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/moc_SummaryPanel.cpp \
- /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/../../../src/ui/SummaryPanel.h \
- /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/moc_ThumbnailPanel.cpp \
- /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/../../../src/ui/ThumbnailPanel.h \
  /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/moc_WebPanel.cpp \
  /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/../../../src/ui/WebPanel.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QUrl

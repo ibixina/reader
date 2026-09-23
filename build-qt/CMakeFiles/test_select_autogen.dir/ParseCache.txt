@@ -455,7 +455,6 @@
  mdp:/home/nao/Documents/Projects/reader/build-qt/test_select_autogen/moc_predefs.h
  mdp:/home/nao/Documents/Projects/reader/src/ai/ChatManager.h
  mdp:/home/nao/Documents/Projects/reader/src/ai/ContextManager.h
- mdp:/home/nao/Documents/Projects/reader/src/ai/EmbeddingProviderQt.h
  mdp:/home/nao/Documents/Projects/reader/src/ai/LlmProvider.h
  mdp:/home/nao/Documents/Projects/reader/src/ai/References.h
  mdp:/home/nao/Documents/Projects/reader/src/ai/RetrievalEngine.h
@@ -489,7 +488,6 @@
  mdp:/home/nao/qtsysroot/usr/include/poppler/qt6/poppler-page-transition.h
  mdp:/home/nao/qtsysroot/usr/include/poppler/qt6/poppler-qt6.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/QAbstractListModel
- mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/QBuffer
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/QByteArray
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/QCoreApplication
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/QDateTime
@@ -497,6 +495,7 @@
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/QList
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/QMetaObject
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/QObject
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/QPoint
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/QPointF
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/QPointer
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/QRect
@@ -534,7 +533,6 @@
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/qbasicatomic.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/qbasictimer.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/qbindingstorage.h
- mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/qbuffer.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/qbytearray.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/qbytearrayalgorithms.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/qbytearraylist.h
@@ -668,8 +666,10 @@
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/QMouseEvent
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/QPainter
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/QResizeEvent
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/QScreen
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/QShortcut
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/QTransform
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qabstracttextdocumentlayout.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qaction.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qbitmap.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qbrush.h
@@ -679,9 +679,11 @@
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qevent.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qeventpoint.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qfont.h
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qfontdatabase.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qfontinfo.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qfontmetrics.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qfontvariableaxis.h
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qglyphrun.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qguiapplication.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qguiapplication_platform.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qicon.h
@@ -698,6 +700,7 @@
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qpixmap.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qpointingdevice.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qpolygon.h
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qrawfont.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qregion.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qrgb.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qrgba64.h
@@ -707,6 +710,7 @@
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qtextcursor.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qtextdocument.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qtextformat.h
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qtextlayout.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qtextoption.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qtgui-config.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtGui/qtguiexports.h
@@ -730,30 +734,40 @@
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtPdf/qpdfselection.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtPdf/qtpdfexports.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtPdf/qtpdfglobal.h
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QAbstractButton
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QApplication
- mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QInputDialog
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDialog
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QDialogButtonBox
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLabel
- mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QMenu
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLineEdit
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QPlainTextEdit
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QPushButton
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QScrollArea
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QScrollBar
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QSplitter
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QTextEdit
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QToolTip
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/QVBoxLayout
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractbutton.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractscrollarea.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractslider.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qapplication.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qboxlayout.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialog.h
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialogbuttonbox.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qframe.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qgridlayout.h
- mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qinputdialog.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlabel.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlayout.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlayoutitem.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlineedit.h
- mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qmenu.h
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qplaintextedit.h
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qpushbutton.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qscrollarea.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qscrollbar.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qsizepolicy.h
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qsplitter.h
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtextedit.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtooltip.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtwidgets-config.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtwidgetsexports.h
@@ -1081,9 +1095,7 @@
 /home/nao/Documents/Projects/reader/src/ui/PdfView.h
  mmc:Q_OBJECT
  mdp:/home/nao/Documents/Projects/reader/build-qt/test_select_autogen/moc_predefs.h
- mdp:/home/nao/Documents/Projects/reader/src/ai/EmbeddingProviderQt.h
  mdp:/home/nao/Documents/Projects/reader/src/ai/References.h
- mdp:/home/nao/Documents/Projects/reader/src/core/CancellationToken.h
  mdp:/home/nao/Documents/Projects/reader/src/core/LruCache.h
  mdp:/home/nao/Documents/Projects/reader/src/core/Types.h
  mdp:/home/nao/Documents/Projects/reader/src/document/DocumentAnchor.h
@@ -1094,7 +1106,6 @@
  mdp:/home/nao/Documents/Projects/reader/src/pdf/PopplerBridge.h
  mdp:/home/nao/Documents/Projects/reader/src/pdf/WordIndex.h
  mdp:/home/nao/Documents/Projects/reader/src/search/TextIndex.h
- mdp:/home/nao/Documents/Projects/reader/src/search/VectorIndex.h
  mdp:/home/nao/Documents/Projects/reader/src/ui/PdfView.h
  mdp:/home/nao/qtsysroot/usr/include/poppler/qt6/poppler-annotation.h
  mdp:/home/nao/qtsysroot/usr/include/poppler/qt6/poppler-converter.h
@@ -1108,7 +1119,9 @@
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/QDateTime
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/QIODevice
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/QList
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/QPoint
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/QPointF
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/QPointer
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/QRect
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/QRectF
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/QScopedPointer
@@ -1199,6 +1212,7 @@
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/qoverload.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/qpair.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/qpoint.h
+ mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/qpointer.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/qprocessordetection.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/qrect.h
  mdp:/home/nao/qtsysroot/usr/include/qt6/QtCore/qrefcount.h

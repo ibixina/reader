@@ -53,7 +53,8 @@ template <> constexpr inline auto PdfView::qt_create_metaobjectdata<qt_meta_tag_
         "regionCaptured",
         "QImage",
         "image",
-        "askAiRequested",
+        "quickAskRequested",
+        "seed",
         "pageChanged",
         "selectionGeometryReady",
         "zoomChanged",
@@ -62,10 +63,7 @@ template <> constexpr inline auto PdfView::qt_create_metaobjectdata<qt_meta_tag_
         "scrollY",
         "rotation",
         "findRequested",
-        "commandPaletteRequested",
         "sidecarToggleRequested",
-        "tabRequested",
-        "index",
         "historyBackRequested",
         "historyForwardRequested"
     };
@@ -95,38 +93,34 @@ template <> constexpr inline auto PdfView::qt_create_metaobjectdata<qt_meta_tag_
         QtMocHelpers::SignalData<void(const reader::DocumentAnchor &, const QImage &)>(12, 2, QMC::AccessPublic, QMetaType::Void, {{
             { 0x80000000 | 3, 4 }, { 0x80000000 | 13, 14 },
         }}),
-        // Signal 'askAiRequested'
-        QtMocHelpers::SignalData<void()>(15, 2, QMC::AccessPublic, QMetaType::Void),
-        // Signal 'pageChanged'
-        QtMocHelpers::SignalData<void(int)>(16, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { QMetaType::Int, 9 },
+        // Signal 'quickAskRequested'
+        QtMocHelpers::SignalData<void(const QString &)>(15, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::QString, 16 },
         }}),
-        // Signal 'selectionGeometryReady'
+        // Signal 'pageChanged'
         QtMocHelpers::SignalData<void(int)>(17, 2, QMC::AccessPublic, QMetaType::Void, {{
             { QMetaType::Int, 9 },
         }}),
+        // Signal 'selectionGeometryReady'
+        QtMocHelpers::SignalData<void(int)>(18, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::Int, 9 },
+        }}),
         // Signal 'zoomChanged'
-        QtMocHelpers::SignalData<void(double)>(18, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { QMetaType::Double, 19 },
+        QtMocHelpers::SignalData<void(double)>(19, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::Double, 20 },
         }}),
         // Signal 'viewStateChanged'
-        QtMocHelpers::SignalData<void(int, int, double, int)>(20, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { QMetaType::Int, 9 }, { QMetaType::Int, 21 }, { QMetaType::Double, 19 }, { QMetaType::Int, 22 },
+        QtMocHelpers::SignalData<void(int, int, double, int)>(21, 2, QMC::AccessPublic, QMetaType::Void, {{
+            { QMetaType::Int, 9 }, { QMetaType::Int, 22 }, { QMetaType::Double, 20 }, { QMetaType::Int, 23 },
         }}),
         // Signal 'findRequested'
-        QtMocHelpers::SignalData<void()>(23, 2, QMC::AccessPublic, QMetaType::Void),
-        // Signal 'commandPaletteRequested'
         QtMocHelpers::SignalData<void()>(24, 2, QMC::AccessPublic, QMetaType::Void),
         // Signal 'sidecarToggleRequested'
         QtMocHelpers::SignalData<void()>(25, 2, QMC::AccessPublic, QMetaType::Void),
-        // Signal 'tabRequested'
-        QtMocHelpers::SignalData<void(int)>(26, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { QMetaType::Int, 27 },
-        }}),
         // Signal 'historyBackRequested'
-        QtMocHelpers::SignalData<void()>(28, 2, QMC::AccessPublic, QMetaType::Void),
+        QtMocHelpers::SignalData<void()>(26, 2, QMC::AccessPublic, QMetaType::Void),
         // Signal 'historyForwardRequested'
-        QtMocHelpers::SignalData<void()>(29, 2, QMC::AccessPublic, QMetaType::Void),
+        QtMocHelpers::SignalData<void()>(27, 2, QMC::AccessPublic, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -156,17 +150,15 @@ void PdfView::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, voi
         case 3: _t->linkActivated((*reinterpret_cast<std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast<std::add_pointer_t<QString>>(_a[2]))); break;
         case 4: _t->bookmarkRequested((*reinterpret_cast<std::add_pointer_t<reader::DocumentAnchor>>(_a[1]))); break;
         case 5: _t->regionCaptured((*reinterpret_cast<std::add_pointer_t<reader::DocumentAnchor>>(_a[1])),(*reinterpret_cast<std::add_pointer_t<QImage>>(_a[2]))); break;
-        case 6: _t->askAiRequested(); break;
+        case 6: _t->quickAskRequested((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
         case 7: _t->pageChanged((*reinterpret_cast<std::add_pointer_t<int>>(_a[1]))); break;
         case 8: _t->selectionGeometryReady((*reinterpret_cast<std::add_pointer_t<int>>(_a[1]))); break;
         case 9: _t->zoomChanged((*reinterpret_cast<std::add_pointer_t<double>>(_a[1]))); break;
         case 10: _t->viewStateChanged((*reinterpret_cast<std::add_pointer_t<int>>(_a[1])),(*reinterpret_cast<std::add_pointer_t<int>>(_a[2])),(*reinterpret_cast<std::add_pointer_t<double>>(_a[3])),(*reinterpret_cast<std::add_pointer_t<int>>(_a[4]))); break;
         case 11: _t->findRequested(); break;
-        case 12: _t->commandPaletteRequested(); break;
-        case 13: _t->sidecarToggleRequested(); break;
-        case 14: _t->tabRequested((*reinterpret_cast<std::add_pointer_t<int>>(_a[1]))); break;
-        case 15: _t->historyBackRequested(); break;
-        case 16: _t->historyForwardRequested(); break;
+        case 12: _t->sidecarToggleRequested(); break;
+        case 13: _t->historyBackRequested(); break;
+        case 14: _t->historyForwardRequested(); break;
         default: ;
         }
     }
@@ -183,7 +175,7 @@ void PdfView::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, voi
             return;
         if (QtMocHelpers::indexOfMethod<void (PdfView::*)(const reader::DocumentAnchor & , const QImage & )>(_a, &PdfView::regionCaptured, 5))
             return;
-        if (QtMocHelpers::indexOfMethod<void (PdfView::*)()>(_a, &PdfView::askAiRequested, 6))
+        if (QtMocHelpers::indexOfMethod<void (PdfView::*)(const QString & )>(_a, &PdfView::quickAskRequested, 6))
             return;
         if (QtMocHelpers::indexOfMethod<void (PdfView::*)(int )>(_a, &PdfView::pageChanged, 7))
             return;
@@ -195,15 +187,11 @@ void PdfView::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, voi
             return;
         if (QtMocHelpers::indexOfMethod<void (PdfView::*)()>(_a, &PdfView::findRequested, 11))
             return;
-        if (QtMocHelpers::indexOfMethod<void (PdfView::*)()>(_a, &PdfView::commandPaletteRequested, 12))
+        if (QtMocHelpers::indexOfMethod<void (PdfView::*)()>(_a, &PdfView::sidecarToggleRequested, 12))
             return;
-        if (QtMocHelpers::indexOfMethod<void (PdfView::*)()>(_a, &PdfView::sidecarToggleRequested, 13))
+        if (QtMocHelpers::indexOfMethod<void (PdfView::*)()>(_a, &PdfView::historyBackRequested, 13))
             return;
-        if (QtMocHelpers::indexOfMethod<void (PdfView::*)(int )>(_a, &PdfView::tabRequested, 14))
-            return;
-        if (QtMocHelpers::indexOfMethod<void (PdfView::*)()>(_a, &PdfView::historyBackRequested, 15))
-            return;
-        if (QtMocHelpers::indexOfMethod<void (PdfView::*)()>(_a, &PdfView::historyForwardRequested, 16))
+        if (QtMocHelpers::indexOfMethod<void (PdfView::*)()>(_a, &PdfView::historyForwardRequested, 14))
             return;
     }
 }
@@ -227,14 +215,14 @@ int PdfView::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 17)
+        if (_id < 15)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 17;
+        _id -= 15;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 17)
+        if (_id < 15)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 17;
+        _id -= 15;
     }
     return _id;
 }
@@ -276,9 +264,9 @@ void PdfView::regionCaptured(const reader::DocumentAnchor & _t1, const QImage & 
 }
 
 // SIGNAL 6
-void PdfView::askAiRequested()
+void PdfView::quickAskRequested(const QString & _t1)
 {
-    QMetaObject::activate(this, &staticMetaObject, 6, nullptr);
+    QMetaObject::activate<void>(this, &staticMetaObject, 6, nullptr, _t1);
 }
 
 // SIGNAL 7
@@ -312,32 +300,20 @@ void PdfView::findRequested()
 }
 
 // SIGNAL 12
-void PdfView::commandPaletteRequested()
+void PdfView::sidecarToggleRequested()
 {
     QMetaObject::activate(this, &staticMetaObject, 12, nullptr);
 }
 
 // SIGNAL 13
-void PdfView::sidecarToggleRequested()
+void PdfView::historyBackRequested()
 {
     QMetaObject::activate(this, &staticMetaObject, 13, nullptr);
 }
 
 // SIGNAL 14
-void PdfView::tabRequested(int _t1)
-{
-    QMetaObject::activate<void>(this, &staticMetaObject, 14, nullptr, _t1);
-}
-
-// SIGNAL 15
-void PdfView::historyBackRequested()
-{
-    QMetaObject::activate(this, &staticMetaObject, 15, nullptr);
-}
-
-// SIGNAL 16
 void PdfView::historyForwardRequested()
 {
-    QMetaObject::activate(this, &staticMetaObject, 16, nullptr);
+    QMetaObject::activate(this, &staticMetaObject, 14, nullptr);
 }
 QT_WARNING_POP

@@ -48,7 +48,6 @@ test_render_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
   CMakeFiles/4.4.3/CMakeSystem.cmake \
   /home/nao/Documents/Projects/reader/src/pdf/PopplerBridge.cpp \
   /home/nao/Documents/Projects/reader/src/pdf/PopplerBridge.h \
-  /home/nao/Documents/Projects/reader/src/ui/chat_resources.qrc \
   /home/nao/Documents/Projects/reader/tests/test_render.cpp \
   /home/nao/qtsysroot/usr/lib64/cmake/Qt6/FindWrapAtomic.cmake \
   /home/nao/qtsysroot/usr/lib64/cmake/Qt6/FindWrapOpenGL.cmake \
@@ -1395,6 +1394,10 @@ test_render_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlpluginConfig.cmake:
 
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlxmllistmodelpluginTargetsPrecheck.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QMinimalEglIntegrationPluginTargets.cmake:
+
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Concurrent/Qt6ConcurrentTargetsPrecheck.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QMinimalEglIntegrationPluginConfig.cmake:
@@ -1513,6 +1516,10 @@ test_render_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSX11IntegrationPluginTargets.cmake:
 
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlDebugServerFactoryPluginAdditionalTargetInfo.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Network/Qt6NetworkAdditionalTargetInfo.cmake:
+
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSKmsEglDeviceIntegrationPluginTargets.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2implpluginAdditionalTargetInfo.cmake:
@@ -1604,6 +1611,8 @@ test_render_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2imaginestyleimplpluginTargets-relwithdebinfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6PrintSupport/Qt6QCupsPrinterSupportPluginConfig.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Positioning/Qt6QGeoPositionInfoSourceFactoryPollPluginTargetsPrecheck.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2basicstyleimplpluginConfig.cmake:
 
@@ -1739,16 +1748,6 @@ test_render_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevTouchScreenPluginConfig.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Positioning/Qt6QGeoPositionInfoSourceFactoryPollPluginTargetsPrecheck.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlDebugServerFactoryPluginAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Network/Qt6NetworkAdditionalTargetInfo.cmake:
-
-/home/nao/Documents/Projects/reader/src/ui/chat_resources.qrc:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QVncIntegrationPluginTargets-relwithdebinfo.cmake:
-
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlxmllistmodelpluginTargets.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6LabsSynchronizerpluginConfig.cmake:
@@ -1800,14 +1799,6 @@ test_render_autogen/timestamp: /home/nao/.local/lib/python3.14/site-packages/cma
 /home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/Internal/CMakeCommonLinkerInformation.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtInstallPaths.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2basicstylepluginConfig.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSEmulatorIntegrationPluginTargets.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6CoreTools/Qt6CoreToolsTargets.cmake:
-
-/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/Linker/GNU.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquicktemplates2pluginConfig.cmake:
 
@@ -2093,9 +2084,9 @@ CMakeFiles/4.4.3/CMakeSystem.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6/QtPublicSbomSystemDepHelpers.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6/Qt6Config.cmake:
-
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6/Qt6VersionlessAliasTargets.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6/Qt6Config.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Concurrent/Qt6ConcurrentConfig.cmake:
 
@@ -2112,10 +2103,6 @@ CMakeFiles/4.4.3/CMakeSystem.cmake:
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6ShmServerBufferPluginConfig.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Core/Qt6CoreAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlpluginAdditionalTargetInfo.cmake:
-
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevKeyboardPluginTargets-relwithdebinfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6LabsStyleKitpluginConfig.cmake:
 
@@ -2205,9 +2192,13 @@ CMakeFiles/4.4.3/CMakeSystem.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6CoreTools/Qt6CoreToolsTargets-relwithdebinfo.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlxmllistmodelpluginTargetsPrecheck.cmake:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qtquickcontrols2basicstylepluginConfig.cmake:
 
-/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QMinimalEglIntegrationPluginTargets.cmake:
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEglFSEmulatorIntegrationPluginTargets.cmake:
+
+/home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/Linker/GNU.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6CoreTools/Qt6CoreToolsTargets.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlNativeDebugServiceFactoryPluginTargets-relwithdebinfo.cmake:
 
@@ -2332,6 +2323,8 @@ CMakeFiles/4.4.3/CMakeSystem.cmake:
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/Qt6QQmlDebuggerServiceFactoryPluginConfig.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6PrintSupport/Qt6PrintSupportConfig.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QVncIntegrationPluginTargets-relwithdebinfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Network/Qt6QGlibNetworkInformationPluginTargets.cmake:
 
@@ -2632,6 +2625,10 @@ CMakeFiles/4.4.3/CMakeSystem.cmake:
 /home/nao/.local/lib/python3.14/site-packages/cmake/data/share/cmake-4.4/Modules/Platform/Linux-Initialize.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Pdf/Qt6PdfConfigVersion.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Gui/Qt6QEvdevKeyboardPluginTargets-relwithdebinfo.cmake:
+
+/home/nao/qtsysroot/usr/lib64/cmake/Qt6Qml/QmlPlugins/Qt6qmlpluginAdditionalTargetInfo.cmake:
 
 /home/nao/qtsysroot/usr/lib64/cmake/Qt6Pdf/Qt6PdfTargets.cmake:
 

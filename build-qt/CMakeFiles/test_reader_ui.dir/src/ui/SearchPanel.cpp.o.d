@@ -447,7 +447,6 @@ CMakeFiles/test_reader_ui.dir/src/ui/SearchPanel.cpp.o: \
  /home/nao/Documents/Projects/reader/src/storage/Database.h \
  /home/nao/Documents/Projects/reader/src/storage/Repositories.h \
  /home/nao/Documents/Projects/reader/src/ui/PdfView.h \
- /home/nao/Documents/Projects/reader/src/ai/EmbeddingProviderQt.h \
  /home/nao/Documents/Projects/reader/src/pdf/PdfRenderer.h \
  /home/nao/Documents/Projects/reader/src/core/LruCache.h \
  /home/nao/Documents/Projects/reader/src/pdf/PopplerBridge.h \
@@ -490,9 +489,32 @@ CMakeFiles/test_reader_ui.dir/src/ui/SearchPanel.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qscrollarea.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractscrollarea.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qframe.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QList \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QPoint \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointer \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qpointer.h \
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QSizeF \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QComboBox \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qcombobox.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QHBoxLayout \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qboxlayout.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlayout.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlayoutitem.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qgridlayout.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLabel \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlabel.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qpicture.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextdocument.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qurl.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLineEdit \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlineedit.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextcursor.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextformat.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qpen.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextoption.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QListWidget \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlistwidget.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlistview.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractitemview.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtCore/qitemselectionmodel.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractitemdelegate.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qstyleoption.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractspinbox.h \
@@ -504,40 +526,9 @@ CMakeFiles/test_reader_ui.dir/src/ui/SearchPanel.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtabbar.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtabwidget.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qrubberband.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QFormLayout \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qformlayout.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLayout \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlayout.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlayoutitem.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qboxlayout.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qgridlayout.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QHBoxLayout \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QInputDialog \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qinputdialog.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlineedit.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextcursor.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextdocument.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qurl.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextformat.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qpen.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qtextoption.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qdialog.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLabel \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlabel.h \
- /home/nao/qtsysroot/usr/include/qt6/QtGui/qpicture.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QLineEdit \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QListWidget \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlistwidget.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlistview.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractitemview.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qitemselectionmodel.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QListWidgetItem \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QPushButton \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qpushbutton.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractbutton.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/QPointer \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qpointer.h \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/QSettings \
- /home/nao/qtsysroot/usr/include/qt6/QtCore/qsettings.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QAbstractItemView \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QVBoxLayout

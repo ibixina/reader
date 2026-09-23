@@ -69,43 +69,13 @@ include CMakeFiles/paper-reader.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/paper-reader.dir/flags.make
 
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/chat_resources.qrc
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: CMakeFiles/paper-reader_autogen.dir/AutoRcc_chat_resources_YPKJ5OE7LN_Info.json
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/katex.css
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/LICENSE
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/katex.js
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/fonts/KaTeX_Size2-Regular.woff2
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/fonts/KaTeX_SansSerif-Regular.woff2
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/fonts/KaTeX_Typewriter-Regular.woff2
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/fonts/KaTeX_Fraktur-Regular.woff2
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/fonts/KaTeX_Caligraphic-Regular.woff2
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/fonts/KaTeX_Main-Bold.woff2
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/fonts/KaTeX_AMS-Regular.woff2
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/fonts/KaTeX_Caligraphic-Bold.woff2
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/fonts/KaTeX_Fraktur-Bold.woff2
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/fonts/KaTeX_SansSerif-Italic.woff2
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/fonts/KaTeX_Main-Regular.woff2
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/fonts/KaTeX_Size1-Regular.woff2
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/fonts/KaTeX_Size3-Regular.woff2
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/fonts/KaTeX_Math-BoldItalic.woff2
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/fonts/KaTeX_Size4-Regular.woff2
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/fonts/KaTeX_Main-BoldItalic.woff2
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/fonts/KaTeX_Math-Italic.woff2
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/fonts/KaTeX_SansSerif-Bold.woff2
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/fonts/KaTeX_Script-Regular.woff2
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/Documents/Projects/reader/src/ui/katex/fonts/KaTeX_Main-Italic.woff2
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/qtsysroot/usr/lib64/qt6/libexec/rcc
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp: /home/nao/qtsysroot/usr/lib64/qt6/libexec/rcc
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --blue --bold --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Automatic RCC for src/ui/chat_resources.qrc"
-	/home/nao/.local/lib/python3.14/site-packages/cmake/data/bin/cmake -E cmake_autorcc /home/nao/Documents/Projects/reader/build-qt/CMakeFiles/paper-reader_autogen.dir/AutoRcc_chat_resources_YPKJ5OE7LN_Info.json Release
-
 CMakeFiles/paper-reader.dir/codegen:
 .PHONY : CMakeFiles/paper-reader.dir/codegen
 
 CMakeFiles/paper-reader.dir/paper-reader_autogen/mocs_compilation.cpp.o: CMakeFiles/paper-reader.dir/flags.make
 CMakeFiles/paper-reader.dir/paper-reader_autogen/mocs_compilation.cpp.o: paper-reader_autogen/mocs_compilation.cpp
 CMakeFiles/paper-reader.dir/paper-reader_autogen/mocs_compilation.cpp.o: CMakeFiles/paper-reader.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/paper-reader.dir/paper-reader_autogen/mocs_compilation.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/paper-reader.dir/paper-reader_autogen/mocs_compilation.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/paper-reader.dir/paper-reader_autogen/mocs_compilation.cpp.o -MF CMakeFiles/paper-reader.dir/paper-reader_autogen/mocs_compilation.cpp.o.d -o CMakeFiles/paper-reader.dir/paper-reader_autogen/mocs_compilation.cpp.o -c /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/mocs_compilation.cpp
 
 CMakeFiles/paper-reader.dir/paper-reader_autogen/mocs_compilation.cpp.i: cmake_force
@@ -119,7 +89,7 @@ CMakeFiles/paper-reader.dir/paper-reader_autogen/mocs_compilation.cpp.s: cmake_f
 CMakeFiles/paper-reader.dir/app/main.cpp.o: CMakeFiles/paper-reader.dir/flags.make
 CMakeFiles/paper-reader.dir/app/main.cpp.o: /home/nao/Documents/Projects/reader/app/main.cpp
 CMakeFiles/paper-reader.dir/app/main.cpp.o: CMakeFiles/paper-reader.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/paper-reader.dir/app/main.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/paper-reader.dir/app/main.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/paper-reader.dir/app/main.cpp.o -MF CMakeFiles/paper-reader.dir/app/main.cpp.o.d -o CMakeFiles/paper-reader.dir/app/main.cpp.o -c /home/nao/Documents/Projects/reader/app/main.cpp
 
 CMakeFiles/paper-reader.dir/app/main.cpp.i: cmake_force
@@ -133,7 +103,7 @@ CMakeFiles/paper-reader.dir/app/main.cpp.s: cmake_force
 CMakeFiles/paper-reader.dir/src/ai/EmbeddingProviderQt.cpp.o: CMakeFiles/paper-reader.dir/flags.make
 CMakeFiles/paper-reader.dir/src/ai/EmbeddingProviderQt.cpp.o: /home/nao/Documents/Projects/reader/src/ai/EmbeddingProviderQt.cpp
 CMakeFiles/paper-reader.dir/src/ai/EmbeddingProviderQt.cpp.o: CMakeFiles/paper-reader.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/paper-reader.dir/src/ai/EmbeddingProviderQt.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/paper-reader.dir/src/ai/EmbeddingProviderQt.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/paper-reader.dir/src/ai/EmbeddingProviderQt.cpp.o -MF CMakeFiles/paper-reader.dir/src/ai/EmbeddingProviderQt.cpp.o.d -o CMakeFiles/paper-reader.dir/src/ai/EmbeddingProviderQt.cpp.o -c /home/nao/Documents/Projects/reader/src/ai/EmbeddingProviderQt.cpp
 
 CMakeFiles/paper-reader.dir/src/ai/EmbeddingProviderQt.cpp.i: cmake_force
@@ -147,7 +117,7 @@ CMakeFiles/paper-reader.dir/src/ai/EmbeddingProviderQt.cpp.s: cmake_force
 CMakeFiles/paper-reader.dir/src/ai/OpenAIProvider.cpp.o: CMakeFiles/paper-reader.dir/flags.make
 CMakeFiles/paper-reader.dir/src/ai/OpenAIProvider.cpp.o: /home/nao/Documents/Projects/reader/src/ai/OpenAIProvider.cpp
 CMakeFiles/paper-reader.dir/src/ai/OpenAIProvider.cpp.o: CMakeFiles/paper-reader.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/paper-reader.dir/src/ai/OpenAIProvider.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/paper-reader.dir/src/ai/OpenAIProvider.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/paper-reader.dir/src/ai/OpenAIProvider.cpp.o -MF CMakeFiles/paper-reader.dir/src/ai/OpenAIProvider.cpp.o.d -o CMakeFiles/paper-reader.dir/src/ai/OpenAIProvider.cpp.o -c /home/nao/Documents/Projects/reader/src/ai/OpenAIProvider.cpp
 
 CMakeFiles/paper-reader.dir/src/ai/OpenAIProvider.cpp.i: cmake_force
@@ -161,7 +131,7 @@ CMakeFiles/paper-reader.dir/src/ai/OpenAIProvider.cpp.s: cmake_force
 CMakeFiles/paper-reader.dir/src/app/Application.cpp.o: CMakeFiles/paper-reader.dir/flags.make
 CMakeFiles/paper-reader.dir/src/app/Application.cpp.o: /home/nao/Documents/Projects/reader/src/app/Application.cpp
 CMakeFiles/paper-reader.dir/src/app/Application.cpp.o: CMakeFiles/paper-reader.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/paper-reader.dir/src/app/Application.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/paper-reader.dir/src/app/Application.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/paper-reader.dir/src/app/Application.cpp.o -MF CMakeFiles/paper-reader.dir/src/app/Application.cpp.o.d -o CMakeFiles/paper-reader.dir/src/app/Application.cpp.o -c /home/nao/Documents/Projects/reader/src/app/Application.cpp
 
 CMakeFiles/paper-reader.dir/src/app/Application.cpp.i: cmake_force
@@ -171,6 +141,20 @@ CMakeFiles/paper-reader.dir/src/app/Application.cpp.i: cmake_force
 CMakeFiles/paper-reader.dir/src/app/Application.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/paper-reader.dir/src/app/Application.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/app/Application.cpp -o CMakeFiles/paper-reader.dir/src/app/Application.cpp.s
+
+CMakeFiles/paper-reader.dir/src/pdf/HighlightExport.cpp.o: CMakeFiles/paper-reader.dir/flags.make
+CMakeFiles/paper-reader.dir/src/pdf/HighlightExport.cpp.o: /home/nao/Documents/Projects/reader/src/pdf/HighlightExport.cpp
+CMakeFiles/paper-reader.dir/src/pdf/HighlightExport.cpp.o: CMakeFiles/paper-reader.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/paper-reader.dir/src/pdf/HighlightExport.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/paper-reader.dir/src/pdf/HighlightExport.cpp.o -MF CMakeFiles/paper-reader.dir/src/pdf/HighlightExport.cpp.o.d -o CMakeFiles/paper-reader.dir/src/pdf/HighlightExport.cpp.o -c /home/nao/Documents/Projects/reader/src/pdf/HighlightExport.cpp
+
+CMakeFiles/paper-reader.dir/src/pdf/HighlightExport.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/paper-reader.dir/src/pdf/HighlightExport.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/nao/Documents/Projects/reader/src/pdf/HighlightExport.cpp > CMakeFiles/paper-reader.dir/src/pdf/HighlightExport.cpp.i
+
+CMakeFiles/paper-reader.dir/src/pdf/HighlightExport.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/paper-reader.dir/src/pdf/HighlightExport.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/pdf/HighlightExport.cpp -o CMakeFiles/paper-reader.dir/src/pdf/HighlightExport.cpp.s
 
 CMakeFiles/paper-reader.dir/src/pdf/PdfRenderer.cpp.o: CMakeFiles/paper-reader.dir/flags.make
 CMakeFiles/paper-reader.dir/src/pdf/PdfRenderer.cpp.o: /home/nao/Documents/Projects/reader/src/pdf/PdfRenderer.cpp
@@ -228,66 +212,10 @@ CMakeFiles/paper-reader.dir/src/pdf/WordBoxes.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/paper-reader.dir/src/pdf/WordBoxes.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/pdf/WordBoxes.cpp -o CMakeFiles/paper-reader.dir/src/pdf/WordBoxes.cpp.s
 
-CMakeFiles/paper-reader.dir/src/ui/ChatPanel.cpp.o: CMakeFiles/paper-reader.dir/flags.make
-CMakeFiles/paper-reader.dir/src/ui/ChatPanel.cpp.o: /home/nao/Documents/Projects/reader/src/ui/ChatPanel.cpp
-CMakeFiles/paper-reader.dir/src/ui/ChatPanel.cpp.o: CMakeFiles/paper-reader.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/paper-reader.dir/src/ui/ChatPanel.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/paper-reader.dir/src/ui/ChatPanel.cpp.o -MF CMakeFiles/paper-reader.dir/src/ui/ChatPanel.cpp.o.d -o CMakeFiles/paper-reader.dir/src/ui/ChatPanel.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/ChatPanel.cpp
-
-CMakeFiles/paper-reader.dir/src/ui/ChatPanel.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/paper-reader.dir/src/ui/ChatPanel.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/nao/Documents/Projects/reader/src/ui/ChatPanel.cpp > CMakeFiles/paper-reader.dir/src/ui/ChatPanel.cpp.i
-
-CMakeFiles/paper-reader.dir/src/ui/ChatPanel.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/paper-reader.dir/src/ui/ChatPanel.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/ui/ChatPanel.cpp -o CMakeFiles/paper-reader.dir/src/ui/ChatPanel.cpp.s
-
-CMakeFiles/paper-reader.dir/src/ui/ChatTranscript.cpp.o: CMakeFiles/paper-reader.dir/flags.make
-CMakeFiles/paper-reader.dir/src/ui/ChatTranscript.cpp.o: /home/nao/Documents/Projects/reader/src/ui/ChatTranscript.cpp
-CMakeFiles/paper-reader.dir/src/ui/ChatTranscript.cpp.o: CMakeFiles/paper-reader.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/paper-reader.dir/src/ui/ChatTranscript.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/paper-reader.dir/src/ui/ChatTranscript.cpp.o -MF CMakeFiles/paper-reader.dir/src/ui/ChatTranscript.cpp.o.d -o CMakeFiles/paper-reader.dir/src/ui/ChatTranscript.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/ChatTranscript.cpp
-
-CMakeFiles/paper-reader.dir/src/ui/ChatTranscript.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/paper-reader.dir/src/ui/ChatTranscript.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/nao/Documents/Projects/reader/src/ui/ChatTranscript.cpp > CMakeFiles/paper-reader.dir/src/ui/ChatTranscript.cpp.i
-
-CMakeFiles/paper-reader.dir/src/ui/ChatTranscript.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/paper-reader.dir/src/ui/ChatTranscript.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/ui/ChatTranscript.cpp -o CMakeFiles/paper-reader.dir/src/ui/ChatTranscript.cpp.s
-
-CMakeFiles/paper-reader.dir/src/ui/CommandPalette.cpp.o: CMakeFiles/paper-reader.dir/flags.make
-CMakeFiles/paper-reader.dir/src/ui/CommandPalette.cpp.o: /home/nao/Documents/Projects/reader/src/ui/CommandPalette.cpp
-CMakeFiles/paper-reader.dir/src/ui/CommandPalette.cpp.o: CMakeFiles/paper-reader.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/paper-reader.dir/src/ui/CommandPalette.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/paper-reader.dir/src/ui/CommandPalette.cpp.o -MF CMakeFiles/paper-reader.dir/src/ui/CommandPalette.cpp.o.d -o CMakeFiles/paper-reader.dir/src/ui/CommandPalette.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/CommandPalette.cpp
-
-CMakeFiles/paper-reader.dir/src/ui/CommandPalette.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/paper-reader.dir/src/ui/CommandPalette.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/nao/Documents/Projects/reader/src/ui/CommandPalette.cpp > CMakeFiles/paper-reader.dir/src/ui/CommandPalette.cpp.i
-
-CMakeFiles/paper-reader.dir/src/ui/CommandPalette.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/paper-reader.dir/src/ui/CommandPalette.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/ui/CommandPalette.cpp -o CMakeFiles/paper-reader.dir/src/ui/CommandPalette.cpp.s
-
-CMakeFiles/paper-reader.dir/src/ui/IngestRawPanel.cpp.o: CMakeFiles/paper-reader.dir/flags.make
-CMakeFiles/paper-reader.dir/src/ui/IngestRawPanel.cpp.o: /home/nao/Documents/Projects/reader/src/ui/IngestRawPanel.cpp
-CMakeFiles/paper-reader.dir/src/ui/IngestRawPanel.cpp.o: CMakeFiles/paper-reader.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/paper-reader.dir/src/ui/IngestRawPanel.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/paper-reader.dir/src/ui/IngestRawPanel.cpp.o -MF CMakeFiles/paper-reader.dir/src/ui/IngestRawPanel.cpp.o.d -o CMakeFiles/paper-reader.dir/src/ui/IngestRawPanel.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/IngestRawPanel.cpp
-
-CMakeFiles/paper-reader.dir/src/ui/IngestRawPanel.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/paper-reader.dir/src/ui/IngestRawPanel.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/nao/Documents/Projects/reader/src/ui/IngestRawPanel.cpp > CMakeFiles/paper-reader.dir/src/ui/IngestRawPanel.cpp.i
-
-CMakeFiles/paper-reader.dir/src/ui/IngestRawPanel.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/paper-reader.dir/src/ui/IngestRawPanel.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/ui/IngestRawPanel.cpp -o CMakeFiles/paper-reader.dir/src/ui/IngestRawPanel.cpp.s
-
 CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: CMakeFiles/paper-reader.dir/flags.make
 CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: /home/nao/Documents/Projects/reader/src/ui/MainWindow.cpp
 CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o: CMakeFiles/paper-reader.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o -MF CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o.d -o CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/MainWindow.cpp
 
 CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.i: cmake_force
@@ -298,24 +226,10 @@ CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/ui/MainWindow.cpp -o CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.s
 
-CMakeFiles/paper-reader.dir/src/ui/MapPanel.cpp.o: CMakeFiles/paper-reader.dir/flags.make
-CMakeFiles/paper-reader.dir/src/ui/MapPanel.cpp.o: /home/nao/Documents/Projects/reader/src/ui/MapPanel.cpp
-CMakeFiles/paper-reader.dir/src/ui/MapPanel.cpp.o: CMakeFiles/paper-reader.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object CMakeFiles/paper-reader.dir/src/ui/MapPanel.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/paper-reader.dir/src/ui/MapPanel.cpp.o -MF CMakeFiles/paper-reader.dir/src/ui/MapPanel.cpp.o.d -o CMakeFiles/paper-reader.dir/src/ui/MapPanel.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/MapPanel.cpp
-
-CMakeFiles/paper-reader.dir/src/ui/MapPanel.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/paper-reader.dir/src/ui/MapPanel.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/nao/Documents/Projects/reader/src/ui/MapPanel.cpp > CMakeFiles/paper-reader.dir/src/ui/MapPanel.cpp.i
-
-CMakeFiles/paper-reader.dir/src/ui/MapPanel.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/paper-reader.dir/src/ui/MapPanel.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/ui/MapPanel.cpp -o CMakeFiles/paper-reader.dir/src/ui/MapPanel.cpp.s
-
 CMakeFiles/paper-reader.dir/src/ui/OutlinePanel.cpp.o: CMakeFiles/paper-reader.dir/flags.make
 CMakeFiles/paper-reader.dir/src/ui/OutlinePanel.cpp.o: /home/nao/Documents/Projects/reader/src/ui/OutlinePanel.cpp
 CMakeFiles/paper-reader.dir/src/ui/OutlinePanel.cpp.o: CMakeFiles/paper-reader.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Building CXX object CMakeFiles/paper-reader.dir/src/ui/OutlinePanel.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object CMakeFiles/paper-reader.dir/src/ui/OutlinePanel.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/paper-reader.dir/src/ui/OutlinePanel.cpp.o -MF CMakeFiles/paper-reader.dir/src/ui/OutlinePanel.cpp.o.d -o CMakeFiles/paper-reader.dir/src/ui/OutlinePanel.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/OutlinePanel.cpp
 
 CMakeFiles/paper-reader.dir/src/ui/OutlinePanel.cpp.i: cmake_force
@@ -329,7 +243,7 @@ CMakeFiles/paper-reader.dir/src/ui/OutlinePanel.cpp.s: cmake_force
 CMakeFiles/paper-reader.dir/src/ui/PdfView.cpp.o: CMakeFiles/paper-reader.dir/flags.make
 CMakeFiles/paper-reader.dir/src/ui/PdfView.cpp.o: /home/nao/Documents/Projects/reader/src/ui/PdfView.cpp
 CMakeFiles/paper-reader.dir/src/ui/PdfView.cpp.o: CMakeFiles/paper-reader.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_18) "Building CXX object CMakeFiles/paper-reader.dir/src/ui/PdfView.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object CMakeFiles/paper-reader.dir/src/ui/PdfView.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/paper-reader.dir/src/ui/PdfView.cpp.o -MF CMakeFiles/paper-reader.dir/src/ui/PdfView.cpp.o.d -o CMakeFiles/paper-reader.dir/src/ui/PdfView.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/PdfView.cpp
 
 CMakeFiles/paper-reader.dir/src/ui/PdfView.cpp.i: cmake_force
@@ -343,7 +257,7 @@ CMakeFiles/paper-reader.dir/src/ui/PdfView.cpp.s: cmake_force
 CMakeFiles/paper-reader.dir/src/ui/SearchPanel.cpp.o: CMakeFiles/paper-reader.dir/flags.make
 CMakeFiles/paper-reader.dir/src/ui/SearchPanel.cpp.o: /home/nao/Documents/Projects/reader/src/ui/SearchPanel.cpp
 CMakeFiles/paper-reader.dir/src/ui/SearchPanel.cpp.o: CMakeFiles/paper-reader.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_19) "Building CXX object CMakeFiles/paper-reader.dir/src/ui/SearchPanel.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object CMakeFiles/paper-reader.dir/src/ui/SearchPanel.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/paper-reader.dir/src/ui/SearchPanel.cpp.o -MF CMakeFiles/paper-reader.dir/src/ui/SearchPanel.cpp.o.d -o CMakeFiles/paper-reader.dir/src/ui/SearchPanel.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/SearchPanel.cpp
 
 CMakeFiles/paper-reader.dir/src/ui/SearchPanel.cpp.i: cmake_force
@@ -354,38 +268,10 @@ CMakeFiles/paper-reader.dir/src/ui/SearchPanel.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/paper-reader.dir/src/ui/SearchPanel.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/ui/SearchPanel.cpp -o CMakeFiles/paper-reader.dir/src/ui/SearchPanel.cpp.s
 
-CMakeFiles/paper-reader.dir/src/ui/SummaryPanel.cpp.o: CMakeFiles/paper-reader.dir/flags.make
-CMakeFiles/paper-reader.dir/src/ui/SummaryPanel.cpp.o: /home/nao/Documents/Projects/reader/src/ui/SummaryPanel.cpp
-CMakeFiles/paper-reader.dir/src/ui/SummaryPanel.cpp.o: CMakeFiles/paper-reader.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_20) "Building CXX object CMakeFiles/paper-reader.dir/src/ui/SummaryPanel.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/paper-reader.dir/src/ui/SummaryPanel.cpp.o -MF CMakeFiles/paper-reader.dir/src/ui/SummaryPanel.cpp.o.d -o CMakeFiles/paper-reader.dir/src/ui/SummaryPanel.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/SummaryPanel.cpp
-
-CMakeFiles/paper-reader.dir/src/ui/SummaryPanel.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/paper-reader.dir/src/ui/SummaryPanel.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/nao/Documents/Projects/reader/src/ui/SummaryPanel.cpp > CMakeFiles/paper-reader.dir/src/ui/SummaryPanel.cpp.i
-
-CMakeFiles/paper-reader.dir/src/ui/SummaryPanel.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/paper-reader.dir/src/ui/SummaryPanel.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/ui/SummaryPanel.cpp -o CMakeFiles/paper-reader.dir/src/ui/SummaryPanel.cpp.s
-
-CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.o: CMakeFiles/paper-reader.dir/flags.make
-CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.o: /home/nao/Documents/Projects/reader/src/ui/ThumbnailPanel.cpp
-CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.o: CMakeFiles/paper-reader.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_21) "Building CXX object CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.o -MF CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.o.d -o CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/ThumbnailPanel.cpp
-
-CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/nao/Documents/Projects/reader/src/ui/ThumbnailPanel.cpp > CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.i
-
-CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/ui/ThumbnailPanel.cpp -o CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.s
-
 CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.o: CMakeFiles/paper-reader.dir/flags.make
 CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.o: /home/nao/Documents/Projects/reader/src/ui/WebPanel.cpp
 CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.o: CMakeFiles/paper-reader.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_22) "Building CXX object CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.o -MF CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.o.d -o CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.o -c /home/nao/Documents/Projects/reader/src/ui/WebPanel.cpp
 
 CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.i: cmake_force
@@ -396,20 +282,6 @@ CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/src/ui/WebPanel.cpp -o CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.s
 
-CMakeFiles/paper-reader.dir/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o: CMakeFiles/paper-reader.dir/flags.make
-CMakeFiles/paper-reader.dir/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o: paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp
-CMakeFiles/paper-reader.dir/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o: CMakeFiles/paper-reader.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_23) "Building CXX object CMakeFiles/paper-reader.dir/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/paper-reader.dir/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o -MF CMakeFiles/paper-reader.dir/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o.d -o CMakeFiles/paper-reader.dir/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o -c /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp
-
-CMakeFiles/paper-reader.dir/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/paper-reader.dir/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp > CMakeFiles/paper-reader.dir/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.i
-
-CMakeFiles/paper-reader.dir/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/paper-reader.dir/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/nao/Documents/Projects/reader/build-qt/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp -o CMakeFiles/paper-reader.dir/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.s
-
 # Object files for target paper-reader
 paper__reader_OBJECTS = \
 "CMakeFiles/paper-reader.dir/paper-reader_autogen/mocs_compilation.cpp.o" \
@@ -417,23 +289,16 @@ paper__reader_OBJECTS = \
 "CMakeFiles/paper-reader.dir/src/ai/EmbeddingProviderQt.cpp.o" \
 "CMakeFiles/paper-reader.dir/src/ai/OpenAIProvider.cpp.o" \
 "CMakeFiles/paper-reader.dir/src/app/Application.cpp.o" \
+"CMakeFiles/paper-reader.dir/src/pdf/HighlightExport.cpp.o" \
 "CMakeFiles/paper-reader.dir/src/pdf/PdfRenderer.cpp.o" \
 "CMakeFiles/paper-reader.dir/src/pdf/PopplerBridge.cpp.o" \
 "CMakeFiles/paper-reader.dir/src/pdf/QtPdfEngine.cpp.o" \
 "CMakeFiles/paper-reader.dir/src/pdf/WordBoxes.cpp.o" \
-"CMakeFiles/paper-reader.dir/src/ui/ChatPanel.cpp.o" \
-"CMakeFiles/paper-reader.dir/src/ui/ChatTranscript.cpp.o" \
-"CMakeFiles/paper-reader.dir/src/ui/CommandPalette.cpp.o" \
-"CMakeFiles/paper-reader.dir/src/ui/IngestRawPanel.cpp.o" \
 "CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o" \
-"CMakeFiles/paper-reader.dir/src/ui/MapPanel.cpp.o" \
 "CMakeFiles/paper-reader.dir/src/ui/OutlinePanel.cpp.o" \
 "CMakeFiles/paper-reader.dir/src/ui/PdfView.cpp.o" \
 "CMakeFiles/paper-reader.dir/src/ui/SearchPanel.cpp.o" \
-"CMakeFiles/paper-reader.dir/src/ui/SummaryPanel.cpp.o" \
-"CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.o" \
-"CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.o" \
-"CMakeFiles/paper-reader.dir/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o"
+"CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.o"
 
 # External object files for target paper-reader
 paper__reader_EXTERNAL_OBJECTS =
@@ -443,23 +308,16 @@ paper-reader: CMakeFiles/paper-reader.dir/app/main.cpp.o
 paper-reader: CMakeFiles/paper-reader.dir/src/ai/EmbeddingProviderQt.cpp.o
 paper-reader: CMakeFiles/paper-reader.dir/src/ai/OpenAIProvider.cpp.o
 paper-reader: CMakeFiles/paper-reader.dir/src/app/Application.cpp.o
+paper-reader: CMakeFiles/paper-reader.dir/src/pdf/HighlightExport.cpp.o
 paper-reader: CMakeFiles/paper-reader.dir/src/pdf/PdfRenderer.cpp.o
 paper-reader: CMakeFiles/paper-reader.dir/src/pdf/PopplerBridge.cpp.o
 paper-reader: CMakeFiles/paper-reader.dir/src/pdf/QtPdfEngine.cpp.o
 paper-reader: CMakeFiles/paper-reader.dir/src/pdf/WordBoxes.cpp.o
-paper-reader: CMakeFiles/paper-reader.dir/src/ui/ChatPanel.cpp.o
-paper-reader: CMakeFiles/paper-reader.dir/src/ui/ChatTranscript.cpp.o
-paper-reader: CMakeFiles/paper-reader.dir/src/ui/CommandPalette.cpp.o
-paper-reader: CMakeFiles/paper-reader.dir/src/ui/IngestRawPanel.cpp.o
 paper-reader: CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o
-paper-reader: CMakeFiles/paper-reader.dir/src/ui/MapPanel.cpp.o
 paper-reader: CMakeFiles/paper-reader.dir/src/ui/OutlinePanel.cpp.o
 paper-reader: CMakeFiles/paper-reader.dir/src/ui/PdfView.cpp.o
 paper-reader: CMakeFiles/paper-reader.dir/src/ui/SearchPanel.cpp.o
-paper-reader: CMakeFiles/paper-reader.dir/src/ui/SummaryPanel.cpp.o
-paper-reader: CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.o
 paper-reader: CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.o
-paper-reader: CMakeFiles/paper-reader.dir/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o
 paper-reader: CMakeFiles/paper-reader.dir/build.make
 paper-reader: CMakeFiles/paper-reader.dir/compiler_depend.ts
 paper-reader: libreader_core.a
@@ -484,7 +342,7 @@ paper-reader: /home/nao/qtsysroot/usr/lib64/libQt6Qml.so.6.11.2
 paper-reader: /home/nao/qtsysroot/usr/lib64/libQt6Network.so.6.11.2
 paper-reader: /home/nao/qtsysroot/usr/lib64/libQt6Core.so.6.11.2
 paper-reader: CMakeFiles/paper-reader.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_24) "Linking CXX executable paper-reader"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/nao/Documents/Projects/reader/build-qt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Linking CXX executable paper-reader"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/paper-reader.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -495,7 +353,7 @@ CMakeFiles/paper-reader.dir/clean:
 	$(CMAKE_COMMAND) -P CMakeFiles/paper-reader.dir/cmake_clean.cmake
 .PHONY : CMakeFiles/paper-reader.dir/clean
 
-CMakeFiles/paper-reader.dir/depend: paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp
+CMakeFiles/paper-reader.dir/depend:
 	cd /home/nao/Documents/Projects/reader/build-qt && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/nao/Documents/Projects/reader /home/nao/Documents/Projects/reader /home/nao/Documents/Projects/reader/build-qt /home/nao/Documents/Projects/reader/build-qt /home/nao/Documents/Projects/reader/build-qt/CMakeFiles/paper-reader.dir/DependInfo.cmake "--color=$(COLOR)" paper-reader
 .PHONY : CMakeFiles/paper-reader.dir/depend
 

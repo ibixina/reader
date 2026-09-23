@@ -446,9 +446,7 @@ CMakeFiles/paper-reader.dir/src/ui/OutlinePanel.cpp.o: \
  /usr/include/c++/16/bits/stl_queue.h /usr/include/c++/16/thread \
  /home/nao/Documents/Projects/reader/src/storage/Database.h \
  /home/nao/Documents/Projects/reader/src/storage/Repositories.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QListWidget \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlistwidget.h \
- /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlistview.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QAbstractItemView \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractitemview.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qabstractscrollarea.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qframe.h \
@@ -466,6 +464,9 @@ CMakeFiles/paper-reader.dir/src/ui/OutlinePanel.cpp.o: \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtabbar.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qtabwidget.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qrubberband.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QListWidget \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlistwidget.h \
+ /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qlistview.h \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QListWidgetItem \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/QVBoxLayout \
  /home/nao/qtsysroot/usr/include/qt6/QtWidgets/qboxlayout.h \

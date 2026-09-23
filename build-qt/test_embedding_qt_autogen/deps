@@ -45,7 +45,6 @@ test_embedding_qt_autogen/timestamp: \
 	/home/nao/Documents/Projects/reader/build-qt/CMakeFiles/4.4.3/CMakeSystem.cmake \
 	/home/nao/Documents/Projects/reader/src/ai/EmbeddingProviderQt.cpp \
 	/home/nao/Documents/Projects/reader/src/ai/EmbeddingProviderQt.h \
-	/home/nao/Documents/Projects/reader/src/ui/chat_resources.qrc \
 	/home/nao/Documents/Projects/reader/tests/test_embedding_qt.cpp \
 	/home/nao/qtsysroot/usr/lib64/cmake/Qt6/FindWrapAtomic.cmake \
 	/home/nao/qtsysroot/usr/lib64/cmake/Qt6/FindWrapOpenGL.cmake \

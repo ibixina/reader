@@ -38,18 +38,10 @@ template <> constexpr inline auto WebPanel::qt_create_metaobjectdata<qt_meta_tag
 {
     namespace QMC = QtMocConstants;
     QtMocHelpers::StringRefStorage qt_stringData {
-        "WebPanel",
-        "chatIngestResponse",
-        "",
-        "responseText",
-        "requestId"
+        "WebPanel"
     };
 
     QtMocHelpers::UintData qt_methods {
-        // Signal 'chatIngestResponse'
-        QtMocHelpers::SignalData<void(const QString &, quint64)>(1, 2, QMC::AccessPublic, QMetaType::Void, {{
-            { QMetaType::QString, 3 }, { QMetaType::ULongLong, 4 },
-        }}),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -71,16 +63,10 @@ Q_CONSTINIT const QMetaObject WebPanel::staticMetaObject = { {
 void WebPanel::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
 {
     auto *_t = static_cast<WebPanel *>(_o);
-    if (_c == QMetaObject::InvokeMetaMethod) {
-        switch (_id) {
-        case 0: _t->chatIngestResponse((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1])),(*reinterpret_cast<std::add_pointer_t<quint64>>(_a[2]))); break;
-        default: ;
-        }
-    }
-    if (_c == QMetaObject::IndexOfMethod) {
-        if (QtMocHelpers::indexOfMethod<void (WebPanel::*)(const QString & , quint64 )>(_a, &WebPanel::chatIngestResponse, 0))
-            return;
-    }
+    (void)_t;
+    (void)_c;
+    (void)_id;
+    (void)_a;
 }
 
 const QMetaObject *WebPanel::metaObject() const
@@ -99,24 +85,6 @@ void *WebPanel::qt_metacast(const char *_clname)
 int WebPanel::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 {
     _id = QWidget::qt_metacall(_c, _id, _a);
-    if (_id < 0)
-        return _id;
-    if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 1)
-            qt_static_metacall(this, _c, _id, _a);
-        _id -= 1;
-    }
-    if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 1)
-            *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 1;
-    }
     return _id;
-}
-
-// SIGNAL 0
-void WebPanel::chatIngestResponse(const QString & _t1, quint64 _t2)
-{
-    QMetaObject::activate<void>(this, &staticMetaObject, 0, nullptr, _t1, _t2);
 }
 QT_WARNING_POP

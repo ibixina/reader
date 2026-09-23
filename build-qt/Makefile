@@ -206,19 +206,6 @@ test_select/fast:
 .PHONY : test_select/fast
 
 #=============================================================================
-# Target rules for targets named test_chat_ui
-
-# Build rule for target.
-test_chat_ui: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_chat_ui
-.PHONY : test_chat_ui
-
-# fast build rule for target.
-test_chat_ui/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/build
-.PHONY : test_chat_ui/fast
-
-#=============================================================================
 # Target rules for targets named test_embedding_qt
 
 # Build rule for target.
@@ -243,6 +230,19 @@ test_reader_ui: cmake_check_build_system
 test_reader_ui/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/build
 .PHONY : test_reader_ui/fast
+
+#=============================================================================
+# Target rules for targets named test_shutdown
+
+# Build rule for target.
+test_shutdown: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_shutdown
+.PHONY : test_shutdown
+
+# fast build rule for target.
+test_shutdown/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/build
+.PHONY : test_shutdown/fast
 
 #=============================================================================
 # Target rules for targets named test_render
@@ -271,6 +271,19 @@ test_render_stress/fast:
 .PHONY : test_render_stress/fast
 
 #=============================================================================
+# Target rules for targets named test_export
+
+# Build rule for target.
+test_export: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_export
+.PHONY : test_export
+
+# fast build rule for target.
+test_export/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_export.dir/build.make CMakeFiles/test_export.dir/build
+.PHONY : test_export/fast
+
+#=============================================================================
 # Target rules for targets named test_webengine
 
 # Build rule for target.
@@ -282,19 +295,6 @@ test_webengine: cmake_check_build_system
 test_webengine/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_webengine.dir/build.make CMakeFiles/test_webengine.dir/build
 .PHONY : test_webengine/fast
-
-#=============================================================================
-# Target rules for targets named test_chat_rich
-
-# Build rule for target.
-test_chat_rich: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_chat_rich
-.PHONY : test_chat_rich
-
-# fast build rule for target.
-test_chat_rich/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_rich.dir/build.make CMakeFiles/test_chat_rich.dir/build
-.PHONY : test_chat_rich/fast
 
 #=============================================================================
 # Target rules for targets named paper-reader_autogen_timestamp_deps
@@ -427,32 +427,6 @@ test_select_autogen/fast:
 .PHONY : test_select_autogen/fast
 
 #=============================================================================
-# Target rules for targets named test_chat_ui_autogen_timestamp_deps
-
-# Build rule for target.
-test_chat_ui_autogen_timestamp_deps: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_chat_ui_autogen_timestamp_deps
-.PHONY : test_chat_ui_autogen_timestamp_deps
-
-# fast build rule for target.
-test_chat_ui_autogen_timestamp_deps/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui_autogen_timestamp_deps.dir/build.make CMakeFiles/test_chat_ui_autogen_timestamp_deps.dir/build
-.PHONY : test_chat_ui_autogen_timestamp_deps/fast
-
-#=============================================================================
-# Target rules for targets named test_chat_ui_autogen
-
-# Build rule for target.
-test_chat_ui_autogen: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_chat_ui_autogen
-.PHONY : test_chat_ui_autogen
-
-# fast build rule for target.
-test_chat_ui_autogen/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui_autogen.dir/build.make CMakeFiles/test_chat_ui_autogen.dir/build
-.PHONY : test_chat_ui_autogen/fast
-
-#=============================================================================
 # Target rules for targets named test_embedding_qt_autogen_timestamp_deps
 
 # Build rule for target.
@@ -503,6 +477,32 @@ test_reader_ui_autogen: cmake_check_build_system
 test_reader_ui_autogen/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui_autogen.dir/build.make CMakeFiles/test_reader_ui_autogen.dir/build
 .PHONY : test_reader_ui_autogen/fast
+
+#=============================================================================
+# Target rules for targets named test_shutdown_autogen_timestamp_deps
+
+# Build rule for target.
+test_shutdown_autogen_timestamp_deps: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_shutdown_autogen_timestamp_deps
+.PHONY : test_shutdown_autogen_timestamp_deps
+
+# fast build rule for target.
+test_shutdown_autogen_timestamp_deps/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown_autogen_timestamp_deps.dir/build.make CMakeFiles/test_shutdown_autogen_timestamp_deps.dir/build
+.PHONY : test_shutdown_autogen_timestamp_deps/fast
+
+#=============================================================================
+# Target rules for targets named test_shutdown_autogen
+
+# Build rule for target.
+test_shutdown_autogen: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_shutdown_autogen
+.PHONY : test_shutdown_autogen
+
+# fast build rule for target.
+test_shutdown_autogen/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown_autogen.dir/build.make CMakeFiles/test_shutdown_autogen.dir/build
+.PHONY : test_shutdown_autogen/fast
 
 #=============================================================================
 # Target rules for targets named test_render_autogen_timestamp_deps
@@ -557,6 +557,32 @@ test_render_stress_autogen/fast:
 .PHONY : test_render_stress_autogen/fast
 
 #=============================================================================
+# Target rules for targets named test_export_autogen_timestamp_deps
+
+# Build rule for target.
+test_export_autogen_timestamp_deps: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_export_autogen_timestamp_deps
+.PHONY : test_export_autogen_timestamp_deps
+
+# fast build rule for target.
+test_export_autogen_timestamp_deps/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_export_autogen_timestamp_deps.dir/build.make CMakeFiles/test_export_autogen_timestamp_deps.dir/build
+.PHONY : test_export_autogen_timestamp_deps/fast
+
+#=============================================================================
+# Target rules for targets named test_export_autogen
+
+# Build rule for target.
+test_export_autogen: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_export_autogen
+.PHONY : test_export_autogen
+
+# fast build rule for target.
+test_export_autogen/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_export_autogen.dir/build.make CMakeFiles/test_export_autogen.dir/build
+.PHONY : test_export_autogen/fast
+
+#=============================================================================
 # Target rules for targets named test_webengine_autogen_timestamp_deps
 
 # Build rule for target.
@@ -582,32 +608,6 @@ test_webengine_autogen/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_webengine_autogen.dir/build.make CMakeFiles/test_webengine_autogen.dir/build
 .PHONY : test_webengine_autogen/fast
 
-#=============================================================================
-# Target rules for targets named test_chat_rich_autogen_timestamp_deps
-
-# Build rule for target.
-test_chat_rich_autogen_timestamp_deps: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_chat_rich_autogen_timestamp_deps
-.PHONY : test_chat_rich_autogen_timestamp_deps
-
-# fast build rule for target.
-test_chat_rich_autogen_timestamp_deps/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_rich_autogen_timestamp_deps.dir/build.make CMakeFiles/test_chat_rich_autogen_timestamp_deps.dir/build
-.PHONY : test_chat_rich_autogen_timestamp_deps/fast
-
-#=============================================================================
-# Target rules for targets named test_chat_rich_autogen
-
-# Build rule for target.
-test_chat_rich_autogen: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 test_chat_rich_autogen
-.PHONY : test_chat_rich_autogen
-
-# fast build rule for target.
-test_chat_rich_autogen/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_rich_autogen.dir/build.make CMakeFiles/test_chat_rich_autogen.dir/build
-.PHONY : test_chat_rich_autogen/fast
-
 app/main.o: app/main.cpp.o
 .PHONY : app/main.o
 
@@ -631,30 +631,6 @@ app/main.s: app/main.cpp.s
 app/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/app/main.cpp.s
 .PHONY : app/main.cpp.s
-
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.o: paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o
-.PHONY : paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.o
-
-# target to build an object file
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o
-.PHONY : paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o
-
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.i: paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.i
-.PHONY : paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.i
-
-# target to preprocess a source file
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.i
-.PHONY : paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.i
-
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.s: paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.s
-.PHONY : paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.s
-
-# target to generate assembly for a file
-paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.s
-.PHONY : paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.s
 
 paper-reader_autogen/mocs_compilation.o: paper-reader_autogen/mocs_compilation.cpp.o
 .PHONY : paper-reader_autogen/mocs_compilation.o
@@ -737,6 +713,7 @@ src/ai/EmbeddingProviderQt.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/src/ai/EmbeddingProviderQt.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_embedding_qt.dir/build.make CMakeFiles/test_embedding_qt.dir/src/ai/EmbeddingProviderQt.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ai/EmbeddingProviderQt.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/ai/EmbeddingProviderQt.cpp.o
 .PHONY : src/ai/EmbeddingProviderQt.cpp.o
 
 src/ai/EmbeddingProviderQt.i: src/ai/EmbeddingProviderQt.cpp.i
@@ -748,6 +725,7 @@ src/ai/EmbeddingProviderQt.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/src/ai/EmbeddingProviderQt.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_embedding_qt.dir/build.make CMakeFiles/test_embedding_qt.dir/src/ai/EmbeddingProviderQt.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ai/EmbeddingProviderQt.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/ai/EmbeddingProviderQt.cpp.i
 .PHONY : src/ai/EmbeddingProviderQt.cpp.i
 
 src/ai/EmbeddingProviderQt.s: src/ai/EmbeddingProviderQt.cpp.s
@@ -759,6 +737,7 @@ src/ai/EmbeddingProviderQt.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/src/ai/EmbeddingProviderQt.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_embedding_qt.dir/build.make CMakeFiles/test_embedding_qt.dir/src/ai/EmbeddingProviderQt.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ai/EmbeddingProviderQt.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/ai/EmbeddingProviderQt.cpp.s
 .PHONY : src/ai/EmbeddingProviderQt.cpp.s
 
 src/ai/LlmProvider.o: src/ai/LlmProvider.cpp.o
@@ -792,8 +771,8 @@ src/ai/OpenAIProvider.o: src/ai/OpenAIProvider.cpp.o
 src/ai/OpenAIProvider.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ai/OpenAIProvider.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/src/ai/OpenAIProvider.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/src/ai/OpenAIProvider.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ai/OpenAIProvider.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/ai/OpenAIProvider.cpp.o
 .PHONY : src/ai/OpenAIProvider.cpp.o
 
 src/ai/OpenAIProvider.i: src/ai/OpenAIProvider.cpp.i
@@ -803,8 +782,8 @@ src/ai/OpenAIProvider.i: src/ai/OpenAIProvider.cpp.i
 src/ai/OpenAIProvider.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ai/OpenAIProvider.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/src/ai/OpenAIProvider.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/src/ai/OpenAIProvider.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ai/OpenAIProvider.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/ai/OpenAIProvider.cpp.i
 .PHONY : src/ai/OpenAIProvider.cpp.i
 
 src/ai/OpenAIProvider.s: src/ai/OpenAIProvider.cpp.s
@@ -814,8 +793,8 @@ src/ai/OpenAIProvider.s: src/ai/OpenAIProvider.cpp.s
 src/ai/OpenAIProvider.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ai/OpenAIProvider.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/src/ai/OpenAIProvider.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/src/ai/OpenAIProvider.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ai/OpenAIProvider.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/ai/OpenAIProvider.cpp.s
 .PHONY : src/ai/OpenAIProvider.cpp.s
 
 src/ai/PromptBuilder.o: src/ai/PromptBuilder.cpp.o
@@ -969,8 +948,8 @@ src/app/Application.o: src/app/Application.cpp.o
 src/app/Application.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/app/Application.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/src/app/Application.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/src/app/Application.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/app/Application.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/app/Application.cpp.o
 .PHONY : src/app/Application.cpp.o
 
 src/app/Application.i: src/app/Application.cpp.i
@@ -980,8 +959,8 @@ src/app/Application.i: src/app/Application.cpp.i
 src/app/Application.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/app/Application.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/src/app/Application.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/src/app/Application.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/app/Application.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/app/Application.cpp.i
 .PHONY : src/app/Application.cpp.i
 
 src/app/Application.s: src/app/Application.cpp.s
@@ -991,8 +970,8 @@ src/app/Application.s: src/app/Application.cpp.s
 src/app/Application.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/app/Application.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/src/app/Application.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/src/app/Application.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/app/Application.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/app/Application.cpp.s
 .PHONY : src/app/Application.cpp.s
 
 src/app/ApplicationState.o: src/app/ApplicationState.cpp.o
@@ -1115,6 +1094,39 @@ src/document/DocumentModel.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/reader_core.dir/build.make CMakeFiles/reader_core.dir/src/document/DocumentModel.cpp.s
 .PHONY : src/document/DocumentModel.cpp.s
 
+src/pdf/HighlightExport.o: src/pdf/HighlightExport.cpp.o
+.PHONY : src/pdf/HighlightExport.o
+
+# target to build an object file
+src/pdf/HighlightExport.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/pdf/HighlightExport.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/pdf/HighlightExport.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/pdf/HighlightExport.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_export.dir/build.make CMakeFiles/test_export.dir/src/pdf/HighlightExport.cpp.o
+.PHONY : src/pdf/HighlightExport.cpp.o
+
+src/pdf/HighlightExport.i: src/pdf/HighlightExport.cpp.i
+.PHONY : src/pdf/HighlightExport.i
+
+# target to preprocess a source file
+src/pdf/HighlightExport.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/pdf/HighlightExport.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/pdf/HighlightExport.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/pdf/HighlightExport.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_export.dir/build.make CMakeFiles/test_export.dir/src/pdf/HighlightExport.cpp.i
+.PHONY : src/pdf/HighlightExport.cpp.i
+
+src/pdf/HighlightExport.s: src/pdf/HighlightExport.cpp.s
+.PHONY : src/pdf/HighlightExport.s
+
+# target to generate assembly for a file
+src/pdf/HighlightExport.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/pdf/HighlightExport.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/pdf/HighlightExport.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/pdf/HighlightExport.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_export.dir/build.make CMakeFiles/test_export.dir/src/pdf/HighlightExport.cpp.s
+.PHONY : src/pdf/HighlightExport.cpp.s
+
 src/pdf/PdfDocument.o: src/pdf/PdfDocument.cpp.o
 .PHONY : src/pdf/PdfDocument.o
 
@@ -1147,6 +1159,7 @@ src/pdf/PdfRenderer.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/pdf/PdfRenderer.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/src/pdf/PdfRenderer.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/pdf/PdfRenderer.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/pdf/PdfRenderer.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_render_stress.dir/build.make CMakeFiles/test_render_stress.dir/src/pdf/PdfRenderer.cpp.o
 .PHONY : src/pdf/PdfRenderer.cpp.o
 
@@ -1158,6 +1171,7 @@ src/pdf/PdfRenderer.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/pdf/PdfRenderer.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/src/pdf/PdfRenderer.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/pdf/PdfRenderer.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/pdf/PdfRenderer.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_render_stress.dir/build.make CMakeFiles/test_render_stress.dir/src/pdf/PdfRenderer.cpp.i
 .PHONY : src/pdf/PdfRenderer.cpp.i
 
@@ -1169,6 +1183,7 @@ src/pdf/PdfRenderer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/pdf/PdfRenderer.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/src/pdf/PdfRenderer.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/pdf/PdfRenderer.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/pdf/PdfRenderer.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_render_stress.dir/build.make CMakeFiles/test_render_stress.dir/src/pdf/PdfRenderer.cpp.s
 .PHONY : src/pdf/PdfRenderer.cpp.s
 
@@ -1204,8 +1219,10 @@ src/pdf/PopplerBridge.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/pdf/PopplerBridge.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/src/pdf/PopplerBridge.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/pdf/PopplerBridge.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/pdf/PopplerBridge.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_render.dir/build.make CMakeFiles/test_render.dir/src/pdf/PopplerBridge.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_render_stress.dir/build.make CMakeFiles/test_render_stress.dir/src/pdf/PopplerBridge.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_export.dir/build.make CMakeFiles/test_export.dir/src/pdf/PopplerBridge.cpp.o
 .PHONY : src/pdf/PopplerBridge.cpp.o
 
 src/pdf/PopplerBridge.i: src/pdf/PopplerBridge.cpp.i
@@ -1216,8 +1233,10 @@ src/pdf/PopplerBridge.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/pdf/PopplerBridge.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/src/pdf/PopplerBridge.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/pdf/PopplerBridge.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/pdf/PopplerBridge.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_render.dir/build.make CMakeFiles/test_render.dir/src/pdf/PopplerBridge.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_render_stress.dir/build.make CMakeFiles/test_render_stress.dir/src/pdf/PopplerBridge.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_export.dir/build.make CMakeFiles/test_export.dir/src/pdf/PopplerBridge.cpp.i
 .PHONY : src/pdf/PopplerBridge.cpp.i
 
 src/pdf/PopplerBridge.s: src/pdf/PopplerBridge.cpp.s
@@ -1228,8 +1247,10 @@ src/pdf/PopplerBridge.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/pdf/PopplerBridge.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/src/pdf/PopplerBridge.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/pdf/PopplerBridge.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/pdf/PopplerBridge.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_render.dir/build.make CMakeFiles/test_render.dir/src/pdf/PopplerBridge.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_render_stress.dir/build.make CMakeFiles/test_render_stress.dir/src/pdf/PopplerBridge.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_export.dir/build.make CMakeFiles/test_export.dir/src/pdf/PopplerBridge.cpp.s
 .PHONY : src/pdf/PopplerBridge.cpp.s
 
 src/pdf/QtPdfEngine.o: src/pdf/QtPdfEngine.cpp.o
@@ -1240,6 +1261,7 @@ src/pdf/QtPdfEngine.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/pdf/QtPdfEngine.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_qt.dir/build.make CMakeFiles/test_qt.dir/src/pdf/QtPdfEngine.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/pdf/QtPdfEngine.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/pdf/QtPdfEngine.cpp.o
 .PHONY : src/pdf/QtPdfEngine.cpp.o
 
 src/pdf/QtPdfEngine.i: src/pdf/QtPdfEngine.cpp.i
@@ -1250,6 +1272,7 @@ src/pdf/QtPdfEngine.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/pdf/QtPdfEngine.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_qt.dir/build.make CMakeFiles/test_qt.dir/src/pdf/QtPdfEngine.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/pdf/QtPdfEngine.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/pdf/QtPdfEngine.cpp.i
 .PHONY : src/pdf/QtPdfEngine.cpp.i
 
 src/pdf/QtPdfEngine.s: src/pdf/QtPdfEngine.cpp.s
@@ -1260,6 +1283,7 @@ src/pdf/QtPdfEngine.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/pdf/QtPdfEngine.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_qt.dir/build.make CMakeFiles/test_qt.dir/src/pdf/QtPdfEngine.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/pdf/QtPdfEngine.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/pdf/QtPdfEngine.cpp.s
 .PHONY : src/pdf/QtPdfEngine.cpp.s
 
 src/pdf/TextExtractor.o: src/pdf/TextExtractor.cpp.o
@@ -1294,6 +1318,7 @@ src/pdf/WordBoxes.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/pdf/WordBoxes.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/src/pdf/WordBoxes.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/pdf/WordBoxes.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/pdf/WordBoxes.cpp.o
 .PHONY : src/pdf/WordBoxes.cpp.o
 
 src/pdf/WordBoxes.i: src/pdf/WordBoxes.cpp.i
@@ -1304,6 +1329,7 @@ src/pdf/WordBoxes.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/pdf/WordBoxes.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/src/pdf/WordBoxes.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/pdf/WordBoxes.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/pdf/WordBoxes.cpp.i
 .PHONY : src/pdf/WordBoxes.cpp.i
 
 src/pdf/WordBoxes.s: src/pdf/WordBoxes.cpp.s
@@ -1314,6 +1340,7 @@ src/pdf/WordBoxes.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/pdf/WordBoxes.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/src/pdf/WordBoxes.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/pdf/WordBoxes.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/pdf/WordBoxes.cpp.s
 .PHONY : src/pdf/WordBoxes.cpp.s
 
 src/search/TextIndex.o: src/search/TextIndex.cpp.o
@@ -1412,123 +1439,6 @@ src/storage/Repositories.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/reader_core.dir/build.make CMakeFiles/reader_core.dir/src/storage/Repositories.cpp.s
 .PHONY : src/storage/Repositories.cpp.s
 
-src/ui/ChatPanel.o: src/ui/ChatPanel.cpp.o
-.PHONY : src/ui/ChatPanel.o
-
-# target to build an object file
-src/ui/ChatPanel.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/ChatPanel.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/src/ui/ChatPanel.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/ChatPanel.cpp.o
-.PHONY : src/ui/ChatPanel.cpp.o
-
-src/ui/ChatPanel.i: src/ui/ChatPanel.cpp.i
-.PHONY : src/ui/ChatPanel.i
-
-# target to preprocess a source file
-src/ui/ChatPanel.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/ChatPanel.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/src/ui/ChatPanel.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/ChatPanel.cpp.i
-.PHONY : src/ui/ChatPanel.cpp.i
-
-src/ui/ChatPanel.s: src/ui/ChatPanel.cpp.s
-.PHONY : src/ui/ChatPanel.s
-
-# target to generate assembly for a file
-src/ui/ChatPanel.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/ChatPanel.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/src/ui/ChatPanel.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/ChatPanel.cpp.s
-.PHONY : src/ui/ChatPanel.cpp.s
-
-src/ui/ChatTranscript.o: src/ui/ChatTranscript.cpp.o
-.PHONY : src/ui/ChatTranscript.o
-
-# target to build an object file
-src/ui/ChatTranscript.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/ChatTranscript.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/src/ui/ChatTranscript.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/ChatTranscript.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_rich.dir/build.make CMakeFiles/test_chat_rich.dir/src/ui/ChatTranscript.cpp.o
-.PHONY : src/ui/ChatTranscript.cpp.o
-
-src/ui/ChatTranscript.i: src/ui/ChatTranscript.cpp.i
-.PHONY : src/ui/ChatTranscript.i
-
-# target to preprocess a source file
-src/ui/ChatTranscript.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/ChatTranscript.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/src/ui/ChatTranscript.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/ChatTranscript.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_rich.dir/build.make CMakeFiles/test_chat_rich.dir/src/ui/ChatTranscript.cpp.i
-.PHONY : src/ui/ChatTranscript.cpp.i
-
-src/ui/ChatTranscript.s: src/ui/ChatTranscript.cpp.s
-.PHONY : src/ui/ChatTranscript.s
-
-# target to generate assembly for a file
-src/ui/ChatTranscript.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/ChatTranscript.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/src/ui/ChatTranscript.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/ChatTranscript.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_rich.dir/build.make CMakeFiles/test_chat_rich.dir/src/ui/ChatTranscript.cpp.s
-.PHONY : src/ui/ChatTranscript.cpp.s
-
-src/ui/CommandPalette.o: src/ui/CommandPalette.cpp.o
-.PHONY : src/ui/CommandPalette.o
-
-# target to build an object file
-src/ui/CommandPalette.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/CommandPalette.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/CommandPalette.cpp.o
-.PHONY : src/ui/CommandPalette.cpp.o
-
-src/ui/CommandPalette.i: src/ui/CommandPalette.cpp.i
-.PHONY : src/ui/CommandPalette.i
-
-# target to preprocess a source file
-src/ui/CommandPalette.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/CommandPalette.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/CommandPalette.cpp.i
-.PHONY : src/ui/CommandPalette.cpp.i
-
-src/ui/CommandPalette.s: src/ui/CommandPalette.cpp.s
-.PHONY : src/ui/CommandPalette.s
-
-# target to generate assembly for a file
-src/ui/CommandPalette.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/CommandPalette.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/CommandPalette.cpp.s
-.PHONY : src/ui/CommandPalette.cpp.s
-
-src/ui/IngestRawPanel.o: src/ui/IngestRawPanel.cpp.o
-.PHONY : src/ui/IngestRawPanel.o
-
-# target to build an object file
-src/ui/IngestRawPanel.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/IngestRawPanel.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/IngestRawPanel.cpp.o
-.PHONY : src/ui/IngestRawPanel.cpp.o
-
-src/ui/IngestRawPanel.i: src/ui/IngestRawPanel.cpp.i
-.PHONY : src/ui/IngestRawPanel.i
-
-# target to preprocess a source file
-src/ui/IngestRawPanel.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/IngestRawPanel.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/IngestRawPanel.cpp.i
-.PHONY : src/ui/IngestRawPanel.cpp.i
-
-src/ui/IngestRawPanel.s: src/ui/IngestRawPanel.cpp.s
-.PHONY : src/ui/IngestRawPanel.s
-
-# target to generate assembly for a file
-src/ui/IngestRawPanel.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/IngestRawPanel.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/IngestRawPanel.cpp.s
-.PHONY : src/ui/IngestRawPanel.cpp.s
-
 src/ui/MainWindow.o: src/ui/MainWindow.cpp.o
 .PHONY : src/ui/MainWindow.o
 
@@ -1536,6 +1446,7 @@ src/ui/MainWindow.o: src/ui/MainWindow.cpp.o
 src/ui/MainWindow.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/MainWindow.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/ui/MainWindow.cpp.o
 .PHONY : src/ui/MainWindow.cpp.o
 
 src/ui/MainWindow.i: src/ui/MainWindow.cpp.i
@@ -1545,6 +1456,7 @@ src/ui/MainWindow.i: src/ui/MainWindow.cpp.i
 src/ui/MainWindow.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/MainWindow.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/ui/MainWindow.cpp.i
 .PHONY : src/ui/MainWindow.cpp.i
 
 src/ui/MainWindow.s: src/ui/MainWindow.cpp.s
@@ -1554,34 +1466,8 @@ src/ui/MainWindow.s: src/ui/MainWindow.cpp.s
 src/ui/MainWindow.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/MainWindow.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/MainWindow.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/ui/MainWindow.cpp.s
 .PHONY : src/ui/MainWindow.cpp.s
-
-src/ui/MapPanel.o: src/ui/MapPanel.cpp.o
-.PHONY : src/ui/MapPanel.o
-
-# target to build an object file
-src/ui/MapPanel.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/MapPanel.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/MapPanel.cpp.o
-.PHONY : src/ui/MapPanel.cpp.o
-
-src/ui/MapPanel.i: src/ui/MapPanel.cpp.i
-.PHONY : src/ui/MapPanel.i
-
-# target to preprocess a source file
-src/ui/MapPanel.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/MapPanel.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/MapPanel.cpp.i
-.PHONY : src/ui/MapPanel.cpp.i
-
-src/ui/MapPanel.s: src/ui/MapPanel.cpp.s
-.PHONY : src/ui/MapPanel.s
-
-# target to generate assembly for a file
-src/ui/MapPanel.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/MapPanel.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/MapPanel.cpp.s
-.PHONY : src/ui/MapPanel.cpp.s
 
 src/ui/OutlinePanel.o: src/ui/OutlinePanel.cpp.o
 .PHONY : src/ui/OutlinePanel.o
@@ -1590,6 +1476,7 @@ src/ui/OutlinePanel.o: src/ui/OutlinePanel.cpp.o
 src/ui/OutlinePanel.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/OutlinePanel.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/OutlinePanel.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/ui/OutlinePanel.cpp.o
 .PHONY : src/ui/OutlinePanel.cpp.o
 
 src/ui/OutlinePanel.i: src/ui/OutlinePanel.cpp.i
@@ -1599,6 +1486,7 @@ src/ui/OutlinePanel.i: src/ui/OutlinePanel.cpp.i
 src/ui/OutlinePanel.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/OutlinePanel.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/OutlinePanel.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/ui/OutlinePanel.cpp.i
 .PHONY : src/ui/OutlinePanel.cpp.i
 
 src/ui/OutlinePanel.s: src/ui/OutlinePanel.cpp.s
@@ -1608,6 +1496,7 @@ src/ui/OutlinePanel.s: src/ui/OutlinePanel.cpp.s
 src/ui/OutlinePanel.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/OutlinePanel.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/OutlinePanel.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/ui/OutlinePanel.cpp.s
 .PHONY : src/ui/OutlinePanel.cpp.s
 
 src/ui/PdfView.o: src/ui/PdfView.cpp.o
@@ -1618,6 +1507,7 @@ src/ui/PdfView.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/PdfView.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/src/ui/PdfView.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/PdfView.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/ui/PdfView.cpp.o
 .PHONY : src/ui/PdfView.cpp.o
 
 src/ui/PdfView.i: src/ui/PdfView.cpp.i
@@ -1628,6 +1518,7 @@ src/ui/PdfView.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/PdfView.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/src/ui/PdfView.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/PdfView.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/ui/PdfView.cpp.i
 .PHONY : src/ui/PdfView.cpp.i
 
 src/ui/PdfView.s: src/ui/PdfView.cpp.s
@@ -1638,6 +1529,7 @@ src/ui/PdfView.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/PdfView.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/src/ui/PdfView.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/PdfView.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/ui/PdfView.cpp.s
 .PHONY : src/ui/PdfView.cpp.s
 
 src/ui/SearchPanel.o: src/ui/SearchPanel.cpp.o
@@ -1647,6 +1539,7 @@ src/ui/SearchPanel.o: src/ui/SearchPanel.cpp.o
 src/ui/SearchPanel.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/SearchPanel.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/SearchPanel.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/ui/SearchPanel.cpp.o
 .PHONY : src/ui/SearchPanel.cpp.o
 
 src/ui/SearchPanel.i: src/ui/SearchPanel.cpp.i
@@ -1656,6 +1549,7 @@ src/ui/SearchPanel.i: src/ui/SearchPanel.cpp.i
 src/ui/SearchPanel.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/SearchPanel.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/SearchPanel.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/ui/SearchPanel.cpp.i
 .PHONY : src/ui/SearchPanel.cpp.i
 
 src/ui/SearchPanel.s: src/ui/SearchPanel.cpp.s
@@ -1665,61 +1559,8 @@ src/ui/SearchPanel.s: src/ui/SearchPanel.cpp.s
 src/ui/SearchPanel.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/SearchPanel.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/SearchPanel.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/ui/SearchPanel.cpp.s
 .PHONY : src/ui/SearchPanel.cpp.s
-
-src/ui/SummaryPanel.o: src/ui/SummaryPanel.cpp.o
-.PHONY : src/ui/SummaryPanel.o
-
-# target to build an object file
-src/ui/SummaryPanel.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/SummaryPanel.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/SummaryPanel.cpp.o
-.PHONY : src/ui/SummaryPanel.cpp.o
-
-src/ui/SummaryPanel.i: src/ui/SummaryPanel.cpp.i
-.PHONY : src/ui/SummaryPanel.i
-
-# target to preprocess a source file
-src/ui/SummaryPanel.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/SummaryPanel.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/SummaryPanel.cpp.i
-.PHONY : src/ui/SummaryPanel.cpp.i
-
-src/ui/SummaryPanel.s: src/ui/SummaryPanel.cpp.s
-.PHONY : src/ui/SummaryPanel.s
-
-# target to generate assembly for a file
-src/ui/SummaryPanel.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/SummaryPanel.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/SummaryPanel.cpp.s
-.PHONY : src/ui/SummaryPanel.cpp.s
-
-src/ui/ThumbnailPanel.o: src/ui/ThumbnailPanel.cpp.o
-.PHONY : src/ui/ThumbnailPanel.o
-
-# target to build an object file
-src/ui/ThumbnailPanel.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.o
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/ThumbnailPanel.cpp.o
-.PHONY : src/ui/ThumbnailPanel.cpp.o
-
-src/ui/ThumbnailPanel.i: src/ui/ThumbnailPanel.cpp.i
-.PHONY : src/ui/ThumbnailPanel.i
-
-# target to preprocess a source file
-src/ui/ThumbnailPanel.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.i
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/ThumbnailPanel.cpp.i
-.PHONY : src/ui/ThumbnailPanel.cpp.i
-
-src/ui/ThumbnailPanel.s: src/ui/ThumbnailPanel.cpp.s
-.PHONY : src/ui/ThumbnailPanel.s
-
-# target to generate assembly for a file
-src/ui/ThumbnailPanel.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/ThumbnailPanel.cpp.s
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/ThumbnailPanel.cpp.s
-.PHONY : src/ui/ThumbnailPanel.cpp.s
 
 src/ui/WebPanel.o: src/ui/WebPanel.cpp.o
 .PHONY : src/ui/WebPanel.o
@@ -1727,6 +1568,8 @@ src/ui/WebPanel.o: src/ui/WebPanel.cpp.o
 # target to build an object file
 src/ui/WebPanel.cpp.o:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/WebPanel.cpp.o
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/ui/WebPanel.cpp.o
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_webengine.dir/build.make CMakeFiles/test_webengine.dir/src/ui/WebPanel.cpp.o
 .PHONY : src/ui/WebPanel.cpp.o
 
@@ -1736,6 +1579,8 @@ src/ui/WebPanel.i: src/ui/WebPanel.cpp.i
 # target to preprocess a source file
 src/ui/WebPanel.cpp.i:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/WebPanel.cpp.i
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/ui/WebPanel.cpp.i
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_webengine.dir/build.make CMakeFiles/test_webengine.dir/src/ui/WebPanel.cpp.i
 .PHONY : src/ui/WebPanel.cpp.i
 
@@ -1745,6 +1590,8 @@ src/ui/WebPanel.s: src/ui/WebPanel.cpp.s
 # target to generate assembly for a file
 src/ui/WebPanel.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/paper-reader.dir/build.make CMakeFiles/paper-reader.dir/src/ui/WebPanel.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_reader_ui.dir/build.make CMakeFiles/test_reader_ui.dir/src/ui/WebPanel.cpp.s
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/src/ui/WebPanel.cpp.s
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_webengine.dir/build.make CMakeFiles/test_webengine.dir/src/ui/WebPanel.cpp.s
 .PHONY : src/ui/WebPanel.cpp.s
 
@@ -1771,102 +1618,6 @@ test_chat_lifecycle_autogen/mocs_compilation.s: test_chat_lifecycle_autogen/mocs
 test_chat_lifecycle_autogen/mocs_compilation.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_lifecycle.dir/build.make CMakeFiles/test_chat_lifecycle.dir/test_chat_lifecycle_autogen/mocs_compilation.cpp.s
 .PHONY : test_chat_lifecycle_autogen/mocs_compilation.cpp.s
-
-test_chat_rich_autogen/YPKJ5OE7LN/qrc_chat_resources.o: test_chat_rich_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o
-.PHONY : test_chat_rich_autogen/YPKJ5OE7LN/qrc_chat_resources.o
-
-# target to build an object file
-test_chat_rich_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_rich.dir/build.make CMakeFiles/test_chat_rich.dir/test_chat_rich_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o
-.PHONY : test_chat_rich_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o
-
-test_chat_rich_autogen/YPKJ5OE7LN/qrc_chat_resources.i: test_chat_rich_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.i
-.PHONY : test_chat_rich_autogen/YPKJ5OE7LN/qrc_chat_resources.i
-
-# target to preprocess a source file
-test_chat_rich_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_rich.dir/build.make CMakeFiles/test_chat_rich.dir/test_chat_rich_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.i
-.PHONY : test_chat_rich_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.i
-
-test_chat_rich_autogen/YPKJ5OE7LN/qrc_chat_resources.s: test_chat_rich_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.s
-.PHONY : test_chat_rich_autogen/YPKJ5OE7LN/qrc_chat_resources.s
-
-# target to generate assembly for a file
-test_chat_rich_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_rich.dir/build.make CMakeFiles/test_chat_rich.dir/test_chat_rich_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.s
-.PHONY : test_chat_rich_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.s
-
-test_chat_rich_autogen/mocs_compilation.o: test_chat_rich_autogen/mocs_compilation.cpp.o
-.PHONY : test_chat_rich_autogen/mocs_compilation.o
-
-# target to build an object file
-test_chat_rich_autogen/mocs_compilation.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_rich.dir/build.make CMakeFiles/test_chat_rich.dir/test_chat_rich_autogen/mocs_compilation.cpp.o
-.PHONY : test_chat_rich_autogen/mocs_compilation.cpp.o
-
-test_chat_rich_autogen/mocs_compilation.i: test_chat_rich_autogen/mocs_compilation.cpp.i
-.PHONY : test_chat_rich_autogen/mocs_compilation.i
-
-# target to preprocess a source file
-test_chat_rich_autogen/mocs_compilation.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_rich.dir/build.make CMakeFiles/test_chat_rich.dir/test_chat_rich_autogen/mocs_compilation.cpp.i
-.PHONY : test_chat_rich_autogen/mocs_compilation.cpp.i
-
-test_chat_rich_autogen/mocs_compilation.s: test_chat_rich_autogen/mocs_compilation.cpp.s
-.PHONY : test_chat_rich_autogen/mocs_compilation.s
-
-# target to generate assembly for a file
-test_chat_rich_autogen/mocs_compilation.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_rich.dir/build.make CMakeFiles/test_chat_rich.dir/test_chat_rich_autogen/mocs_compilation.cpp.s
-.PHONY : test_chat_rich_autogen/mocs_compilation.cpp.s
-
-test_chat_ui_autogen/YPKJ5OE7LN/qrc_chat_resources.o: test_chat_ui_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o
-.PHONY : test_chat_ui_autogen/YPKJ5OE7LN/qrc_chat_resources.o
-
-# target to build an object file
-test_chat_ui_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/test_chat_ui_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o
-.PHONY : test_chat_ui_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.o
-
-test_chat_ui_autogen/YPKJ5OE7LN/qrc_chat_resources.i: test_chat_ui_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.i
-.PHONY : test_chat_ui_autogen/YPKJ5OE7LN/qrc_chat_resources.i
-
-# target to preprocess a source file
-test_chat_ui_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/test_chat_ui_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.i
-.PHONY : test_chat_ui_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.i
-
-test_chat_ui_autogen/YPKJ5OE7LN/qrc_chat_resources.s: test_chat_ui_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.s
-.PHONY : test_chat_ui_autogen/YPKJ5OE7LN/qrc_chat_resources.s
-
-# target to generate assembly for a file
-test_chat_ui_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/test_chat_ui_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.s
-.PHONY : test_chat_ui_autogen/YPKJ5OE7LN/qrc_chat_resources.cpp.s
-
-test_chat_ui_autogen/mocs_compilation.o: test_chat_ui_autogen/mocs_compilation.cpp.o
-.PHONY : test_chat_ui_autogen/mocs_compilation.o
-
-# target to build an object file
-test_chat_ui_autogen/mocs_compilation.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/test_chat_ui_autogen/mocs_compilation.cpp.o
-.PHONY : test_chat_ui_autogen/mocs_compilation.cpp.o
-
-test_chat_ui_autogen/mocs_compilation.i: test_chat_ui_autogen/mocs_compilation.cpp.i
-.PHONY : test_chat_ui_autogen/mocs_compilation.i
-
-# target to preprocess a source file
-test_chat_ui_autogen/mocs_compilation.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/test_chat_ui_autogen/mocs_compilation.cpp.i
-.PHONY : test_chat_ui_autogen/mocs_compilation.cpp.i
-
-test_chat_ui_autogen/mocs_compilation.s: test_chat_ui_autogen/mocs_compilation.cpp.s
-.PHONY : test_chat_ui_autogen/mocs_compilation.s
-
-# target to generate assembly for a file
-test_chat_ui_autogen/mocs_compilation.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/test_chat_ui_autogen/mocs_compilation.cpp.s
-.PHONY : test_chat_ui_autogen/mocs_compilation.cpp.s
 
 test_core_autogen/mocs_compilation.o: test_core_autogen/mocs_compilation.cpp.o
 .PHONY : test_core_autogen/mocs_compilation.o
@@ -1915,6 +1666,30 @@ test_embedding_qt_autogen/mocs_compilation.s: test_embedding_qt_autogen/mocs_com
 test_embedding_qt_autogen/mocs_compilation.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_embedding_qt.dir/build.make CMakeFiles/test_embedding_qt.dir/test_embedding_qt_autogen/mocs_compilation.cpp.s
 .PHONY : test_embedding_qt_autogen/mocs_compilation.cpp.s
+
+test_export_autogen/mocs_compilation.o: test_export_autogen/mocs_compilation.cpp.o
+.PHONY : test_export_autogen/mocs_compilation.o
+
+# target to build an object file
+test_export_autogen/mocs_compilation.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_export.dir/build.make CMakeFiles/test_export.dir/test_export_autogen/mocs_compilation.cpp.o
+.PHONY : test_export_autogen/mocs_compilation.cpp.o
+
+test_export_autogen/mocs_compilation.i: test_export_autogen/mocs_compilation.cpp.i
+.PHONY : test_export_autogen/mocs_compilation.i
+
+# target to preprocess a source file
+test_export_autogen/mocs_compilation.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_export.dir/build.make CMakeFiles/test_export.dir/test_export_autogen/mocs_compilation.cpp.i
+.PHONY : test_export_autogen/mocs_compilation.cpp.i
+
+test_export_autogen/mocs_compilation.s: test_export_autogen/mocs_compilation.cpp.s
+.PHONY : test_export_autogen/mocs_compilation.s
+
+# target to generate assembly for a file
+test_export_autogen/mocs_compilation.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_export.dir/build.make CMakeFiles/test_export.dir/test_export_autogen/mocs_compilation.cpp.s
+.PHONY : test_export_autogen/mocs_compilation.cpp.s
 
 test_qt_autogen/mocs_compilation.o: test_qt_autogen/mocs_compilation.cpp.o
 .PHONY : test_qt_autogen/mocs_compilation.o
@@ -2036,6 +1811,30 @@ test_select_autogen/mocs_compilation.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/test_select_autogen/mocs_compilation.cpp.s
 .PHONY : test_select_autogen/mocs_compilation.cpp.s
 
+test_shutdown_autogen/mocs_compilation.o: test_shutdown_autogen/mocs_compilation.cpp.o
+.PHONY : test_shutdown_autogen/mocs_compilation.o
+
+# target to build an object file
+test_shutdown_autogen/mocs_compilation.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/test_shutdown_autogen/mocs_compilation.cpp.o
+.PHONY : test_shutdown_autogen/mocs_compilation.cpp.o
+
+test_shutdown_autogen/mocs_compilation.i: test_shutdown_autogen/mocs_compilation.cpp.i
+.PHONY : test_shutdown_autogen/mocs_compilation.i
+
+# target to preprocess a source file
+test_shutdown_autogen/mocs_compilation.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/test_shutdown_autogen/mocs_compilation.cpp.i
+.PHONY : test_shutdown_autogen/mocs_compilation.cpp.i
+
+test_shutdown_autogen/mocs_compilation.s: test_shutdown_autogen/mocs_compilation.cpp.s
+.PHONY : test_shutdown_autogen/mocs_compilation.s
+
+# target to generate assembly for a file
+test_shutdown_autogen/mocs_compilation.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/test_shutdown_autogen/mocs_compilation.cpp.s
+.PHONY : test_shutdown_autogen/mocs_compilation.cpp.s
+
 test_webengine_autogen/mocs_compilation.o: test_webengine_autogen/mocs_compilation.cpp.o
 .PHONY : test_webengine_autogen/mocs_compilation.o
 
@@ -2084,54 +1883,6 @@ tests/test_chat_lifecycle.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_lifecycle.dir/build.make CMakeFiles/test_chat_lifecycle.dir/tests/test_chat_lifecycle.cpp.s
 .PHONY : tests/test_chat_lifecycle.cpp.s
 
-tests/test_chat_rich.o: tests/test_chat_rich.cpp.o
-.PHONY : tests/test_chat_rich.o
-
-# target to build an object file
-tests/test_chat_rich.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_rich.dir/build.make CMakeFiles/test_chat_rich.dir/tests/test_chat_rich.cpp.o
-.PHONY : tests/test_chat_rich.cpp.o
-
-tests/test_chat_rich.i: tests/test_chat_rich.cpp.i
-.PHONY : tests/test_chat_rich.i
-
-# target to preprocess a source file
-tests/test_chat_rich.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_rich.dir/build.make CMakeFiles/test_chat_rich.dir/tests/test_chat_rich.cpp.i
-.PHONY : tests/test_chat_rich.cpp.i
-
-tests/test_chat_rich.s: tests/test_chat_rich.cpp.s
-.PHONY : tests/test_chat_rich.s
-
-# target to generate assembly for a file
-tests/test_chat_rich.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_rich.dir/build.make CMakeFiles/test_chat_rich.dir/tests/test_chat_rich.cpp.s
-.PHONY : tests/test_chat_rich.cpp.s
-
-tests/test_chat_ui.o: tests/test_chat_ui.cpp.o
-.PHONY : tests/test_chat_ui.o
-
-# target to build an object file
-tests/test_chat_ui.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/tests/test_chat_ui.cpp.o
-.PHONY : tests/test_chat_ui.cpp.o
-
-tests/test_chat_ui.i: tests/test_chat_ui.cpp.i
-.PHONY : tests/test_chat_ui.i
-
-# target to preprocess a source file
-tests/test_chat_ui.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/tests/test_chat_ui.cpp.i
-.PHONY : tests/test_chat_ui.cpp.i
-
-tests/test_chat_ui.s: tests/test_chat_ui.cpp.s
-.PHONY : tests/test_chat_ui.s
-
-# target to generate assembly for a file
-tests/test_chat_ui.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_chat_ui.dir/build.make CMakeFiles/test_chat_ui.dir/tests/test_chat_ui.cpp.s
-.PHONY : tests/test_chat_ui.cpp.s
-
 tests/test_core.o: tests/test_core.cpp.o
 .PHONY : tests/test_core.o
 
@@ -2179,6 +1930,30 @@ tests/test_embedding_qt.s: tests/test_embedding_qt.cpp.s
 tests/test_embedding_qt.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_embedding_qt.dir/build.make CMakeFiles/test_embedding_qt.dir/tests/test_embedding_qt.cpp.s
 .PHONY : tests/test_embedding_qt.cpp.s
+
+tests/test_export.o: tests/test_export.cpp.o
+.PHONY : tests/test_export.o
+
+# target to build an object file
+tests/test_export.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_export.dir/build.make CMakeFiles/test_export.dir/tests/test_export.cpp.o
+.PHONY : tests/test_export.cpp.o
+
+tests/test_export.i: tests/test_export.cpp.i
+.PHONY : tests/test_export.i
+
+# target to preprocess a source file
+tests/test_export.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_export.dir/build.make CMakeFiles/test_export.dir/tests/test_export.cpp.i
+.PHONY : tests/test_export.cpp.i
+
+tests/test_export.s: tests/test_export.cpp.s
+.PHONY : tests/test_export.s
+
+# target to generate assembly for a file
+tests/test_export.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_export.dir/build.make CMakeFiles/test_export.dir/tests/test_export.cpp.s
+.PHONY : tests/test_export.cpp.s
 
 tests/test_qt.o: tests/test_qt.cpp.o
 .PHONY : tests/test_qt.o
@@ -2300,6 +2075,30 @@ tests/test_select.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_select.dir/build.make CMakeFiles/test_select.dir/tests/test_select.cpp.s
 .PHONY : tests/test_select.cpp.s
 
+tests/test_shutdown.o: tests/test_shutdown.cpp.o
+.PHONY : tests/test_shutdown.o
+
+# target to build an object file
+tests/test_shutdown.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/tests/test_shutdown.cpp.o
+.PHONY : tests/test_shutdown.cpp.o
+
+tests/test_shutdown.i: tests/test_shutdown.cpp.i
+.PHONY : tests/test_shutdown.i
+
+# target to preprocess a source file
+tests/test_shutdown.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/tests/test_shutdown.cpp.i
+.PHONY : tests/test_shutdown.cpp.i
+
+tests/test_shutdown.s: tests/test_shutdown.cpp.s
+.PHONY : tests/test_shutdown.s
+
+# target to generate assembly for a file
+tests/test_shutdown.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_shutdown.dir/build.make CMakeFiles/test_shutdown.dir/tests/test_shutdown.cpp.s
+.PHONY : tests/test_shutdown.cpp.s
+
 tests/test_webengine.o: tests/test_webengine.cpp.o
 .PHONY : tests/test_webengine.o
 
@@ -2337,14 +2136,12 @@ help:
 	@echo "... paper-reader_autogen_timestamp_deps"
 	@echo "... test_chat_lifecycle_autogen"
 	@echo "... test_chat_lifecycle_autogen_timestamp_deps"
-	@echo "... test_chat_rich_autogen"
-	@echo "... test_chat_rich_autogen_timestamp_deps"
-	@echo "... test_chat_ui_autogen"
-	@echo "... test_chat_ui_autogen_timestamp_deps"
 	@echo "... test_core_autogen"
 	@echo "... test_core_autogen_timestamp_deps"
 	@echo "... test_embedding_qt_autogen"
 	@echo "... test_embedding_qt_autogen_timestamp_deps"
+	@echo "... test_export_autogen"
+	@echo "... test_export_autogen_timestamp_deps"
 	@echo "... test_qt_autogen"
 	@echo "... test_qt_autogen_timestamp_deps"
 	@echo "... test_reader_ui_autogen"
@@ -2355,27 +2152,26 @@ help:
 	@echo "... test_render_stress_autogen_timestamp_deps"
 	@echo "... test_select_autogen"
 	@echo "... test_select_autogen_timestamp_deps"
+	@echo "... test_shutdown_autogen"
+	@echo "... test_shutdown_autogen_timestamp_deps"
 	@echo "... test_webengine_autogen"
 	@echo "... test_webengine_autogen_timestamp_deps"
 	@echo "... paper-reader"
 	@echo "... reader_core"
 	@echo "... test_chat_lifecycle"
-	@echo "... test_chat_rich"
-	@echo "... test_chat_ui"
 	@echo "... test_core"
 	@echo "... test_embedding_qt"
+	@echo "... test_export"
 	@echo "... test_qt"
 	@echo "... test_reader_ui"
 	@echo "... test_render"
 	@echo "... test_render_stress"
 	@echo "... test_select"
+	@echo "... test_shutdown"
 	@echo "... test_webengine"
 	@echo "... app/main.o"
 	@echo "... app/main.i"
 	@echo "... app/main.s"
-	@echo "... paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.o"
-	@echo "... paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.i"
-	@echo "... paper-reader_autogen/YPKJ5OE7LN/qrc_chat_resources.s"
 	@echo "... paper-reader_autogen/mocs_compilation.o"
 	@echo "... paper-reader_autogen/mocs_compilation.i"
 	@echo "... paper-reader_autogen/mocs_compilation.s"
@@ -2430,6 +2226,9 @@ help:
 	@echo "... src/document/DocumentModel.o"
 	@echo "... src/document/DocumentModel.i"
 	@echo "... src/document/DocumentModel.s"
+	@echo "... src/pdf/HighlightExport.o"
+	@echo "... src/pdf/HighlightExport.i"
+	@echo "... src/pdf/HighlightExport.s"
 	@echo "... src/pdf/PdfDocument.o"
 	@echo "... src/pdf/PdfDocument.i"
 	@echo "... src/pdf/PdfDocument.s"
@@ -2463,24 +2262,9 @@ help:
 	@echo "... src/storage/Repositories.o"
 	@echo "... src/storage/Repositories.i"
 	@echo "... src/storage/Repositories.s"
-	@echo "... src/ui/ChatPanel.o"
-	@echo "... src/ui/ChatPanel.i"
-	@echo "... src/ui/ChatPanel.s"
-	@echo "... src/ui/ChatTranscript.o"
-	@echo "... src/ui/ChatTranscript.i"
-	@echo "... src/ui/ChatTranscript.s"
-	@echo "... src/ui/CommandPalette.o"
-	@echo "... src/ui/CommandPalette.i"
-	@echo "... src/ui/CommandPalette.s"
-	@echo "... src/ui/IngestRawPanel.o"
-	@echo "... src/ui/IngestRawPanel.i"
-	@echo "... src/ui/IngestRawPanel.s"
 	@echo "... src/ui/MainWindow.o"
 	@echo "... src/ui/MainWindow.i"
 	@echo "... src/ui/MainWindow.s"
-	@echo "... src/ui/MapPanel.o"
-	@echo "... src/ui/MapPanel.i"
-	@echo "... src/ui/MapPanel.s"
 	@echo "... src/ui/OutlinePanel.o"
 	@echo "... src/ui/OutlinePanel.i"
 	@echo "... src/ui/OutlinePanel.s"
@@ -2490,36 +2274,21 @@ help:
 	@echo "... src/ui/SearchPanel.o"
 	@echo "... src/ui/SearchPanel.i"
 	@echo "... src/ui/SearchPanel.s"
-	@echo "... src/ui/SummaryPanel.o"
-	@echo "... src/ui/SummaryPanel.i"
-	@echo "... src/ui/SummaryPanel.s"
-	@echo "... src/ui/ThumbnailPanel.o"
-	@echo "... src/ui/ThumbnailPanel.i"
-	@echo "... src/ui/ThumbnailPanel.s"
 	@echo "... src/ui/WebPanel.o"
 	@echo "... src/ui/WebPanel.i"
 	@echo "... src/ui/WebPanel.s"
 	@echo "... test_chat_lifecycle_autogen/mocs_compilation.o"
 	@echo "... test_chat_lifecycle_autogen/mocs_compilation.i"
 	@echo "... test_chat_lifecycle_autogen/mocs_compilation.s"
-	@echo "... test_chat_rich_autogen/YPKJ5OE7LN/qrc_chat_resources.o"
-	@echo "... test_chat_rich_autogen/YPKJ5OE7LN/qrc_chat_resources.i"
-	@echo "... test_chat_rich_autogen/YPKJ5OE7LN/qrc_chat_resources.s"
-	@echo "... test_chat_rich_autogen/mocs_compilation.o"
-	@echo "... test_chat_rich_autogen/mocs_compilation.i"
-	@echo "... test_chat_rich_autogen/mocs_compilation.s"
-	@echo "... test_chat_ui_autogen/YPKJ5OE7LN/qrc_chat_resources.o"
-	@echo "... test_chat_ui_autogen/YPKJ5OE7LN/qrc_chat_resources.i"
-	@echo "... test_chat_ui_autogen/YPKJ5OE7LN/qrc_chat_resources.s"
-	@echo "... test_chat_ui_autogen/mocs_compilation.o"
-	@echo "... test_chat_ui_autogen/mocs_compilation.i"
-	@echo "... test_chat_ui_autogen/mocs_compilation.s"
 	@echo "... test_core_autogen/mocs_compilation.o"
 	@echo "... test_core_autogen/mocs_compilation.i"
 	@echo "... test_core_autogen/mocs_compilation.s"
 	@echo "... test_embedding_qt_autogen/mocs_compilation.o"
 	@echo "... test_embedding_qt_autogen/mocs_compilation.i"
 	@echo "... test_embedding_qt_autogen/mocs_compilation.s"
+	@echo "... test_export_autogen/mocs_compilation.o"
+	@echo "... test_export_autogen/mocs_compilation.i"
+	@echo "... test_export_autogen/mocs_compilation.s"
 	@echo "... test_qt_autogen/mocs_compilation.o"
 	@echo "... test_qt_autogen/mocs_compilation.i"
 	@echo "... test_qt_autogen/mocs_compilation.s"
@@ -2535,24 +2304,24 @@ help:
 	@echo "... test_select_autogen/mocs_compilation.o"
 	@echo "... test_select_autogen/mocs_compilation.i"
 	@echo "... test_select_autogen/mocs_compilation.s"
+	@echo "... test_shutdown_autogen/mocs_compilation.o"
+	@echo "... test_shutdown_autogen/mocs_compilation.i"
+	@echo "... test_shutdown_autogen/mocs_compilation.s"
 	@echo "... test_webengine_autogen/mocs_compilation.o"
 	@echo "... test_webengine_autogen/mocs_compilation.i"
 	@echo "... test_webengine_autogen/mocs_compilation.s"
 	@echo "... tests/test_chat_lifecycle.o"
 	@echo "... tests/test_chat_lifecycle.i"
 	@echo "... tests/test_chat_lifecycle.s"
-	@echo "... tests/test_chat_rich.o"
-	@echo "... tests/test_chat_rich.i"
-	@echo "... tests/test_chat_rich.s"
-	@echo "... tests/test_chat_ui.o"
-	@echo "... tests/test_chat_ui.i"
-	@echo "... tests/test_chat_ui.s"
 	@echo "... tests/test_core.o"
 	@echo "... tests/test_core.i"
 	@echo "... tests/test_core.s"
 	@echo "... tests/test_embedding_qt.o"
 	@echo "... tests/test_embedding_qt.i"
 	@echo "... tests/test_embedding_qt.s"
+	@echo "... tests/test_export.o"
+	@echo "... tests/test_export.i"
+	@echo "... tests/test_export.s"
 	@echo "... tests/test_qt.o"
 	@echo "... tests/test_qt.i"
 	@echo "... tests/test_qt.s"
@@ -2568,6 +2337,9 @@ help:
 	@echo "... tests/test_select.o"
 	@echo "... tests/test_select.i"
 	@echo "... tests/test_select.s"
+	@echo "... tests/test_shutdown.o"
+	@echo "... tests/test_shutdown.i"
+	@echo "... tests/test_shutdown.s"
 	@echo "... tests/test_webengine.o"
 	@echo "... tests/test_webengine.i"
 	@echo "... tests/test_webengine.s"

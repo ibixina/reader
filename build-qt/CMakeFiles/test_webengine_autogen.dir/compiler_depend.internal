@@ -50,7 +50,6 @@
  /home/nao/Documents/Projects/reader/build-qt/test_webengine_autogen/moc_predefs.h
  /home/nao/Documents/Projects/reader/src/ui/WebPanel.cpp
  /home/nao/Documents/Projects/reader/src/ui/WebPanel.h
- /home/nao/Documents/Projects/reader/src/ui/chat_resources.qrc
  /home/nao/Documents/Projects/reader/tests/test_webengine.cpp
  /home/nao/qtsysroot/usr/include/qt6/QtCore/QUrl
  /home/nao/qtsysroot/usr/include/qt6/QtCore/q17memory.h

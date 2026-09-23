@@ -39,43 +39,16 @@ template <> constexpr inline auto MainWindow::qt_create_metaobjectdata<qt_meta_t
     namespace QMC = QtMocConstants;
     QtMocHelpers::StringRefStorage qt_stringData {
         "MainWindow",
-        "runIngest",
-        "",
-        "reingest",
-        "onIngestProgress",
-        "reader::IngestProgress",
-        "p",
         "toggleAiPane",
-        "toggleAiCollapse",
-        "toggleAiDetach",
-        "openReaderTools",
-        "executeCommand",
-        "command"
+        "",
+        "saveHighlightsToPdf"
     };
 
     QtMocHelpers::UintData qt_methods {
-        // Slot 'runIngest'
-        QtMocHelpers::SlotData<void(bool)>(1, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::Bool, 3 },
-        }}),
-        // Slot 'runIngest'
-        QtMocHelpers::SlotData<void()>(1, 2, QMC::AccessPrivate | QMC::MethodCloned, QMetaType::Void),
-        // Slot 'onIngestProgress'
-        QtMocHelpers::SlotData<void(const reader::IngestProgress &)>(4, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { 0x80000000 | 5, 6 },
-        }}),
         // Slot 'toggleAiPane'
-        QtMocHelpers::SlotData<void()>(7, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'toggleAiCollapse'
-        QtMocHelpers::SlotData<void()>(8, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'toggleAiDetach'
-        QtMocHelpers::SlotData<void()>(9, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'openReaderTools'
-        QtMocHelpers::SlotData<void()>(10, 2, QMC::AccessPrivate, QMetaType::Void),
-        // Slot 'executeCommand'
-        QtMocHelpers::SlotData<void(const QString &)>(11, 2, QMC::AccessPrivate, QMetaType::Void, {{
-            { QMetaType::QString, 12 },
-        }}),
+        QtMocHelpers::SlotData<void()>(1, 2, QMC::AccessPrivate, QMetaType::Void),
+        // Slot 'saveHighlightsToPdf'
+        QtMocHelpers::SlotData<void()>(3, 2, QMC::AccessPrivate, QMetaType::Void),
     };
     QtMocHelpers::UintData qt_properties {
     };
@@ -99,17 +72,12 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
     auto *_t = static_cast<MainWindow *>(_o);
     if (_c == QMetaObject::InvokeMetaMethod) {
         switch (_id) {
-        case 0: _t->runIngest((*reinterpret_cast<std::add_pointer_t<bool>>(_a[1]))); break;
-        case 1: _t->runIngest(); break;
-        case 2: _t->onIngestProgress((*reinterpret_cast<std::add_pointer_t<reader::IngestProgress>>(_a[1]))); break;
-        case 3: _t->toggleAiPane(); break;
-        case 4: _t->toggleAiCollapse(); break;
-        case 5: _t->toggleAiDetach(); break;
-        case 6: _t->openReaderTools(); break;
-        case 7: _t->executeCommand((*reinterpret_cast<std::add_pointer_t<QString>>(_a[1]))); break;
+        case 0: _t->toggleAiPane(); break;
+        case 1: _t->saveHighlightsToPdf(); break;
         default: ;
         }
     }
+    (void)_a;
 }
 
 const QMetaObject *MainWindow::metaObject() const
@@ -131,14 +99,14 @@ int MainWindow::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 8)
+        if (_id < 2)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 8;
+        _id -= 2;
     }
     if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 8)
+        if (_id < 2)
             *reinterpret_cast<QMetaType *>(_a[0]) = QMetaType();
-        _id -= 8;
+        _id -= 2;
     }
     return _id;
 }
