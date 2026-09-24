@@ -106,7 +106,8 @@ void PdfRenderer::detach() {
 }
 
 void PdfRenderer::requestTiles(int page, int zoomBucket, const QSize& pageSize, int rotation,
-                               int tileSize, PageCallback cb, QRect visibleRect) {
+                               int tileSize, PageCallback cb, QRect visibleRect,
+                               CancelToken cancelled, TileCallback tileCb) {
     const auto state = state_;
     if (page < 0 || pageSize.isEmpty() || tileSize <= 0) {
         enqueueOnGui([cb = std::move(cb)]() mutable {
@@ -131,19 +132,18 @@ void PdfRenderer::requestTiles(int page, int zoomBucket, const QSize& pageSize, 
         return;
     }
 
+    // Tracks completion of all requested tiles for the PageCallback, and
+    // optionally delivers each tile progressively via TileCallback so the
+    // widget paints incrementally without blanking existing pixels.
     struct Batch {
-        explicit Batch(QSize size, int count, PageCallback callback)
-            : image(size, QImage::Format_ARGB32_Premultiplied), remaining(count),
-              total(count),
-              callback(std::move(callback)) {
-            image.fill(Qt::white);
-        }
-        std::mutex mutex;
-        QImage image;
+        explicit Batch(int count, PageCallback callback, TileCallback tileCallback)
+            : remaining(count), total(count), callback(std::move(callback)),
+              tileCallback(std::move(tileCallback)) {}
         std::atomic<int> remaining;
         const int total;
         std::atomic<int> failures{0};
         PageCallback callback;
+        TileCallback tileCallback;
     };
 
     const int cols = (pageSize.width() + tileSize - 1) / tileSize;
@@ -160,29 +160,29 @@ void PdfRenderer::requestTiles(int page, int zoomBucket, const QSize& pageSize, 
     const int lastCol = visibleRect.right() / tileSize;
     const int firstRow = visibleRect.top() / tileSize;
     const int lastRow = visibleRect.bottom() / tileSize;
-    auto batch = std::make_shared<Batch>(pageSize,
-                                         (lastCol - firstCol + 1) * (lastRow - firstRow + 1),
-                                         std::move(cb));
+    auto batch = std::make_shared<Batch>(
+        (lastCol - firstCol + 1) * (lastRow - firstRow + 1),
+        std::move(cb), std::move(tileCb));
     const int normalizedRotation = ((rotation % 360) + 360) % 360;
 
     auto publish = [state, batch, generation](const QRect& rect, QImage tile) {
         if (generation != state->generation.load()) return;
-        if (!tile.isNull()) {
-            std::lock_guard<std::mutex> lock(batch->mutex);
-            QPainter painter(&batch->image);
-            painter.drawImage(rect.topLeft(), tile);
-        } else {
+        if (!tile.isNull() && batch->tileCallback) {
+            // Progressive delivery: paint this tile immediately. The widget
+            // composites into its persistent cache without blanking.
+            enqueueOnGui([state, generation, batch, rect, tile = std::move(tile)]() mutable {
+                if (generation == state->generation.load() && batch->tileCallback)
+                    batch->tileCallback(rect, tile);
+            });
+        } else if (tile.isNull()) {
             batch->failures.fetch_add(1);
         }
         if (batch->remaining.fetch_sub(1) == 1) {
-            QImage image;
-            {
-                std::lock_guard<std::mutex> lock(batch->mutex);
-                image = batch->failures.load() == batch->total ? QImage{} : batch->image;
-            }
-            enqueueOnGui([state, generation, batch, image = std::move(image)]() mutable {
+            // All tiles done: fire completion. Null only if every tile failed.
+            const bool allFailed = batch->failures.load() == batch->total;
+            enqueueOnGui([state, generation, batch, allFailed]() mutable {
                 if (generation == state->generation.load() && batch->callback)
-                    batch->callback(image);
+                    batch->callback(allFailed ? QImage{} : QImage(1, 1, QImage::Format_ARGB32));
             });
         }
     };
@@ -207,46 +207,54 @@ void PdfRenderer::requestTiles(int page, int zoomBucket, const QSize& pageSize, 
     // Small scroll steps expose 1-4 new tiles: render each crop directly
     // (~5x cheaper than a full page at 180dpi) instead of re-rasterizing
     // the whole page. Whole-page views still take one shared full render
-    // below and slice from it.
+    // below and slice from it. Viewport tiles get high priority so the
+    // visible region paints before any background prefetch.
     constexpr std::size_t kDirectTileLimit = 4;
     if (missingTiles.size() <= kDirectTileLimit) {
         for (const auto& [key, rect] : missingTiles) {
             auto lease = std::make_shared<State::JobLease>(state);
             QThreadPool::globalInstance()->start(
                 [state, lease, raster, generation, page, pageSize, key, rect,
-                 publish]() mutable {
+                 publish, cancelled]() mutable {
                     if (generation != state->generation.load()) return;
+                    if (cancelled && cancelled->load()) return;
                     QImage tile;
                     {
                         std::lock_guard<std::mutex> lock(state->rasterMutex);
                         tile = raster->renderTile(page, pageSize, rect);
                     }
                     if (generation != state->generation.load()) return;
+                    if (cancelled && cancelled->load()) return;
                     if (!tile.isNull()) state->cache.put(key, tile);
                     publish(rect, std::move(tile));
                 },
-                10);
+                20);
         }
         return;
     }
 
     // One worker job renders the full page once and slices every missing
     // tile from it. Concurrent batches for the same page/size coalesce onto
-    // the in-flight render instead of each paying a full Poppler pass.
+    // the in-flight render instead of each paying a full Poppler pass. The
+    // cancel token is checked around every step: a page the reader scrolled
+    // away from must never hold the raster lane for the page they are on.
     auto lease = std::make_shared<State::JobLease>(state);
     QThreadPool::globalInstance()->start(
         [state, lease, raster, generation, document, page, pageSize,
-         missingTiles = std::move(missingTiles), publish]() mutable {
+         missingTiles = std::move(missingTiles), publish, cancelled]() mutable {
             if (generation != state->generation.load()) return;
+            if (cancelled && cancelled->load()) return;
             const PageRenderKey pageKey{document, page, pageSize.width(), pageSize.height()};
             QImage full;
             {
                 std::unique_lock<std::mutex> lock(state->pageMutex);
                 state->pageCv.wait(lock, [&] {
                     return state->pagesInflight.count(pageKey) == 0 ||
-                           generation != state->generation.load();
+                           generation != state->generation.load() ||
+                           (cancelled && cancelled->load());
                 });
                 if (generation != state->generation.load()) return;
+                if (cancelled && cancelled->load()) return;
                 if (auto hit = state->pages.get(pageKey)) {
                     full = *hit;
                 } else {
@@ -269,6 +277,7 @@ void PdfRenderer::requestTiles(int page, int zoomBucket, const QSize& pageSize, 
                     state->pageCv.notify_all();
                 }
                 if (generation != state->generation.load()) return;
+                if (cancelled && cancelled->load()) return;
                 if (full.isNull()) {
                     for (const auto& [key, rect] : missingTiles) {
                         (void)key;
@@ -277,17 +286,22 @@ void PdfRenderer::requestTiles(int page, int zoomBucket, const QSize& pageSize, 
                     return;
                 }
             }
+            // Slice and publish tiles one by one: each lands on the GUI
+            // thread immediately so the widget paints progressively without
+            // waiting for the entire visible rect to complete.
             for (const auto& [key, rect] : missingTiles) {
                 if (generation != state->generation.load()) return;
+                if (cancelled && cancelled->load()) return;
                 QImage tile = full.copy(rect);
                 if (!tile.isNull()) state->cache.put(key, tile);
                 publish(rect, std::move(tile));
             }
         },
-        0);
+        15);
 }
 
-void PdfRenderer::requestPreview(int page, const QSize& pageSize, PageCallback cb) {
+void PdfRenderer::requestPreview(int page, const QSize& pageSize, PageCallback cb,
+                                 CancelToken cancelled) {
     const auto state = state_;
     if (page < 0 || pageSize.isEmpty()) {
         enqueueOnGui([cb = std::move(cb)]() mutable {
@@ -304,10 +318,11 @@ void PdfRenderer::requestPreview(int page, const QSize& pageSize, PageCallback c
         generation = state->generation.load();
         document = state->document;
     }
-    // Tiny but legible: longest side ~300px renders in ~20ms and upscales
-    // into a soft placeholder instead of a white page.
+    // Legible draft, not a thumbnail: longest side ~900px renders in tens
+    // of ms and upscales to something readable while sharp tiles land —
+    // the old ~300px placeholder read as "low quality" during the wait.
     const int longest = std::max(pageSize.width(), pageSize.height());
-    const int denom = std::max(1, longest / 300);
+    const int denom = std::max(1, longest / 900);
     const QSize small(std::max(1, pageSize.width() / denom),
                       std::max(1, pageSize.height() / denom));
     RenderKey key{document, page, pageSize.width(), 0, 0, small.width(), small.height(), 0, 2};
@@ -325,14 +340,17 @@ void PdfRenderer::requestPreview(int page, const QSize& pageSize, PageCallback c
     }
     auto lease = std::make_shared<State::JobLease>(state);
     QThreadPool::globalInstance()->start(
-        [state, lease, raster, generation, key, small, cb = std::move(cb)]() mutable {
+        [state, lease, raster, generation, key, small, cb = std::move(cb),
+         cancelled]() mutable {
             if (generation != state->generation.load()) return;
+            if (cancelled && cancelled->load()) return;
             QImage image;
             {
                 std::lock_guard<std::mutex> lock(state->rasterMutex);
                 image = raster->renderPage(key.page, small);
             }
             if (generation != state->generation.load()) return;
+            if (cancelled && cancelled->load()) return;
             if (image.isNull()) {
                 enqueueOnGui([state, generation, cb = std::move(cb)]() mutable {
                     if (generation == state->generation.load() && cb) cb({});
@@ -344,10 +362,10 @@ void PdfRenderer::requestPreview(int page, const QSize& pageSize, PageCallback c
                 if (generation == state->generation.load() && cb) cb(image);
             });
         },
-        20);
+        10);  // Below visible sharp tiles (20), above prefetch (5/-5)
 }
 
-void PdfRenderer::prefetchPage(int page, const QSize& pageSize) {
+void PdfRenderer::prefetchPage(int page, const QSize& pageSize, int priority) {
     const auto state = state_;
     if (page < 0 || pageSize.isEmpty()) return;
     std::shared_ptr<PopplerBridge> raster;
@@ -388,7 +406,7 @@ void PdfRenderer::prefetchPage(int page, const QSize& pageSize) {
                 state->pageCv.notify_all();
             }
         },
-        -5);
+        priority);
 }
 
 } // namespace reader

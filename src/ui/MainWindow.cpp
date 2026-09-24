@@ -144,8 +144,9 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
 
     statusPage_ = new QLabel("No document", this);
     statusHint_ = new QLabel("Ready", this);
-    statusBar()->addWidget(statusPage_, 1);
-    statusBar()->addWidget(statusHint_);
+    statusPage_->hide();
+    statusHint_->hide();
+    statusBar()->hide();
 
     connect(pdf_, &PdfView::selectionChanged, this, [this](const reader::DocumentAnchor& anchor) {
         if (web_) web_->refreshContext();
@@ -294,16 +295,14 @@ void MainWindow::openFile(const QString& path) {
     const bool switchingDocuments = !currentPath.isEmpty() &&
                                     QFileInfo(currentPath).canonicalFilePath() !=
                                         QFileInfo(path).canonicalFilePath();
-    // Validate the new document BEFORE touching any state that belongs to
-    // the currently open paper: a failed open must leave the reader exactly
-    // as it was (context, history, view), not strand it.
-    auto deleter = [](QPdfDocument* d) { d->deleteLater(); };
-    std::shared_ptr<QPdfDocument> newDoc(new QPdfDocument, deleter);
-    auto newEngine = std::make_shared<QtPdfEngine>(newDoc);
-    if (!newEngine->open(path.toStdString()) || newEngine->pageCount() == 0) {
-        const QString reason = QString::fromStdString(newEngine->lastError());
-        statusPage_->setText(reason.isEmpty() ? "Could not open PDF"
-                                              : "Could not open PDF — " + reason);
+    // Stage A — show pixels first. Poppler opens in ~2 ms even on huge,
+    // complex documents (measured), so the reader validates the file and
+    // paints page 1 from the raster bridge without waiting for the pdfium
+    // engine to parse the whole document (QPdfDocument::load on the UI
+    // thread is what froze the pane blank for seconds on heavy PDFs).
+    auto raster = std::make_shared<PopplerBridge>();
+    if (!raster->open(path) || raster->pageCount() == 0) {
+        statusPage_->setText("Could not open PDF");
         statusHint_->setText("The previous paper stays open.");
         return;
     }
@@ -319,42 +318,43 @@ void MainWindow::openFile(const QString& path) {
     documentToken_ = reader::CancellationToken{};
     const unsigned long generation = ++openGeneration_;
     if (web_) web_->cancelPending();
-    pdfDoc_ = std::move(newDoc);
-    engine_ = std::move(newEngine);
     reader::DocumentModel& model = app_->model;
     model = reader::DocumentModel{};
     model.document.filePath = path.toStdString();
     model.document.title = QFileInfo(path).baseName().toStdString();
-    model.document.pageCount = engine_->pageCount();
-    pdf_->attachDocument(pdfDoc_, path);
+    model.document.pageCount = raster->pageCount();
+    pdf_->attachRaster(raster, path);
     outlinePanel_->rebuild();
     marksPanel_->rebuild();
     app_->state.page = 0;
     app_->state.scrollY = 0;
     app_->state.history.clear();
     app_->state.history.visit({0, 0, app_->state.zoom, std::nullopt});
-
     statusPage_->setText(QString("p.%1 / %2 · identifying…")
                              .arg(app_->state.page + 1)
                              .arg(model.document.pageCount));
+    // Stage A is synchronous and fast: process the expose/paint right now
+    // so the first page becomes visible before the engine load below.
+    QCoreApplication::processEvents(QEventLoop::AllEvents, 0);
 
-    // Stages 2-3 on background lanes: extract -> structure. Text is cached
-    // by document hash so reopening is instant and stays offline.
-    // Threading: the worker builds a LOCAL model; publishing to app_->model
-    // happens in one queued UI-thread step. The UI never reads a model
-    // that a worker is still mutating.
+    // Stage B — identity, engine and text pipeline, entirely off the UI
+    // thread. The hash publishes identity + reading position first (fast),
+    // then pdfium parses the document inside the same worker job and the
+    // engine attaches through a queued UI step only when ready. The UI
+    // never reads a model that a worker is still mutating, and every
+    // cache publication remains bound to this open generation.
     const reader::CancellationToken documentToken = documentToken_;
-    std::shared_ptr<QtPdfEngine> engine = engine_;
     const std::string sourcePath = path.toStdString();
-    // Hashing can read a large PDF; keep it off the GUI thread. Identity and
-    // every cache publication remain bound to this open generation.
     app_->extractPool.submit(
-        [this, engine, sourcePath, generation, documentToken] {
+        [this, sourcePath, generation, documentToken] {
             if (documentToken.cancelled()) return;
             const std::string fileHash = reader::sha256File(sourcePath);
+            // Identity + reading position restore: needs only the hash and
+            // the raster already attached, so it lands even while pdfium
+            // is still parsing.
             QMetaObject::invokeMethod(
                 this,
-                [this, engine, fileHash, generation, documentToken]() mutable {
+                [this, fileHash, generation, documentToken] {
                     if (generation != openGeneration_ || documentToken.cancelled()) return;
                     if (fileHash.empty()) {
                         statusPage_->setText("Could not identify PDF");
@@ -385,10 +385,43 @@ void MainWindow::openFile(const QString& path) {
                     statusPage_->setText(QString("p.%1 / %2")
                                              .arg(app_->state.page + 1)
                                              .arg(model.document.pageCount));
-
-                    const reader::Document docInfo = model.document;
+                },
+                Qt::QueuedConnection);
+            // pdfium load happens here (worker lane), never on the GUI
+            // thread: heavy documents parse for seconds and the reader
+            // stays interactive — and visible — throughout.
+            auto engineDoc = std::shared_ptr<QPdfDocument>(new QPdfDocument,
+                                                           [](QPdfDocument* d) {
+                                                               d->deleteLater();
+                                                           });
+            engineDoc->moveToThread(qApp->thread());
+            engineDoc->load(QString::fromStdString(sourcePath));
+            if (engineDoc->status() != QPdfDocument::Status::Ready) {
+                QMetaObject::invokeMethod(
+                    this,
+                    [this, generation] {
+                        if (generation != openGeneration_) return;
+                        statusHint_->setText(
+                            "PDF text layer unavailable — pages still viewable.");
+                    },
+                    Qt::QueuedConnection);
+                return;
+            }
+            QMetaObject::invokeMethod(
+                this,
+                [this, engineDoc, sourcePath, generation, documentToken]() mutable {
+                    if (generation != openGeneration_ || documentToken.cancelled()) return;
+                    // Engine ready: adopt it (view links + extraction). The
+                    // raster bridge is already displaying, so this only
+                    // adds capabilities, never blocks the visible page.
+                    pdfDoc_ = engineDoc;
+                    engine_ = std::make_shared<QtPdfEngine>(pdfDoc_);
+                    pdf_->attachDocument(pdfDoc_,
+                                         QString::fromStdString(sourcePath));
+                    const reader::Document docInfo = app_->model.document;
                     // Serial doc lane: the PDF engine is used from one
                     // background thread at a time.
+                    const std::shared_ptr<QtPdfEngine> engine = engine_;
                     app_->docLane.submit(
                         [this, engine, docInfo, generation, documentToken] {
                             if (documentToken.cancelled()) return;

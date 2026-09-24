@@ -52,6 +52,10 @@ class PdfView : public QScrollArea {
 public:
     explicit PdfView(reader::Application* app, QWidget* parent = nullptr);
     ~PdfView() override;
+    // Two-stage open: raster first (poppler, ~2 ms even on huge PDFs) so
+    // pixels appear before the pdfium engine has finished loading, then
+    // the engine/text pipeline attaches without disturbing the display.
+    void attachRaster(std::shared_ptr<PopplerBridge> raster, const QString& path);
     void attachDocument(std::shared_ptr<QPdfDocument> doc, const QString& path);
     int pageCount() const;
     // Unrotated page sizes in points, matching selection/highlight geometry.
@@ -117,7 +121,6 @@ private:
     void rebuildPages();
     void updateCurrentPage();
     void prefetchPixelsAround(int page);
-    void schedulePixelPrefetch(int page);
     QWidget* pageWidget(int page) const;
     void keyPressEvent(QKeyEvent* event) override;
     QPdfLink linkAt(int page, const QPointF& point) const;

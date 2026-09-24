@@ -96,15 +96,31 @@ public:
     void attachRaster(std::shared_ptr<PopplerBridge> raster, const DocumentId& id);
     void detach();
 
+    // Cooperative cancellation for queued/running raster jobs: the widget
+    // sets the flag when the request is superseded (scrolled away, zoomed,
+    // evicted) so the single raster lane never backs up behind pages the
+    // reader has already left. Jobs check the token before and after the
+    // render; a cancelled job publishes nothing.
+    using CancelToken = std::shared_ptr<const std::atomic<bool>>;
+
     using PageCallback = std::function<void(const QImage&)>;
+    // Progressive per-tile delivery: fired as each tile completes so the
+    // widget paints incrementally without blanking existing pixels. The
+    // PageCallback still fires once when all requested tiles are done.
+    using TileCallback = std::function<void(const QRect& rect, const QImage& tile)>;
     void requestTiles(int page, int zoomBucket, const QSize& pageSize, int rotation,
-                      int tileSize, PageCallback cb, QRect visibleRect = {});
-    // Fast blur-up placeholder: tiny render at highest priority so a fresh
-    // page is never blank while sharp tiles land. Backed by kind=2 keys.
-    void requestPreview(int page, const QSize& pageSize, PageCallback cb);
-    // Warm the full-page cache for an adjacent page at low priority.
+                      int tileSize, PageCallback cb, QRect visibleRect = {},
+                      CancelToken cancelled = nullptr, TileCallback tileCb = nullptr);
+    // Fast blur-up placeholder: a sub-1000px render at high priority so a
+    // fresh page shows a legible draft while sharp tiles land. Backed by
+    // kind=2 keys.
+    void requestPreview(int page, const QSize& pageSize, PageCallback cb,
+                        CancelToken cancelled = nullptr);
+    // Warm the full-page cache for a page the reader is heading toward.
     // No callback: a later requestTiles slices from the cached full render.
-    void prefetchPage(int page, const QSize& pageSize);
+    // priority goes straight to the worker pool: the page the reader will
+    // see next must not wait behind unrelated work.
+    void prefetchPage(int page, const QSize& pageSize, int priority = -5);
 
 private:
     struct State;

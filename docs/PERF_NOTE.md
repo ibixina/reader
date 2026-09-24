@@ -248,6 +248,37 @@ plain `./run.sh [paper.pdf]`. Verified 2026-09-22: fresh configure+build,
       literal-search index rebuilds only when the model changes.
     - build-qt/ and Testing/ untracked (710 stale artifacts), .gitignore
       added.
+17. Blank-page / second-stage-open round (2026-09-23 evening; user report:
+    "blank for seconds, then low quality, then sharp, blank while
+    scrolling"):
+    - Two-stage open. Stage A opens the Poppler raster bridge
+      synchronously (~2 ms even on huge files, measured) and paints page 1
+      immediately; identity (sha256), reading-position restore and the
+      pdfium engine load (`QPdfDocument::load` — previously ON the UI
+      thread, the "frozen blank pane" path for heavy PDFs) run on the
+      extract lane and publish through queued UI steps. PdfView splits
+      into `attachRaster` (pixels) + `attachDocument` (engine/links/
+      extraction). Measured: first visible ink 259 ms on a 24-page
+      image-heavy document through the real MainWindow.
+    - Cancellable raster requests. requestTiles/requestPreview take a
+      cancel token; PageWidget invalidates its in-flight request on zoom,
+      eviction and exposed-rect change, so a page scrolled away from no
+      longer holds the single raster lane (the "blank while scrolling"
+      backlog). Callback-once semantics kept for uncancelled callers
+      (render_stress unchanged).
+    - Placeholder quality: preview longest side 300 → 900 px (tens of ms;
+      the old 300 px read as "low quality" during the wait).
+    - IMPORTANT benchmark caveat discovered: ImageMagick-generated
+      JPEG-based PDFs (and pdfunite merges of them) render as WHITE PAGES
+      in poppler — pdftoppm CLI agrees, so those fixtures were invalid;
+      earlier "figure-dense" numbers measured white pages (directionally
+      right for queue effects, wrong for raster cost). Valid image-heavy
+      fixtures must use FlateDecode/other encodings; new numbers above are
+      from a hand-built FlateDecode full-bleed-image fixture verified
+      non-blank via pdftoppm.
+    - DPR2 scroll on the valid image-heavy doc: frame mean 10.8 ms,
+      p95 15.9 ms, 3/145 over 16.7 ms, max 18.5 ms; jump 81 ms; zoom step
+      263 ms; suite 11/11.
 
 ## 4. Verification log
 - Latest full `ctest`: **11/11 pass** (core, chat_lifecycle, qt, select,
