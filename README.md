@@ -39,6 +39,12 @@ A Qt-free build is supported with `-DBUILD_UI=OFF -DBUILD_TESTS=ON`; it builds
 the core library plus the core and chat-lifecycle tests using only C++20,
 threads, and SQLite.
 
+In the browser chat pane, Enter sends the current selection and question in
+one step. **New chat** opens another conversation; each tab keeps its own
+conversation and question draft while sharing your ChatGPT login. Double-click
+a tab to name it, drag tabs to reorder them, or use its close button. With focus
+in the AI pane, Ctrl+T opens a chat and Ctrl+W closes the current chat.
+
 ## Providers and cache
 
 `EchoProvider` is the default offline provider. `EmbeddingProviderQt` is an

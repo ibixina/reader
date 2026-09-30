@@ -269,10 +269,11 @@ if(BUILD_TESTS)
     set_tests_properties(export PROPERTIES ENVIRONMENT "${NATIVE_QT_TEST_ENV}" TIMEOUT 120)
   endif()
   if(TARGET Qt6::WebEngineWidgets)
-    add_executable(test_webengine tests/test_webengine.cpp src/ui/WebPanel.cpp)
+    add_executable(test_webengine tests/test_webengine.cpp src/ui/WebPanel.cpp
+      src/app/Application.cpp src/ai/OpenAIProvider.cpp src/ai/EmbeddingProviderQt.cpp)
     target_include_directories(test_webengine PRIVATE src)
     target_link_libraries(test_webengine PRIVATE reader_core
-      Qt6::Widgets Qt6::WebEngineWidgets ${EXPAT_LIBRARY})
+      Qt6::Widgets Qt6::Network Qt6::WebEngineWidgets ${EXPAT_LIBRARY})
     if(UNIX AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
       target_link_options(test_webengine PRIVATE "-Wl,--no-as-needed")
     endif()

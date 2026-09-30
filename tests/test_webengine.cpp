@@ -1,11 +1,17 @@
-// Verifies the seamless-handoff mechanism: WebPanel::fillScript fills an
-// editor exposing ChatGPT's contract (#prompt-textarea + ProseMirror +
-// [data-testid="send-button"]) and presses send. Headless/offscreen.
+// Exercises composer submission and independent sessions against local pages.
+#include "app/Application.h"
 #include <QApplication>
 #include <QDir>
 #include <QDirIterator>
 #include <QEventLoop>
+#include <QElapsedTimer>
+#include <QKeyEvent>
+#include <QLineEdit>
 #include <QPointer>
+#include <QPushButton>
+#include <QTabBar>
+#include <QTabWidget>
+#include <QThread>
 #include <QTimer>
 #include <QWebEnginePage>
 #include <QWebEngineProfile>
@@ -157,6 +163,202 @@ public:
     }
 };
 
+template <typename Predicate>
+static bool waitFor(QApplication& app, Predicate predicate, int timeoutMs = 5000) {
+    QElapsedTimer timer;
+    timer.start();
+    while (!predicate() && timer.elapsed() < timeoutMs) {
+        app.processEvents(QEventLoop::AllEvents, 25);
+        QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+        QThread::msleep(5);
+    }
+    return predicate();
+}
+
+static void loadMock(QWebEngineView& view, const QString& html) {
+    QEventLoop loop;
+    QTimer timer;
+    timer.setSingleShot(true);
+    QObject::connect(&timer, &QTimer::timeout, &loop, &QEventLoop::quit);
+    QObject::connect(&view, &QWebEngineView::loadFinished, &loop, &QEventLoop::quit);
+    view.setHtml(html, QUrl("http://reader.test/chat"));
+    timer.start(10000);
+    loop.exec();
+    CHECK(timer.isActive());
+}
+
+static void pressEnter(QLineEdit& edit) {
+    QKeyEvent press(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier);
+    QKeyEvent release(QEvent::KeyRelease, Qt::Key_Return, Qt::NoModifier);
+    QApplication::sendEvent(&edit, &press);
+    QApplication::sendEvent(&edit, &release);
+}
+
+static QString chatMock() {
+    return QStringLiteral(R"HTML(
+        <form>
+          <div id="prompt-textarea" class="ProseMirror" contenteditable="true"></div>
+          <button id="composer-submit-button" type="submit" disabled aria-disabled="true">Send</button>
+        </form>
+        <script>
+          window.__fills = 0; window.__sends = 0; window.__enableDelay = 350;
+          var editor = document.getElementById('prompt-textarea');
+          var button = document.getElementById('composer-submit-button');
+          editor.addEventListener('input', function() {
+            // ProseMirror can emit several input events for a multiline insertion.
+            clearTimeout(window.__inputTimer);
+            window.__inputTimer = setTimeout(function() {
+              ++window.__fills;
+              if (window.__enableDelay < 0) return;
+              setTimeout(function() { button.disabled = false; button.removeAttribute('aria-disabled'); },
+                         window.__enableDelay);
+            }, 0);
+          });
+          document.querySelector('form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            ++window.__sends;
+            window.__prompt = editor.innerText;
+            setTimeout(function() {
+              var message = document.createElement('div');
+              message.setAttribute('data-message-author-role', 'user');
+              message.textContent = window.__prompt;
+              document.body.appendChild(message);
+              editor.textContent = '';
+              button.disabled = true;
+            }, 150);
+          });
+        </script>
+    )HTML");
+}
+
+static void testSessions(QApplication& qt) {
+    reader::Application app;
+    app.model.document.title = "Selection paper";
+    reader::ContextReference ref;
+    ref.displayName = "Selected passage";
+    ref.anchor.page = 2;
+    ref.extractedText = "Original selection about amortization.";
+    app.context.setCurrentSelection(ref);
+    LocalRequestInterceptor interceptor;
+    WebPanel panel(&app);
+    auto* profile = panel.findChild<QWebEngineProfile*>();
+    CHECK(profile);
+    if (!profile) return;
+    profile->setUrlRequestInterceptor(&interceptor);
+    auto* tabs = panel.findChild<QTabWidget*>("browserSessions");
+    auto* question = panel.findChild<QLineEdit*>("browserQuestion");
+    auto* ask = panel.findChild<QPushButton*>("browserAskButton");
+    auto* newChat = panel.findChild<QPushButton*>("browserNewChat");
+    CHECK(tabs && question && ask && newChat);
+    if (!tabs || !question || !ask || !newChat) return;
+    CHECK(tabs->count() == 1);
+    auto* first = panel.currentView();
+    loadMock(*first, chatMock());
+    panel.resize(750, 850);
+    panel.show();
+    qt.processEvents();
+
+    // One Enter waits for async enablement, submits once, and retains the draft until confirmed.
+    question->setText("Explain this selection");
+    pressEnter(*question);
+    CHECK(!ask->isEnabled());
+    CHECK(question->text() == "Explain this selection");
+    pressEnter(*question);
+    CHECK(waitFor(qt, [&] { return ask->isEnabled(); }));
+    CHECK(question->text().isEmpty());
+    CHECK(runJsSync(*first, "window.__fills").toInt() == 1);
+    CHECK(runJsSync(*first, "window.__sends").toInt() == 1);
+    QString prompt = runJsSync(*first, "window.__prompt").toString();
+    CHECK(prompt.contains("Selection paper"));
+    CHECK(prompt.contains("page 3"));
+    CHECK(prompt.contains("Original selection about amortization."));
+    CHECK(prompt.contains("Question: Explain this selection"));
+
+    // Keep one request pending while a second tab submits a different immutable context.
+    runJsSync(*first, "window.__enableDelay = -1");
+    question->setText("First topic");
+    pressEnter(*question);
+    CHECK(waitFor(qt, [&] { return runJsSync(*first, "window.__fills").toInt() == 2; }));
+    newChat->click();
+    CHECK(tabs->count() == 2);
+    auto* second = panel.currentView();
+    CHECK(first != second && first->page() != second->page());
+    CHECK(first->page()->profile() == second->page()->profile());
+    loadMock(*second, chatMock());
+    CHECK(question->text().isEmpty());
+    CHECK(ask->isEnabled());
+    runJsSync(*first, "document.cookie='shared-login=yes;path=/'");
+    CHECK(runJsSync(*second, "document.cookie").toString().contains("shared-login=yes"));
+    ref.extractedText = "Different selection about convergence.";
+    app.context.setCurrentSelection(ref);
+    question->setText("Second topic");
+    pressEnter(*question);
+    question->setText("Unsent follow-up");
+    runJsSync(*first, "button.disabled = false; button.removeAttribute('aria-disabled')");
+    CHECK(waitFor(qt, [&] { return ask->isEnabled(); }));
+    CHECK(question->text() == "Unsent follow-up");
+    CHECK(runJsSync(*second, "window.__sends").toInt() == 1);
+    prompt = runJsSync(*second, "window.__prompt").toString();
+    CHECK(prompt.contains("Second topic"));
+    CHECK(prompt.contains("Different selection about convergence."));
+    tabs->setCurrentWidget(first);
+    CHECK(waitFor(qt, [&] { return ask->isEnabled(); }));
+    CHECK(question->text().isEmpty());
+    CHECK(runJsSync(*first, "window.__sends").toInt() == 2);
+    prompt = runJsSync(*first, "window.__prompt").toString();
+    CHECK(prompt.contains("First topic"));
+    CHECK(prompt.contains("Original selection about amortization."));
+    CHECK(!prompt.contains("Different selection about convergence."));
+    tabs->setCurrentWidget(second);
+    CHECK(question->text() == "Unsent follow-up");
+
+    // Moving tabs must preserve the mapping between the composer and its web page.
+    tabs->tabBar()->moveTab(tabs->indexOf(second), 0);
+    CHECK(panel.currentView() == second);
+    question->setText("After moving tabs");
+    pressEnter(*question);
+    CHECK(waitFor(qt, [&] { return ask->isEnabled(); }));
+    CHECK(runJsSync(*second, "window.__sends").toInt() == 2);
+    CHECK(runJsSync(*first, "window.__sends").toInt() == 2);
+
+    // Timeout preserves the question; enabling later must not send a stale request.
+    auto* timeout = second->findChild<QTimer*>("browserAskTimeout");
+    CHECK(timeout);
+    timeout->setInterval(400);
+    runJsSync(*second, "window.__enableDelay = -1");
+    question->setText("Retry this question");
+    pressEnter(*question);
+    CHECK(waitFor(qt, [&] { return ask->isEnabled(); }));
+    CHECK(question->text() == "Retry this question");
+    runJsSync(*second, "button.disabled = false; button.removeAttribute('aria-disabled')");
+    QEventLoop settle;
+    QTimer::singleShot(300, &settle, &QEventLoop::quit);
+    settle.exec();
+    CHECK(runJsSync(*second, "window.__sends").toInt() == 2);
+    timeout->setInterval(20000);
+    pressEnter(*question);
+    CHECK(waitFor(qt, [&] { return ask->isEnabled(); }));
+    CHECK(question->text().isEmpty());
+    CHECK(runJsSync(*second, "window.__sends").toInt() == 3);
+
+    // Closing a pending tab cannot submit into another tab, and the last close creates a fresh chat.
+    question->setText("Closing topic");
+    pressEnter(*question);
+    CHECK(waitFor(qt, [&] { return runJsSync(*second, "window.__fills").toInt() == 5; }));
+    QPointer<QWebEngineView> closed(second);
+    panel.closeSession(tabs->indexOf(second));
+    CHECK(tabs->count() == 1);
+    CHECK(panel.currentView() == first);
+    CHECK(waitFor(qt, [&] { return closed.isNull(); }));
+    CHECK(ask->isEnabled());
+    CHECK(question->text().isEmpty());
+    CHECK(runJsSync(*first, "window.__sends").toInt() == 2);
+    panel.closeSession(0);
+    CHECK(tabs->count() == 1);
+    CHECK(panel.currentView() != first);
+    CHECK(panel.currentView()->page()->profile() == profile);
+}
+
 int main(int argc, char** argv) {
     QApplication app(argc, argv);
     QWebEngineView view;
@@ -169,7 +371,7 @@ int main(int argc, char** argv) {
     QObject::connect(view.page(), &QWebEnginePage::loadFinished, &loaded, &QEventLoop::quit);
     view.setHtml(R"HTML(
         <div id="prompt-textarea"><div class="ProseMirror" contenteditable="true"></div></div>
-        <button data-testid="send-button" onclick="window.__sent=true">send</button>
+        <button data-testid="send-button" onclick="window.__sent=(window.__sent || 0)+1">send</button>
     )HTML",
                  QUrl("http://reader.test/"));
     loadTimer.start(20000);
@@ -177,7 +379,8 @@ int main(int argc, char** argv) {
 
     QString prompt = "Explain \"amortization\" [12] & why p.6 matters.\nSecond line\ttab.";
     QString status = runJsSync(view, WebPanel::fillScript(prompt)).toString();
-    CHECK(status == "sent");
+    CHECK(status == "filled");
+    CHECK(runJsSync(view, WebPanel::sendScript()).toString() == "clicked");
     // innerText needs layout (absent headless); walk text nodes explicitly.
     QString editorText = runJsSync(view,
                                    "(function(){"
@@ -207,8 +410,11 @@ int main(int argc, char** argv) {
         };
         std::cout << "WANT=[" << dump(prompt) << "]\nGOT=[" << dump(editorText) << "]\n";
     }
-    bool sent = runJsSync(view, "window.__sent === true").toBool();
-    CHECK(sent);
+    CHECK(runJsSync(view, WebPanel::sendScript()).toString() == "waiting-confirmation");
+    CHECK(runJsSync(view, WebPanel::sendScript()).toString() == "waiting-confirmation");
+    CHECK(runJsSync(view, "window.__sent").toInt() == 1);
+    runJsSync(view, "document.body.insertAdjacentHTML('beforeend', '<div data-message-author-role=\"user\">sent</div>')");
+    CHECK(runJsSync(view, WebPanel::sendScript()).toString() == "sent");
 
     // Missing editor degrades to a diagnosable status, never silent.
     view.setHtml("<p>login wall</p>", QUrl("http://reader.test/"));
@@ -226,11 +432,36 @@ int main(int argc, char** argv) {
     QObject::connect(view.page(), &QWebEnginePage::loadFinished, &loaded, &QEventLoop::quit);
     loadTimer.start(20000);
     loaded.exec();
-    CHECK(runJsSync(view, WebPanel::fillScript("fallback check")).toString() == "sent");
+    CHECK(runJsSync(view, WebPanel::fillScript("fallback check")).toString() == "filled");
+    CHECK(runJsSync(view, WebPanel::sendScript()).toString() == "clicked");
     CHECK(runJsSync(view, "document.querySelector('[data-testid=\"composer-text-input\"]')"
                           ".textContent")
               .toString() == "fallback check");
     CHECK(runJsSync(view, "window.__sent2 === true").toBool());
+
+    // Textarea composers need their native value setter and an input event.
+    loadMock(view, R"HTML(
+        <form><textarea id="prompt-textarea"></textarea>
+        <button data-testid="composer-send-button" disabled>Send</button></form>
+        <button data-testid="stop-button">Stop</button>
+        <script>
+          document.querySelector('textarea').addEventListener('input', function() {
+            document.querySelector('form button').disabled = false;
+          });
+          document.querySelector('form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            document.body.insertAdjacentHTML('beforeend', '<div data-message-author-role="user">sent</div>');
+          });
+        </script>
+    )HTML");
+    CHECK(runJsSync(view, WebPanel::fillScript(prompt)).toString() == "busy");
+    CHECK(runJsSync(view, "document.querySelector('textarea').value").toString().isEmpty());
+    runJsSync(view, "document.querySelector('[data-testid=\"stop-button\"]').remove()");
+    CHECK(runJsSync(view, WebPanel::fillScript(prompt)).toString() == "filled");
+    CHECK(runJsSync(view, "document.querySelector('textarea').value").toString() == prompt);
+    CHECK(runJsSync(view, WebPanel::sendScript("older-request")).toString() == "cancelled");
+    CHECK(runJsSync(view, WebPanel::sendScript()).toString() == "clicked");
+    CHECK(runJsSync(view, WebPanel::sendScript()).toString() == "sent");
 
     // Ingest polling: stop button visible -> generating; gone -> final text.
     view.setHtml(R"HTML(
@@ -392,6 +623,7 @@ int main(int argc, char** argv) {
     CHECK(runJsSync(view, attachScript("SGVsbG8=", "paper.pdf")).toString() ==
           "no-file-input");
 
+    testSessions(app);
     if (failures == 0) std::cout << "ALL WEBENGINE TESTS PASSED\n";
     return failures == 0 ? 0 : 1;
 }
