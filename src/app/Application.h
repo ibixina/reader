@@ -29,7 +29,7 @@ public:
 
     // One thread per lane: background work must never out-compute the
     // reader. renderPool is reserved for future renderer jobs (the renderer
-    // currently uses the global pool); the rest serialize their lane.
+    // owns a dedicated Qt pool); the rest serialize their lane.
     ThreadPool renderPool{1};
     ThreadPool extractPool{1};
     ThreadPool analysisPool{1};

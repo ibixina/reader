@@ -26,6 +26,7 @@
 #include <QScreen>
 #include <QScrollBar>
 #include <QResizeEvent>
+#include <QRegion>
 #include <QShortcut>
 #include <QSplitter>
 #include <QTextEdit>
@@ -56,6 +57,7 @@ public:
         setCursor(Qt::IBeamCursor);
         setFocusPolicy(Qt::NoFocus);
     }
+    ~PageWidget() override { cancelPendingRaster(); }
     void setHighlights(QList<QRectF> rows) {
         highlightRows_ = std::move(rows);
         update();
@@ -75,47 +77,35 @@ public:
         userOverlays_ = std::move(overlays);
         update();
     }
-    // Zoom in place: resize and drop stale rasters, keep the widget (and
-    // its layout slot) so zooming never rebuilds the whole page tree.
     void applyZoom(double zoom) {
         if (zoom_ == zoom) return;
         zoom_ = zoom;
-        setFixedSize(qMax(1, qRound(pageWidth_ * zoom_)),
-                     qMax(1, qRound(pageHeight_ * zoom_)));
+        setFixedSize(qMax(1, qRound(rotatedWidth() * zoom_)),
+                     qMax(1, qRound(rotatedHeight() * zoom_)));
         cancelPendingRaster();
-        cache_ = {};  // size changed: old pixels are wrong scale, drop them
-        preview_ = {};
+        if (!cache_.isNull()) preview_ = cache_;
+        cache_ = {};
+        tiles_.clear();
+        coveredSource_ = {};
         update();
     }
-    // Drop the widget-level page rasters. They duplicate the renderer's
-    // tile/page caches; without release they grow without bound on long
-    // documents (one full device-pixel image per painted page). In-flight
-    // render callbacks re-populate harmlessly (QPointer-guarded).
-    // Called only when the page is far outside the ±3/+5 reading window.
     void releaseCache() {
-        if (cache_.isNull() && preview_.isNull() && !renderPending_ && !previewPending_)
-            return;
-        if (renderCancel_) renderCancel_->store(true);
-        if (previewCancel_) previewCancel_->store(true);
+        cancelPendingRaster();
         cache_ = {};
         preview_ = {};
-        previewFor_ = {};
-        requestedSource_ = {};
-        renderPending_ = false;
-        previewPending_ = false;
+        tiles_.clear();
+        coveredSource_ = {};
     }
-    // Invalidate any in-flight raster request for this widget: the request
-    // was superseded (zoom change, new exposed rect). The render job abandons
-    // itself instead of holding the raster lane. cache_ is NOT cleared —
-    // old pixels stay visible until progressive tiles overwrite them.
     void cancelPendingRaster() {
         if (renderCancel_) renderCancel_->store(true);
         if (previewCancel_) previewCancel_->store(true);
-        preview_ = {};
-        previewFor_ = {};
-        requestedSource_ = {};
         renderPending_ = false;
         previewPending_ = false;
+    }
+    void leaveViewport() {
+        cancelPendingRaster();
+        tiles_.clear();
+        coveredSource_ = {};
     }
     void clearSelection() {
         precise_.clear();
@@ -146,108 +136,95 @@ protected:
         const QSize expectedPx =
             (rotation_ == 90 || rotation_ == 270) ? QSize(sourcePx.height(), sourcePx.width())
                                                   : sourcePx;
-        QRect exposed = ev->region().boundingRect().intersected(rect());
+        const bool wholePage = reader::PdfRenderer::usesWholePage(sourcePx);
+        QRect exposed = (wholePage ? ev->region() : visibleRegion()).boundingRect().intersected(rect());
         if (exposed.isEmpty()) exposed = rect();
         const QRect visibleSource = sourceRect(exposed, dpr).intersected(
             QRect(QPoint(0, 0), sourcePx));
-        // Preview: only when no cache exists yet and no preview already
-        // pending. Runs independently of sharp render — if sharp tiles land
-        // first (viewport-only ~150ms), preview never shows. If a figure-heavy
-        // page delays sharp render, preview fills the gap. Never blocks sharp.
-        if (preview_.isNull() || previewFor_ != sourcePx) {
-            if (previewFor_ != sourcePx) {
-                if (previewCancel_) previewCancel_->store(true);
-                preview_ = {};
-                previewFor_ = {};
-            }
-            if (!previewPending_ && renderer_ && cache_.isNull()) {
+        if (cache_.isNull() && wholePage && renderer_) {
+            cache_ = renderer_->cachedPage(page_, sourcePx);
+            if (!cache_.isNull() && rotation_ != 0)
+                cache_ = cache_.transformed(QTransform().rotate(rotation_), Qt::FastTransformation);
+        }
+        if (preview_.isNull() && cache_.isNull() && renderer_) {
+            preview_ = renderer_->cachedPage(page_, reader::PdfRenderer::previewSize(sourcePx));
+            if (!preview_.isNull() && rotation_ != 0)
+                preview_ = preview_.transformed(QTransform().rotate(rotation_), Qt::FastTransformation);
+            if (preview_.isNull() && !previewPending_) {
                 previewPending_ = true;
                 QPointer<PageWidget> guard(this);
-                const int renderRotation = rotation_;
                 previewCancel_ = std::make_shared<std::atomic<bool>>(false);
                 const auto cancel = previewCancel_;
-                renderer_->requestPreview(page_, sourcePx,
-                                          [guard, sourcePx, renderRotation](QImage image) {
-                                              if (!guard) return;
-                                              guard->previewPending_ = false;
-                                              if (image.isNull()) return;
-                                              if (renderRotation != 0)
-                                                  image = image.transformed(
-                                                      QTransform().rotate(renderRotation),
-                                                      Qt::SmoothTransformation);
-                                              guard->preview_ = std::move(image);
-                                              guard->previewFor_ = sourcePx;
-                                              if (guard->cache_.isNull()) guard->update();
-                                          }, cancel);
+                renderer_->requestPreview(page_, sourcePx, [guard, cancel](const QImage& image) {
+                    if (!guard || cancel->load() || guard->previewCancel_ != cancel) return;
+                    guard->previewPending_ = false;
+                    if (image.isNull()) return;
+                    guard->preview_ = guard->rotation_ == 0 ? image : image.transformed(
+                        QTransform().rotate(guard->rotation_), Qt::FastTransformation);
+                    if (guard->cache_.isNull()) guard->update();
+                }, cancel);
             }
         }
-        if ((cache_.isNull() || cache_.size() != expectedPx ||
-             visibleSource != requestedSource_) &&
-            !renderPending_ && renderer_) {
+        const bool needsRaster = wholePage ? cache_.size() != expectedPx
+                                           : !coveredSource_.contains(visibleSource);
+        if (needsRaster && !renderPending_ && renderer_) {
             renderPending_ = true;
-            if (renderCancel_) renderCancel_->store(true);
             QPointer<PageWidget> guard(this);
-            const int renderRotation = rotation_;
             renderCancel_ = std::make_shared<std::atomic<bool>>(false);
             const auto cancel = renderCancel_;
-            // Progressive tile delivery: each tile paints into the persistent
-            // cache_ as it completes. Never blank existing pixels — old
-            // content stays visible until overwritten by finished tiles.
-            renderer_->requestTiles(page_, static_cast<int>(std::lround(zoom_ * 1000)),
-                                    sourcePx, renderRotation, 512,
-                                    [guard, renderRotation, dpr](QImage) {
-                // Completion signal: all tiles done (or failed). Reset pending
-                // so future exposes can re-request. The actual pixels already
-                // landed via tileCb.
-                if (!guard) return;
-                guard->renderPending_ = false;
-                guard->requestedSource_ = {};
-            }, visibleSource, cancel,
-            [guard, sourcePx, renderRotation, dpr](const QRect& rect, QImage tile) {
-                // Progressive paint: composite this tile into the persistent
-                // cache_ without clearing it first. Old pixels elsewhere remain.
-                if (!guard || tile.isNull()) return;
-                if (guard->cache_.isNull() || guard->cache_.size() != sourcePx) {
-                    // First tile or size change: allocate fresh canvas.
-                    guard->cache_ = QImage(sourcePx, QImage::Format_ARGB32_Premultiplied);
-                    guard->cache_.fill(Qt::white);
-                    guard->cache_.setDevicePixelRatio(dpr);
-                }
-                if (renderRotation != 0) {
-                    // Rotate tile into page space, then composite.
-                    QImage rotated = tile.transformed(QTransform().rotate(renderRotation),
-                                                      Qt::FastTransformation);
-                    // Map rotated rect back: for 90/270 the axes swap.
-                    QRect mapped = rect;
-                    if (renderRotation == 90 || renderRotation == 270) {
-                        mapped = QRect(rect.top(), rect.left(), rect.height(), rect.width());
-                        // After rotation the origin shifts; adjust for tile position.
-                        const int w = sourcePx.width(), h = sourcePx.height();
-                        if (renderRotation == 90)
-                            mapped = QRect(h - rect.bottom() - 1, rect.x(),
-                                           rect.height(), rect.width());
-                        else // 270
-                            mapped = QRect(rect.y(), w - rect.right() - 1,
-                                           rect.height(), rect.width());
-                    }
-                    QPainter painter(&guard->cache_);
-                    painter.drawImage(mapped.topLeft(), rotated);
-                } else {
-                    QPainter painter(&guard->cache_);
-                    painter.drawImage(rect.topLeft(), tile);
-                }
-                guard->update();
-            });
-            requestedSource_ = visibleSource;
+            if (wholePage) {
+                renderer_->requestPage(page_, sourcePx, [guard, cancel](const QImage& image) {
+                    if (!guard || cancel->load() || guard->renderCancel_ != cancel) return;
+                    guard->renderPending_ = false;
+                    if (image.isNull()) return;
+                    guard->cache_ = guard->rotation_ == 0 ? image : image.transformed(
+                        QTransform().rotate(guard->rotation_), Qt::FastTransformation);
+                    guard->preview_ = {};
+                    guard->update();
+                }, cancel);
+            } else {
+                const int visibleTiles = (visibleSource.right() / 512 - visibleSource.left() / 512 + 1) *
+                                         (visibleSource.bottom() / 512 - visibleSource.top() / 512 + 1);
+                const int retainedTiles = std::max(64, visibleTiles);
+                renderer_->requestTiles(page_, 0, sourcePx, rotation_, 512,
+                    [guard, cancel](const QImage& image) {
+                        if (!guard || cancel->load() || guard->renderCancel_ != cancel) return;
+                        guard->renderPending_ = false;
+                        if (!image.isNull()) guard->update();
+                    }, visibleSource, cancel,
+                    [guard, cancel, retainedTiles](const QRect& tileRect, const QImage& tile) {
+                        if (!guard || cancel->load() || guard->renderCancel_ != cancel) return;
+                        if (guard->coveredSource_.contains(tileRect)) return;
+                        guard->tiles_.append({tileRect, tile});
+                        guard->coveredSource_ += tileRect;
+                        // Extreme zooms retain a bounded strip of sharp pixels.
+                        if (guard->tiles_.size() > retainedTiles) {
+                            guard->coveredSource_ -= guard->tiles_.front().first;
+                            guard->tiles_.removeFirst();
+                        }
+                        guard->update();
+                    });
+            }
         }
         QPainter p(this);
         p.fillRect(rect(), Qt::white);
-        if (!cache_.isNull()) {
-            p.drawImage(rect(), cache_);
-        } else if (!preview_.isNull() && previewFor_ == sourcePx) {
+        if (!preview_.isNull() && cache_.isNull()) {
             p.setRenderHint(QPainter::SmoothPixmapTransform, true);
             p.drawImage(rect(), preview_);
             p.setRenderHint(QPainter::SmoothPixmapTransform, false);
+        }
+        if (!cache_.isNull()) p.drawImage(rect(), cache_);
+        if (!wholePage) {
+            // Paint source-pixel tiles directly through the PDF transform;
+            // no full-page canvas, DPR-dependent offsets or rotated copies.
+            p.save();
+            p.setTransform(pageTransform());
+            for (const auto& [tileRect, tile] : tiles_) {
+                const qreal pixelsPerPoint = zoom_ * dpr;
+                p.drawImage(QRectF(tileRect.x() / pixelsPerPoint, tileRect.y() / pixelsPerPoint,
+                                   tileRect.width() / pixelsPerPoint, tileRect.height() / pixelsPerPoint), tile);
+            }
+            p.restore();
         }
         // User highlights: pale yellow wash, saved to SQLite.
         if (!userOverlays_.isEmpty()) {
@@ -492,6 +469,17 @@ private:
         update();
     }
 
+    QTransform pageTransform() const {
+        QTransform transform;
+        transform.scale(zoom_, zoom_);
+        switch (rotation_) {
+            case 90: transform.translate(pageHeight_, 0); break;
+            case 180: transform.translate(pageWidth_, pageHeight_); break;
+            case 270: transform.translate(0, pageWidth_); break;
+        }
+        transform.rotate(rotation_);
+        return transform;
+    }
     QPointF toPdf(const QPointF& widget) const {
         QPointF p = widget / zoom_;
         switch (rotation_) {
@@ -554,8 +542,8 @@ private:
     QList<QPair<QRectF, QString>> userOverlays_;
     QImage cache_;
     QImage preview_;
-    QSize previewFor_;
-    QRect requestedSource_;
+    QList<QPair<QRect, QImage>> tiles_;
+    QRegion coveredSource_;
     bool renderPending_ = false;
     bool previewPending_ = false;
     // Cancellation for the in-flight preview/tile requests of this widget.
@@ -578,9 +566,7 @@ PdfView::PdfView(reader::Application* app, QWidget* parent)
     verticalScrollBar()->setSingleStep(40);
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this,
             [this] { updateCurrentPage(); });
-    // Neighbor-page pixel prefetch waits for a scroll pause: firing four
-    // full-page renders on every scrollbar tick is what wedged the render
-    // queue during fast scrolling.
+    // Debounce text geometry and retry pixel prefetch after scrolling stops.
     prefetchTimer_ = new QTimer(this);
     prefetchTimer_->setSingleShot(true);
     prefetchTimer_->setInterval(180);
@@ -746,8 +732,15 @@ void PdfView::rebuildPages() {
             // focused widget.
         });
         layout->addWidget(w);
+        w->show();
     }
     distributeLines();
+    // Establish page positions before Qt delivers the first paint events.
+    // Otherwise new widgets overlap at (0,0) and every page queues a preview
+    // ahead of the visible page's sharp render.
+    pageHost_->resize(pageHost_->sizeHint().expandedTo(viewport()->size()));
+    layout->activate();
+    updateCurrentPage();
 }
 
 void PdfView::attachRaster(std::shared_ptr<PopplerBridge> raster, const QString& path) {
@@ -776,6 +769,10 @@ void PdfView::attachRaster(std::shared_ptr<PopplerBridge> raster, const QString&
     linkModel_.reset();
     currentPage_ = 0;
     rebuildPages();
+    verticalScrollBar()->setValue(0);
+    horizontalScrollBar()->setValue(0);
+    lastScrollValue_ = 0;
+    scrollDirection_ = 1;
     prefetchPixelsAround(0);
 }
 
@@ -805,6 +802,10 @@ void PdfView::attachDocument(std::shared_ptr<QPdfDocument> doc, const QString& p
         for (int i = 0; i < pageCount_; ++i) pageSizes_[i] = raster_->pageSize(i);
         currentPage_ = 0;
         rebuildPages();
+        verticalScrollBar()->setValue(0);
+        horizontalScrollBar()->setValue(0);
+        lastScrollValue_ = 0;
+        scrollDirection_ = 1;
     }
     doc_ = std::move(doc);
     linkModel_ = std::make_unique<QPdfLinkModel>();
@@ -851,6 +852,7 @@ void PdfView::setZoom(double z) {
         app_->state.zoom = zoom_;
         return;
     }
+    renderer_->setPrefetchWindow(-1, -1);
     // Anchor the reflow at the current page: zooming must not throw the
     // reader to the top of the document.
     int anchorPage = currentPage_;
@@ -1028,7 +1030,7 @@ void PdfView::keyPressEvent(QKeyEvent* event) {
 }
 
 void PdfView::updateCurrentPage() {
-    if (!doc_ || pageHost_->layout()->count() == 0) return;
+    if (pageCount_ == 0 || pageHost_->layout()->count() == 0) return;
     const int scrollValue = verticalScrollBar()->value();
     const int delta = scrollValue - lastScrollValue_;
     if (delta > 0) scrollDirection_ = 1;
@@ -1058,11 +1060,13 @@ void PdfView::updateCurrentPage() {
     // the rest; revisited pages re-request rasters asynchronously.
     constexpr int kKeepBefore = 3;
     constexpr int kKeepAfter = 5;
+    const QRect visibleInHost(pageHost_->mapFrom(viewport(), QPoint(0, 0)), viewport()->size());
     for (int i = 0; i < layout->count(); ++i) {
         auto* widget = qobject_cast<PageWidget*>(layout->itemAt(i)->widget());
         if (!widget) continue;
         const int d = widget->pageIndex() - bestPage;
         if (d < -kKeepBefore || d > kKeepAfter) widget->releaseCache();
+        else if (!widget->geometry().intersects(visibleInHost)) widget->leaveViewport();
     }
     bool changed = bestPage != currentPage_;
     currentPage_ = bestPage;
@@ -1340,27 +1344,31 @@ void PdfView::prefetchPixelsAround(int page) {
     if (!renderer_ || page < 0 || page >= pageCount_) return;
     qreal dpr = devicePixelRatioF();
     if (dpr <= 0) dpr = 1;
-    // Warm pages ahead so they're ready when the reader arrives. Priority
-    // hierarchy (higher = sooner): visible viewport tiles 20 > visible
-    // full-page 15 > preview 10 > next-page prefetch 5 > other prefetch -5.
-    // The visible page always wins the raster lane.
+    // Keep speculative work near the viewport; old requests must not occupy
+    // the render lane after a large jump or a change in scroll direction.
     const int dir = scrollDirection_.load();
+    renderer_->setPrefetchWindow(std::min(page - dir, page + 4 * dir),
+                                 std::max(page - dir, page + 4 * dir));
     const int forward[] = {page + dir, page + 2 * dir, page + 3 * dir, page + 4 * dir};
     for (int i = 0; i < 4; ++i) {
         const int p = forward[i];
         if (p < 0 || p >= pageCount_ || p == page) continue;
         const QSizeF pts = pageSizes_[p];
         if (pts.isEmpty()) continue;
-        renderer_->prefetchPage(p, QSize(qMax(1, qRound(pts.width() * zoom_ * dpr)),
-                                         qMax(1, qRound(pts.height() * zoom_ * dpr))),
-                                i == 0 ? 5 : -5);
+        const QSize size(qMax(1, qRound(pts.width() * zoom_ * dpr)),
+                         qMax(1, qRound(pts.height() * zoom_ * dpr)));
+        renderer_->prefetchPage(p, reader::PdfRenderer::usesWholePage(size) ? size
+                                  : reader::PdfRenderer::previewSize(size), i == 0 ? 5 : -5);
     }
     const int back = page - dir;
     if (back >= 0 && back < pageCount_ && back != page) {
         const QSizeF pts = pageSizes_[back];
-        if (!pts.isEmpty())
-            renderer_->prefetchPage(back, QSize(qMax(1, qRound(pts.width() * zoom_ * dpr)),
-                                                qMax(1, qRound(pts.height() * zoom_ * dpr))));
+        if (!pts.isEmpty()) {
+            const QSize size(qMax(1, qRound(pts.width() * zoom_ * dpr)),
+                             qMax(1, qRound(pts.height() * zoom_ * dpr)));
+            renderer_->prefetchPage(back, reader::PdfRenderer::usesWholePage(size) ? size
+                                         : reader::PdfRenderer::previewSize(size));
+        }
     }
 }
 

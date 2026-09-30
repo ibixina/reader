@@ -174,6 +174,21 @@ if(BUILD_TESTS)
       -DTEST_HOME_ROOT=${ISOLATED_TEST_ROOT}
       -P ${ISOLATED_TEST_SCRIPT})
     set_tests_properties(select PROPERTIES ENVIRONMENT "${NATIVE_QT_TEST_ENV}")
+    add_executable(test_render_view tests/test_render_view.cpp src/ui/PdfView.cpp
+      src/app/Application.cpp src/ai/OpenAIProvider.cpp src/ai/EmbeddingProviderQt.cpp
+      src/pdf/PopplerBridge.cpp src/pdf/PdfRenderer.cpp src/pdf/WordBoxes.cpp)
+    target_include_directories(test_render_view PRIVATE src tests ${PopplerQt6_INCLUDE_DIRS})
+    target_link_libraries(test_render_view PRIVATE reader_core ${POPPLER_LINK}
+      Qt6::Widgets Qt6::Network Qt6::Pdf Qt6::Concurrent)
+    target_compile_options(test_render_view PRIVATE -Wall -Wextra -Wpedantic)
+    foreach(test_name render_view render_view_hidpi)
+      add_test(NAME ${test_name} COMMAND ${CMAKE_COMMAND}
+        -DTEST_EXECUTABLE=$<TARGET_FILE:test_render_view>
+        -DTEST_HOME_ROOT=${ISOLATED_TEST_ROOT}
+        -P ${ISOLATED_TEST_SCRIPT})
+      set_tests_properties(${test_name} PROPERTIES ENVIRONMENT "${NATIVE_QT_TEST_ENV}" TIMEOUT 30)
+    endforeach()
+    set_property(TEST render_view_hidpi APPEND PROPERTY ENVIRONMENT "QT_SCALE_FACTOR=2")
     add_executable(test_embedding_qt tests/test_embedding_qt.cpp src/ai/EmbeddingProviderQt.cpp)
     target_include_directories(test_embedding_qt PRIVATE src)
     target_link_libraries(test_embedding_qt PRIVATE reader_core Qt6::Core Qt6::Network)

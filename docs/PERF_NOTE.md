@@ -280,10 +280,43 @@ plain `./run.sh [paper.pdf]`. Verified 2026-09-22: fresh configure+build,
       p95 15.9 ms, 3/145 over 16.7 ms, max 18.5 ms; jump 81 ms; zoom step
       263 ms; suite 11/11.
 
+18. Scroll renderer correction (2026-09-30, supplied 27-page JADAI PDF):
+    - Normal rasters up to 8 megapixels are cached and displayed as complete
+      pages. A newly exposed region no longer reruns Poppler or copies tiles
+      into a second page canvas. Cache hits are available during the first
+      paint, including prefetched neighbor pages.
+    - Measured at 1530×1980 pixels: requesting an uncached tile on a cached
+      page took 31/45/39/199/33 ms on pages 1/4/5/6/7 before; all five took
+      less than 1 ms after. These measure reuse, not cold file loading.
+    - One dedicated Qt raster worker preserves queue priorities and avoids
+      tying up the global pool with mutex waiters. Cancellation reaches
+      Poppler during rendering and is checked again before GUI delivery.
+      Hidden-page requests and obsolete prefetches are cancelled.
+    - Page layout is established before the first paint. Previously newly
+      created widgets overlapped and queued previews for hidden pages,
+      keeping a long document's visible page at draft quality for seconds.
+      Opening another document resets the scroll offset; reading-state saves
+      wait until the displayed document's hash matches the active identity.
+    - Preview size is capped at 900 pixels on its longest side. Zoom retains
+      previous pixels while the new raster arrives. Large zooms use sparse
+      viewport tiles over the preview, with correct DPR/rotation placement;
+      tile retention accommodates the entire viewport, including large
+      HiDPI windows. The renderer cache uses a 192 MiB byte budget.
+    - `render_view` and `render_view_hidpi` compare displayed pixels with
+      Poppler, test immediate neighbor/scroll paints, all quarter rotations,
+      zoom continuity, large-zoom tiles and repaint stability. A settled
+      page produces zero extra paints. The test also accepts a PDF path;
+      the supplied JADAI file passes at DPR 2. Against the previous renderer,
+      the regression test fails on idle repaints, zoom continuity, rotation
+      and navigation before text-engine attachment.
+    - Complex uncached pages still have a raster cost: JADAI page 22 measured
+      about 1.06 s for its first full 1530×1980 render. No 60 FPS or universal
+      instant-open claim is implied by the cache measurements.
+
 ## 4. Verification log
-- Latest full `ctest`: **11/11 pass** (core, chat_lifecycle, qt, select,
-  embedding_qt, reader_ui, shutdown, render, render_stress, export,
-  webengine) — 2026-09-23, Release `build-qt`, with the §3.16 fixes.
+- Latest full `ctest`: **13/13 pass** (core, chat_lifecycle, qt, select,
+  render_view, render_view_hidpi, embedding_qt, reader_ui, shutdown, render,
+  render_stress, export, webengine) — 2026-09-30, Release `build-qt`.
 - Qt-free `BUILD_UI=OFF` build: 2/2 pass (re-verified 2026-09-23).
 - Zero compiler warnings in the full build after §3.16.
 

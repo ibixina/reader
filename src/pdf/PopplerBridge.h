@@ -3,6 +3,7 @@
 #include <QRect>
 #include <QSize>
 #include <QString>
+#include <functional>
 #include <memory>
 #include <poppler-qt6.h>
 
@@ -14,11 +15,13 @@ public:
     bool open(const QString& path);
     int pageCount() const;
     QSizeF pageSize(int page) const;
-    QImage renderPage(int page, QSize px) const;
+    using CancelCheck = std::function<bool()>;
+    QImage renderPage(int page, QSize px, const CancelCheck& cancelled = {}) const;
     // Render only the requested pixel rectangle from a page raster. The
     // rectangle is expressed in the unrotated full-page pixel coordinate
     // space, so callers can assemble tiles without rendering the page again.
-    QImage renderTile(int page, QSize fullPx, QRect tilePx) const;
+    QImage renderTile(int page, QSize fullPx, QRect tilePx,
+                      const CancelCheck& cancelled = {}) const;
 
 private:
     std::unique_ptr<Poppler::Document> doc_;

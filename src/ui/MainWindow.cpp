@@ -280,7 +280,8 @@ void MainWindow::scheduleReadingStateSave() {
 }
 
 void MainWindow::saveReadingState() {
-    if (!app_ || !app_->documents || app_->state.openDocument.empty() || !pdf_) return;
+    if (!app_ || !app_->documents || app_->state.openDocument.empty() || !pdf_ ||
+        app_->model.document.id != app_->state.openDocument) return;
     app_->state.scrollY = pdf_->verticalScrollBar()->value();
     app_->documents->saveReadingState(app_->state.openDocument, app_->state.page,
                                       app_->state.scrollY, app_->state.zoom);

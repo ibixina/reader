@@ -50,6 +50,11 @@ int main(int argc, char** argv) {
     CHECK(tile.size() == QSize(100, 120));
     CHECK(std::abs(tile.pixelColor(50, 50).lightnessF() -
                   img.pixelColor(50, 50).lightnessF()) < 0.05);
+    int cancellationChecks = 0;
+    CHECK(bridge.renderPage(0, QSize(1530, 1980), [&] {
+        return ++cancellationChecks >= 3;
+    }).isNull());
+    CHECK(cancellationChecks >= 3);
     if (failures == 0) std::cout << "ALL RENDER TESTS PASSED\n";
     return failures == 0 ? 0 : 1;
 }

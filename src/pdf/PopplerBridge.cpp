@@ -1,6 +1,14 @@
 #include "pdf/PopplerBridge.h"
 #include <QPainter>
 #include <QtGlobal>
+#include <QVariant>
+
+namespace {
+bool shouldAbort(const QVariant& payload) {
+    const auto* cancelled = static_cast<const PopplerBridge::CancelCheck*>(payload.value<const void*>());
+    return cancelled && *cancelled && (*cancelled)();
+}
+}
 
 bool PopplerBridge::open(const QString& path) {
     doc_ = Poppler::Document::load(path);
@@ -25,8 +33,8 @@ QSizeF PopplerBridge::pageSize(int page) const {
     return pg ? pg->pageSizeF() : QSizeF{};
 }
 
-QImage PopplerBridge::renderPage(int page, QSize px) const {
-    if (!doc_ || px.isEmpty()) return {};
+QImage PopplerBridge::renderPage(int page, QSize px, const CancelCheck& cancelled) const {
+    if (!doc_ || px.isEmpty() || (cancelled && cancelled())) return {};
     auto pg = doc_->page(page);
     if (!pg) return {};
     QSizeF pts = pg->pageSizeF();
@@ -34,7 +42,10 @@ QImage PopplerBridge::renderPage(int page, QSize px) const {
     // DPI chosen so the raster matches the requested pixel size exactly.
     double dpiX = 72.0 * px.width() / pts.width();
     double dpiY = 72.0 * px.height() / pts.height();
-    QImage img = pg->renderToImage(dpiX, dpiY);
+    QImage img = pg->renderToImage(dpiX, dpiY, -1, -1, -1, -1, Poppler::Page::Rotate0,
+                                  nullptr, nullptr, shouldAbort,
+                                  QVariant::fromValue(static_cast<const void*>(&cancelled)));
+    if (cancelled && cancelled()) return {};
     if (img.isNull() || img.size() == px) return img;
     // Poppler rounds to whole pixels, so fractional point sizes land 1px
     // off. A bilinear rescale of the whole page for 1px softens every
@@ -50,8 +61,9 @@ QImage PopplerBridge::renderPage(int page, QSize px) const {
     return img.scaled(px, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 }
 
-QImage PopplerBridge::renderTile(int page, QSize fullPx, QRect tilePx) const {
-    if (!doc_ || fullPx.isEmpty() || tilePx.isEmpty()) return {};
+QImage PopplerBridge::renderTile(int page, QSize fullPx, QRect tilePx,
+                                const CancelCheck& cancelled) const {
+    if (!doc_ || fullPx.isEmpty() || tilePx.isEmpty() || (cancelled && cancelled())) return {};
     auto pg = doc_->page(page);
     if (!pg) return {};
     QSizeF pts = pg->pageSizeF();
@@ -67,7 +79,9 @@ QImage PopplerBridge::renderTile(int page, QSize fullPx, QRect tilePx) const {
     const double yres = 72.0 * fullPx.height() / pts.height();
     QImage image = pg->renderToImage(xres, yres, tilePx.x(), tilePx.y(),
                                      tilePx.width(), tilePx.height(),
-                                     Poppler::Page::Rotate0);
+                                     Poppler::Page::Rotate0, nullptr, nullptr, shouldAbort,
+                                     QVariant::fromValue(static_cast<const void*>(&cancelled)));
+    if (cancelled && cancelled()) return {};
     if (image.isNull() || image.size() == tilePx.size()) return image;
     if (qAbs(image.width() - tilePx.width()) <= 2 &&
         qAbs(image.height() - tilePx.height()) <= 2) {

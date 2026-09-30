@@ -7,6 +7,8 @@
 #include <QGuiApplication>
 #include <QEventLoop>
 #include <QTimer>
+#include <QSemaphore>
+#include <QThreadPool>
 #include <atomic>
 #include <cstdio>
 #include <cstdlib>
@@ -143,6 +145,65 @@ int main(int argc, char** argv) {
     poller2.start();
     loop2.exec();
     CHECK(fresh.load() == 1);
+
+    auto waitFor = [](const std::function<bool()>& ready) {
+        QEventLoop wait;
+        QTimer deadline;
+        deadline.setSingleShot(true);
+        QObject::connect(&deadline, &QTimer::timeout, &wait, &QEventLoop::quit);
+        QTimer poll;
+        QObject::connect(&poll, &QTimer::timeout, [&] { if (ready()) wait.quit(); });
+        deadline.start(1000);
+        poll.start(2);
+        if (!ready()) wait.exec();
+        return ready();
+    };
+    CHECK(reader::PdfRenderer::previewSize(QSize(1530, 1980)) == QSize(695, 900));
+    CHECK(reader::PdfRenderer::usesWholePage(QSize(1530, 1980)));
+    CHECK(!reader::PdfRenderer::usesWholePage(QSize(6120, 7920)));
+
+    // Other background work cannot occupy the raster lane or its queue.
+    QSemaphore entered, release;
+    auto* global = QThreadPool::globalInstance();
+    const int previousThreads = global->maxThreadCount();
+    global->setMaxThreadCount(1);
+    global->start([&] { entered.release(); release.acquire(); });
+    CHECK(entered.tryAcquire(1, 1000));
+    bool independent = false;
+    QImage delivered;
+    renderer.requestPage(1, pageSize, [&](const QImage& image) {
+        delivered = image;
+        independent = true;
+    });
+    const bool completedWhileGlobalBlocked = waitFor([&] { return independent; });
+    release.release();
+    global->waitForDone();
+    global->setMaxThreadCount(previousThreads);
+    CHECK(completedWhileGlobalBlocked);
+    CHECK(delivered.size() == pageSize);
+    CHECK(renderer.cachedPage(1, pageSize).constBits() == delivered.constBits());
+
+    // Cancellation must also suppress callbacks already queued on the GUI.
+    int cancelledCallbacks = 0;
+    auto cancelled = std::make_shared<std::atomic<bool>>(false);
+    renderer.requestPage(1, pageSize, [&](const QImage&) { ++cancelledCallbacks; }, cancelled);
+    cancelled->store(true);
+    QCoreApplication::processEvents();
+    CHECK(cancelledCallbacks == 0);
+
+    // Cache capacity counts actual bytes, including full pages and previews.
+    reader::PdfRenderer bounded(1);
+    bounded.attachRaster(raster, pdf);
+    for (int page : {0, 1}) {
+        bool done = false;
+        bounded.requestPage(page, QSize(400, 400), [&](const QImage& image) {
+            CHECK(image.size() == QSize(400, 400));
+            done = true;
+        });
+        CHECK(waitFor([&] { return done; }));
+    }
+    CHECK(bounded.cachedPage(0, QSize(400, 400)).isNull());
+    CHECK(!bounded.cachedPage(1, QSize(400, 400)).isNull());
 
     if (failures == 0) std::cout << "ALL RENDER STRESS TESTS PASSED\n";
     return failures == 0 ? 0 : 1;
