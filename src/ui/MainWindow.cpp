@@ -79,14 +79,8 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
         settings.setValue("reader/lastOpenDir", QFileInfo(path).absolutePath());
         openFile(path);
     });
-    addAction("Back", [this] {
-        auto e = app_->state.history.back();
-        navigateTo(e);
-    });
-    addAction("Forward", [this] {
-        auto e = app_->state.history.forward();
-        navigateTo(e);
-    });
+    addAction("Back", [this] { navigateBack(); })->setToolTip("Previous reading position (Ctrl+Left)");
+    addAction("Forward", [this] { navigateForward(); })->setToolTip("Next reading position (Ctrl+Right)");
     addAction("Fit width", [this] { pdf_->fitWidth(); });
     addAction("Fit page", [this] { pdf_->fitPage(); });
     addAction("Rotate", [this] { pdf_->rotate(); });
@@ -170,11 +164,6 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
             QString("p.%1 / %2").arg(page + 1).arg(app_->model.document.pageCount));
         showSelectionHint();
         if (outlinePanel_) outlinePanel_->followPage(page);
-        if (!restoringHistory_) {
-            const auto state = pdf_->captureState();
-            app_->state.history.visit({state.page, static_cast<double>(state.scrollY), state.zoom,
-                                       state.selection});
-        }
         scheduleReadingStateSave();
     });
     connect(pdf_, &PdfView::zoomChanged, this,
@@ -187,14 +176,16 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
     connect(pdf_, &PdfView::sourceActivated, this,
             [this](const reader::DocumentAnchor& a) { navigateToAnchor(a); });
     connect(pdf_, &PdfView::linkActivated, this, [this](int page, const QString& uri) {
-        if (uri.isEmpty()) {
-            const auto state = pdf_->captureState();
-            app_->state.history.visit({state.page, static_cast<double>(state.scrollY), state.zoom,
-                                       state.selection});
-            pdf_->goToPage(page);
-        } else {
-            QDesktopServices::openUrl(QUrl(uri));
-        }
+        (void)page;
+        if (!uri.isEmpty()) QDesktopServices::openUrl(QUrl(uri));
+    });
+    connect(pdf_, &PdfView::internalLinkActivated, this,
+            [this](int page, const QPointF& location, qreal zoom) {
+        reader::DocumentAnchor anchor;
+        anchor.document = app_->model.document.id;
+        anchor.page = page;
+        anchor.bounds = {float(location.x()), float(location.y()), 0, 0};
+        navigateToAnchor(anchor, false, zoom);
     });
     connect(pdf_, &PdfView::objectClicked, this,
             [this](const reader::DocumentAnchor& a, const QString& kind) {
@@ -230,12 +221,8 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
         if (searchPanel_) searchPanel_->focusQuery();
     });
     connect(pdf_, &PdfView::sidecarToggleRequested, this, &MainWindow::toggleAiPane);
-    connect(pdf_, &PdfView::historyBackRequested, this, [this] {
-        navigateTo(app_->state.history.back());
-    });
-    connect(pdf_, &PdfView::historyForwardRequested, this, [this] {
-        navigateTo(app_->state.history.forward());
-    });
+    connect(pdf_, &PdfView::historyBackRequested, this, &MainWindow::navigateBack);
+    connect(pdf_, &PdfView::historyForwardRequested, this, &MainWindow::navigateForward);
 
     setupShortcuts();
     setupToolbarAutoHide();
@@ -610,17 +597,36 @@ void MainWindow::navigateTo(const reader::NavEntry& entry) {
     restoringHistory_ = true;
     pdf_->setZoom(entry.zoom);
     pdf_->goToPage(entry.page);
-    pdf_->verticalScrollBar()->setValue(static_cast<int>(std::max(0.0, entry.scrollY)));
     if (entry.selection) pdf_->jumpToAnchor(*entry.selection, true);
+    pdf_->verticalScrollBar()->setValue(static_cast<int>(std::max(0.0, entry.scrollY)));
     restoringHistory_ = false;
 }
 
-void MainWindow::navigateToAnchor(const reader::DocumentAnchor& anchor) {
+void MainWindow::navigateBack() {
+    if (!app_->state.history.canBack()) return;
+    const auto state = pdf_->captureState();
+    app_->state.history.updateCurrent({state.page, double(state.scrollY), state.zoom, state.selection});
+    navigateTo(app_->state.history.back());
+}
+
+void MainWindow::navigateForward() {
+    if (!app_->state.history.canForward()) return;
+    const auto state = pdf_->captureState();
+    app_->state.history.updateCurrent({state.page, double(state.scrollY), state.zoom, state.selection});
+    navigateTo(app_->state.history.forward());
+}
+
+void MainWindow::navigateToAnchor(const reader::DocumentAnchor& anchor, bool highlight, double zoom) {
     if (!pdf_) return;
     const auto state = pdf_->captureState();
-    app_->state.history.visit({state.page, static_cast<double>(state.scrollY), state.zoom,
-                               state.selection});
-    pdf_->jumpToAnchor(anchor, true);
+    app_->state.history.updateCurrent({state.page, double(state.scrollY), state.zoom, state.selection});
+    restoringHistory_ = true;
+    if (zoom > 0) pdf_->setZoom(zoom);
+    pdf_->jumpToAnchor(anchor, highlight);
+    restoringHistory_ = false;
+    const auto destination = pdf_->captureState();
+    app_->state.history.visit({destination.page, double(destination.scrollY), destination.zoom,
+                               destination.selection});
 }
 
 void MainWindow::openReaderTools() {
@@ -663,14 +669,16 @@ void MainWindow::setupShortcuts() {
         connect(sc, &QShortcut::activated, this, fn);
     };
     add(QKeySequence("Ctrl+Shift+A"), [this] { toggleAiPane(); });
-    add(QKeySequence("Alt+Left"), [this] {
-        auto e = app_->state.history.back();
-        navigateTo(e);
-    });
-    add(QKeySequence("Alt+Right"), [this] {
-        auto e = app_->state.history.forward();
-        navigateTo(e);
-    });
+    add(QKeySequence("Alt+Left"), [this] { navigateBack(); });
+    add(QKeySequence("Alt+Right"), [this] { navigateForward(); });
+    for (const auto& [key, forward] : {std::pair{"Ctrl+Left", false}, {"Ctrl+Right", true}}) {
+        auto* shortcut = new QShortcut(QKeySequence(key), pdf_);
+        shortcut->setContext(Qt::WidgetWithChildrenShortcut);
+        connect(shortcut, &QShortcut::activated, this, [this, forward] {
+            if (forward) navigateForward();
+            else navigateBack();
+        });
+    }
     add(QKeySequence("Ctrl+S"), [this] { saveHighlightsToPdf(); });
     // h/n/a act on the live PDF selection from anywhere in the window.
     // PdfView rarely owns keyboard focus (mouse selection does not move

@@ -19,6 +19,7 @@ class NavigationHistory {
 public:
     void clear() { back_.clear(); forward_.clear(); }
     void visit(NavEntry entry);
+    void updateCurrent(NavEntry entry);
     bool canBack() const { return back_.size() > 1; }
     bool canForward() const { return !forward_.empty(); }
     NavEntry back();

@@ -16,6 +16,11 @@ NavEntry NavigationHistory::back() {
     return current();
 }
 
+void NavigationHistory::updateCurrent(NavEntry entry) {
+    if (back_.empty()) back_.push_back(std::move(entry));
+    else back_.back() = std::move(entry);
+}
+
 NavEntry NavigationHistory::forward() {
     if (!forward_.empty()) {
         back_.push_back(forward_.back());

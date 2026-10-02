@@ -286,6 +286,42 @@ int main(int argc, char** argv) {
     CHECK(std::abs(restoredHistory.zoom - 1.1) < 0.001);
     CHECK(restoredHistory.scrollY == 25);
 
+    // A real internal PDF link records both endpoints, including the
+    // source's within-page scroll offset. Ctrl+Left/Right restore each.
+    pdf->goToPage(0);
+    pdf->verticalScrollBar()->setValue(137);
+    const auto beforeLink = pdf->captureState();
+    app.state.history.clear();
+    app.state.history.visit({beforeLink.page, double(beforeLink.scrollY), beforeLink.zoom,
+                             beforeLink.selection});
+    if (auto* page = window.findChild<QWidget*>("pdfPage_0")) {
+        const double scale = beforeLink.zoom;
+        const QPointF point(140 * scale, 238 * scale);
+        QMouseEvent press(QEvent::MouseButtonPress, point, point, Qt::LeftButton,
+                          Qt::LeftButton, Qt::NoModifier);
+        QMouseEvent release(QEvent::MouseButtonRelease, point, point, Qt::LeftButton,
+                            Qt::NoButton, Qt::NoModifier);
+        QApplication::sendEvent(page, &press);
+        QApplication::sendEvent(page, &release);
+        qt.processEvents(QEventLoop::AllEvents, 50);
+        const auto afterLink = pdf->captureState();
+        CHECK(afterLink.page == 1);
+        CHECK(app.state.history.canBack());
+        QKeyEvent backKey(QEvent::KeyPress, Qt::Key_Left, Qt::ControlModifier);
+        QApplication::sendEvent(pdf, &backKey);
+        qt.processEvents(QEventLoop::AllEvents, 50);
+        CHECK(pdf->captureState().page == beforeLink.page);
+        CHECK(pdf->captureState().scrollY == beforeLink.scrollY);
+        CHECK(std::abs(pdf->captureState().zoom - beforeLink.zoom) < 0.001);
+        CHECK(!app.state.history.canBack());
+        QKeyEvent forwardKey(QEvent::KeyPress, Qt::Key_Right, Qt::ControlModifier);
+        QApplication::sendEvent(pdf, &forwardKey);
+        qt.processEvents(QEventLoop::AllEvents, 50);
+        CHECK(pdf->captureState().page == afterLink.page);
+        CHECK(pdf->captureState().scrollY == afterLink.scrollY);
+        QApplication::sendEvent(pdf, &backKey);
+    }
+
     // Rotation retains the exact anchor created by the real drag.
     CHECK(!app.context.currentContext().temporary.empty());
     reader::DocumentAnchor anchor = app.context.currentContext().temporary.empty()

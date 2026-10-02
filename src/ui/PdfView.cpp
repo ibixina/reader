@@ -116,6 +116,7 @@ public:
     double scale() const {
         return zoom_;
     }
+    QRectF widgetRect(const QRectF& rect) const { return mapRect(rect); }
 
 signals:
     void dragSelected(int page, QRectF rectPoints, QString text);
@@ -641,9 +642,12 @@ void PdfView::rebuildPages() {
             const QPdfLink link = linkAt(page, point);
             if (link.isValid()) {
                 suppressNextClickClear_ = true;
-                emit linkActivated(link.page(), link.url().toString());
-                if (link.url().isEmpty() && link.page() >= 0 && link.page() != page)
-                    goToPage(link.page());
+                if (link.url().isEmpty() && link.page() >= 0) {
+                    setFocus(Qt::MouseFocusReason);
+                    emit internalLinkActivated(link.page(), link.location(), link.zoom());
+                } else {
+                    emit linkActivated(link.page(), link.url().toString());
+                }
                 return;
             }
             for (const auto& eq : app_->model.equations) {
@@ -823,13 +827,20 @@ void PdfView::goToPage(int page) {
     if (pageMode_) rebuildPages();
     prefetchPixelsAround(page);
     if (QWidget* w = pageWidget(page)) {
-        ensureWidgetVisible(w);
+        verticalScrollBar()->setValue(w->geometry().top());
         emit pageChanged(page);
     }
 }
 
 void PdfView::jumpToAnchor(const reader::DocumentAnchor& anchor, bool highlight) {
     goToPage(anchor.page);
+    if (auto* w = qobject_cast<PageWidget*>(pageWidget(anchor.page))) {
+        const auto& bounds = anchor.bounds;
+        const QRectF target = w->widgetRect(QRectF(bounds.x, bounds.y,
+                                                  bounds.width, bounds.height));
+        verticalScrollBar()->setValue(qMax(0, qRound(w->y() + target.top() -
+                                                    viewport()->height() * 0.2)));
+    }
     if (highlight) {
         pendingHighlight_ = anchor;
         hasHighlight_ = true;
@@ -993,12 +1004,14 @@ void PdfView::keyPressEvent(QKeyEvent* event) {
         event->accept();
         return;
     }
-    if (mods.testFlag(Qt::AltModifier) && event->key() == Qt::Key_Left) {
+    if ((mods == Qt::AltModifier || mods == Qt::ControlModifier) &&
+        event->key() == Qt::Key_Left) {
         emit historyBackRequested();
         event->accept();
         return;
     }
-    if (mods.testFlag(Qt::AltModifier) && event->key() == Qt::Key_Right) {
+    if ((mods == Qt::AltModifier || mods == Qt::ControlModifier) &&
+        event->key() == Qt::Key_Right) {
         emit historyForwardRequested();
         event->accept();
         return;

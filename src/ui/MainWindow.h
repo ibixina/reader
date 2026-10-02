@@ -49,7 +49,10 @@ private:
     void scheduleReadingStateSave();
     void saveReadingState();
     void navigateTo(const reader::NavEntry& entry);
-    void navigateToAnchor(const reader::DocumentAnchor& anchor);
+    void navigateBack();
+    void navigateForward();
+    void navigateToAnchor(const reader::DocumentAnchor& anchor, bool highlight = true,
+                          double zoom = 0);
     void persistWindowLayout();
     void setupToolbarAutoHide();
     void updateToolbarAutoHide();

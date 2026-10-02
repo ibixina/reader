@@ -1083,12 +1083,18 @@ int main() {
     {
         NavigationHistory h;
         h.visit({0, 0, 1.0, std::nullopt});
+        h.updateCurrent({0, 85, 1.2, std::nullopt});
         h.visit({13, 450.0, 1.5, std::nullopt});
         CHECK(h.canBack());
         NavEntry back = h.back();
         CHECK(back.page == 0);
+        CHECK(back.scrollY == 85);
+        CHECK(back.zoom == 1.2);
+        CHECK(h.canForward());
+        h.updateCurrent({0, 90, 1.2, std::nullopt});
         CHECK(h.canForward());
         CHECK(h.forward().page == 13);
+        CHECK(h.current().scrollY == 450);
     }
 
     std::error_code cleanupError;
