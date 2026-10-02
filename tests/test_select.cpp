@@ -2,14 +2,10 @@
 // engine text into AI context, double-click snaps to a whole word, plain
 // click clears. Headless/offscreen.
 #include <QApplication>
-#include <QDialog>
-#include <QDialogButtonBox>
 #include <QEventLoop>
 #include <QLabel>
 #include <QMouseEvent>
 #include <QPdfDocument>
-#include <QPushButton>
-#include <QTextEdit>
 #include <QTimer>
 #include <algorithm>
 #include <cmath>
@@ -179,23 +175,21 @@ int main(int argc, char** argv) {
         CHECK(rapp.annotations->annotationsFor("testdoc").size() == before);
     }
 
-    // The note editor floats over the selection instead of blocking in a
-    // modal dialog: filling it and saving persists a real note.
+    // The reader requests an anchored note; the window owns its sidebar editor.
     {
         CHECK(!currentText(rapp).empty());
-        const std::size_t notesBefore = rapp.annotations->notesFor("testdoc").size();
+        bool requested = false;
+        DocumentAnchor noteAnchor;
+        const auto connection = QObject::connect(&view, &PdfView::noteRequested, &view,
+            [&](const DocumentAnchor& anchor) {
+                requested = true;
+                noteAnchor = anchor;
+            });
         CHECK(view.promptNoteForCurrentSelection());
-        QDialog* editor = view.findChild<QDialog*>("noteEditor");
-        CHECK(editor && editor->isVisible());
-        auto* text = editor ? editor->findChild<QTextEdit*>("noteText") : nullptr;
-        auto* buttons =
-            editor ? editor->findChild<QDialogButtonBox*>() : nullptr;
-        CHECK(text && buttons);
-        if (text) text->setPlainText("why does this matter?");
-        if (auto* save = buttons ? buttons->button(QDialogButtonBox::Save) : nullptr)
-            save->click();
-        CHECK(rapp.annotations->notesFor("testdoc").size() == notesBefore + 1);
-        CHECK(rapp.annotations->notesFor("testdoc").back().text == "why does this matter?");
+        CHECK(requested);
+        CHECK(noteAnchor == *view.captureState().selection);
+        CHECK(noteAnchor.document == "testdoc");
+        QObject::disconnect(connection);
     }
 
     // A sub-part of a highlight still matches: re-highlighting is a

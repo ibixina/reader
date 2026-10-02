@@ -42,6 +42,8 @@ struct WebPanel::Session {
     QString status;
     QString requestId;
     unsigned long generation = 0;
+    unsigned long draftRevision = 0;
+    unsigned long sentDraftRevision = 0;
     bool loaded = false;
     bool initialLoad = false;
     bool asking = false;
@@ -164,7 +166,10 @@ WebPanel::WebPanel(reader::Application* app, QWidget* parent)
     connect(tabs_, &QTabWidget::tabCloseRequested, this, &WebPanel::closeSession);
     connect(tabs_->tabBar(), &QTabBar::tabBarDoubleClicked, this, &WebPanel::renameSession);
     connect(question_, &QLineEdit::textChanged, this, [this](const QString& text) {
-        if (current_) current_->question = text;
+        if (current_) {
+            current_->question = text;
+            ++current_->draftRevision;
+        }
     });
     auto* newShortcut = new QShortcut(QKeySequence("Ctrl+T"), this);
     newShortcut->setContext(Qt::WidgetWithChildrenShortcut);
@@ -332,7 +337,10 @@ void WebPanel::updateNavReveal() {
 }
 
 void WebPanel::clearQuestionDrafts() {
-    for (const auto& session : sessions_) session->question.clear();
+    for (const auto& session : sessions_) {
+        session->question.clear();
+        ++session->draftRevision;
+    }
     question_->clear();
 }
 
@@ -451,6 +459,7 @@ void WebPanel::ask() {
     session->asking = true;
     session->clicked = false;
     session->sentQuestion = question_->text();
+    session->sentDraftRevision = session->draftRevision;
     session->requestId = QString::number(++nextRequest_);
     const unsigned long generation = ++session->generation;
     askButton_->setEnabled(false);
@@ -504,7 +513,8 @@ void WebPanel::finishAsk(const SessionPtr& session, bool sent, const QString& st
     session->timeout->stop();
     if (!sent && session->view)
         session->view->page()->runJavaScript("window.__paperReaderAsk = null;");
-    if (sent && session->question == session->sentQuestion) {
+    if (sent && session->draftRevision == session->sentDraftRevision &&
+        session->question == session->sentQuestion) {
         session->question.clear();
         if (current_ == session) question_->clear();
     }

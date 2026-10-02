@@ -7,18 +7,22 @@
 #include "document/DocumentAnchor.h"
 #include "academic_fixture.h"
 #include "ui/MainWindow.h"
+#include "ui/MarksPanel.h"
 #include "ui/OutlinePanel.h"
 #include "ui/PdfView.h"
 #include "ui/WebPanel.h"
 #include <QApplication>
 #include <QClipboard>
+#include <QCloseEvent>
 #include <QDialog>
+#include <QDockWidget>
 #include <QElapsedTimer>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
 #include <QMouseEvent>
 #include <QPushButton>
+#include <QPlainTextEdit>
 #include <QScrollBar>
 #include <QTextBrowser>
 #include <QThread>
@@ -447,7 +451,158 @@ int main(int argc, char** argv) {
             app.annotations->annotationsFor(app.model.document.id).end(),
             [](const reader::UserAnnotation& a) { return a.kind == "bookmark"; }));
         CHECK(marksList && marksList->count() == 1 &&
-              marksList->item(0)->text().contains("No bookmarks"));
+              marksList->item(0)->text().contains("No notes"));
+    }
+
+    // Multiline highlights appear as one passage in Notes immediately.
+    // Notes are edited beside the document and survive autosave and closing.
+    {
+        pdf->setRotation(0);
+        pdf->setZoom(1.25);
+        pdf->goToPage(0);
+        pdf->setFocus();
+        auto* notes = window.findChild<MarksPanel*>();
+        auto* dock = window.findChild<QDockWidget*>("notesDock");
+        auto* list = window.findChild<QListWidget*>("marksList");
+        auto* editor = window.findChild<QPlainTextEdit*>("noteText");
+        auto* quote = window.findChild<QTextBrowser*>("noteQuote");
+        CHECK(notes && dock && list && editor && quote);
+        QString text;
+        const auto words = reader::buildWordBoxesFromLayout(QString::fromStdString(pdfPath), 0, text);
+        const auto first = std::find_if(words.begin(), words.end(), [](const auto& word) {
+            return word.text == "Interactive";
+        });
+        const auto last = std::find_if(words.begin(), words.end(), [](const auto& word) {
+            return word.text == "paper" && word.rect.top() > 150 && word.rect.top() < 170;
+        });
+        auto* page = window.findChild<QWidget*>("pdfPage_0");
+        CHECK(first != words.end() && last != words.end() && page);
+        if (notes && dock && list && editor && quote && page &&
+            first != words.end() && last != words.end()) {
+            const double scale = pdf->captureState().zoom;
+            const QPointF start(qRound(first->rect.left() * scale),
+                                qRound(first->rect.center().y() * scale));
+            const QPointF finish(qRound(last->rect.right() * scale),
+                                 qRound(last->rect.center().y() * scale));
+            QMouseEvent press(QEvent::MouseButtonPress, start, start, Qt::LeftButton,
+                              Qt::LeftButton, Qt::NoModifier);
+            QMouseEvent release(QEvent::MouseButtonRelease, finish, finish, Qt::LeftButton,
+                                Qt::NoButton, Qt::NoModifier);
+            QApplication::sendEvent(page, &press);
+            QApplication::sendEvent(page, &release);
+            CHECK(pdf->highlightCurrentSelection());
+            const auto rows = app.annotations->annotationsFor(app.model.document.id);
+            CHECK(rows.size() == 2);
+            if (rows.size() == 2) {
+                CHECK(!rows[0].groupId.empty());
+                CHECK(rows[0].groupId == rows[1].groupId);
+            }
+            CHECK(list->count() == 1 && list->item(0)->text().contains("Highlight"));
+            CHECK(pdf->promptNoteForCurrentSelection());
+            qt.processEvents(QEventLoop::AllEvents, 50);
+            CHECK(dock->isVisible());
+            CHECK(editor->isVisible() && editor->hasFocus());
+            CHECK(quote->toPlainText().contains("Interactive reading systems"));
+            CHECK(window.findChild<QDialog*>("noteEditor") == nullptr);
+            pdf->fitWidth();
+            CHECK(waitFor(qt, 1000, [&] {
+                return std::abs(page->width() - pdf->viewport()->width()) <= 1;
+            }));
+            editor->setPlainText("This connects reading and explanation.");
+            CHECK(waitFor(qt, 1500, [&] {
+                const auto saved = app.annotations->notesFor(app.model.document.id);
+                return saved.size() == 1 && saved.front().text == "This connects reading and explanation.";
+            }));
+            const auto noteId = app.annotations->notesFor(app.model.document.id).front().id;
+            CHECK(list->count() == 1);
+            editor->setPlainText("Revised note without a duplicate.");
+            CHECK(notes->flushPendingNote());
+            CHECK(app.annotations->notesFor(app.model.document.id).size() == 1);
+            CHECK(app.annotations->notesFor(app.model.document.id).front().id == noteId);
+            CHECK(app.db->exec("CREATE TRIGGER reject_note_save BEFORE INSERT ON notes "
+                               "BEGIN SELECT RAISE(FAIL, 'test write failure'); END;"));
+            editor->setPlainText("Draft survives a failed save.");
+            CHECK(!notes->flushPendingNote());
+            CHECK(editor->toPlainText() == "Draft survives a failed save.");
+            QCloseEvent closeEvent;
+            QApplication::sendEvent(&window, &closeEvent);
+            CHECK(!closeEvent.isAccepted());
+            CHECK(window.isVisible());
+            CHECK(app.db->exec("DROP TRIGGER reject_note_save;"));
+            CHECK(notes->flushPendingNote());
+            editor->setPlainText("Revised note without a duplicate.");
+            CHECK(notes->flushPendingNote());
+            auto* filter = window.findChild<QLineEdit*>("notesFilter");
+            filter->setText("Revised note");
+            CHECK(!list->item(0)->isHidden());
+            filter->setText("no matching passage");
+            CHECK(list->item(0)->isHidden());
+            filter->clear();
+            editor->setPlainText("Saved when the sidebar closes.");
+            dock->hide();
+            qt.processEvents(QEventLoop::AllEvents, 50);
+            CHECK(app.annotations->notesFor(app.model.document.id).front().text ==
+                  "Saved when the sidebar closes.");
+            dock->show();
+            pdf->goToPage(2);
+            QMetaObject::invokeMethod(list, "itemClicked", Qt::DirectConnection,
+                                      Q_ARG(QListWidgetItem*, list->item(0)));
+            qt.processEvents(QEventLoop::AllEvents, 50);
+            CHECK(pdf->currentPage() == 0);
+            CHECK(dock->isVisible());
+            CHECK(editor->toPlainText() == "Saved when the sidebar closes.");
+            readerTools->hide();
+            window.grab().save("/tmp/reader-notes-sidebar.png");
+            auto* remove = window.findChild<QPushButton*>("removeHighlightButton");
+            CHECK(remove && remove->isEnabled());
+            remove->click();
+            CHECK(app.annotations->annotationsFor(app.model.document.id).empty());
+            CHECK(list->count() == 1 && list->item(0)->text().startsWith("Note"));
+            auto* erase = window.findChild<QPushButton*>("deleteNoteButton");
+            erase->click();
+            CHECK(app.annotations->notesFor(app.model.document.id).empty());
+            CHECK(list->count() == 1 && list->item(0)->text().startsWith("No notes"));
+            // Sorting labels and anchors together preserves click destinations.
+            reader::UserAnnotation bookmark;
+            bookmark.id = "later-page-bookmark";
+            bookmark.kind = "bookmark";
+            bookmark.anchor = rows.front().anchor;
+            bookmark.anchor.page = 2;
+            CHECK(app.annotations->saveAnnotation(app.model.document.id, bookmark));
+            reader::Note earlier;
+            earlier.id = "earlier-page-note";
+            earlier.anchor = rows.front().anchor;
+            earlier.text = "Earlier passage";
+            CHECK(app.annotations->saveNote(app.model.document.id, earlier));
+            notes->rebuild();
+            CHECK(list->count() == 2 && list->item(0)->text().startsWith("Note"));
+            pdf->goToPage(2);
+            QMetaObject::invokeMethod(list, "itemClicked", Qt::DirectConnection,
+                                      Q_ARG(QListWidgetItem*, list->item(0)));
+            CHECK(pdf->currentPage() == 0);
+            CHECK(editor->toPlainText() == "Earlier passage");
+            erase->click();
+            CHECK(app.annotations->deleteAnnotation(app.model.document.id, bookmark.id));
+            notes->rebuild();
+            // Identical words highlighted separately by older versions
+            // remain separate passages when they occupy the same line.
+            for (int i = 0; i < 2; ++i) {
+                reader::UserAnnotation legacy;
+                legacy.id = "legacy-word-" + std::to_string(i);
+                legacy.kind = "highlight";
+                legacy.anchor.document = app.model.document.id;
+                legacy.anchor.anchorText = "same";
+                legacy.anchor.bounds = {float(50 + i * 100), 200, 30, 10};
+                CHECK(app.annotations->saveAnnotation(app.model.document.id, legacy));
+            }
+            notes->rebuild();
+            CHECK(list->count() == 2);
+            for (int i = 0; i < 2; ++i)
+                CHECK(app.annotations->deleteAnnotation(app.model.document.id,
+                                                        "legacy-word-" + std::to_string(i)));
+            notes->rebuild();
+            dock->hide();
+        }
     }
 
     // Space on a focused button activates the button, never the ask box:
@@ -515,6 +670,11 @@ int main(int argc, char** argv) {
 
     // Switching to a distinct document clears every paper-A reference.
     // Same-document reopen above intentionally kept pinned context.
+    auto* notesPanel = window.findChild<MarksPanel*>();
+    auto pendingNoteAnchor = anchor;
+    pendingNoteAnchor.document = identity;
+    CHECK(notesPanel->beginNote(pendingNoteAnchor));
+    window.findChild<QPlainTextEdit*>("noteText")->setPlainText("Saved before changing documents.");
     window.openFile(QString::fromStdString(secondPdfPath));
     CHECK(waitFor(qt, 8000, [&] {
         return !app.model.document.id.empty() && app.model.document.id != identity;
@@ -524,6 +684,10 @@ int main(int argc, char** argv) {
     CHECK(app.context.currentContext().pinned.empty());
     CHECK(!app.state.history.canBack());
     CHECK(pdf->currentPage() == 0);
+    const auto previousNotes = app.annotations->notesFor(identity);
+    CHECK(previousNotes.size() == 1 && previousNotes.front().text == "Saved before changing documents.");
+    CHECK(app.annotations->notesFor(app.model.document.id).empty());
+    CHECK(window.findChild<QPlainTextEdit*>("noteText")->toPlainText().isEmpty());
 
     pdf->goToPage(0);
     pdf->fitWidth();

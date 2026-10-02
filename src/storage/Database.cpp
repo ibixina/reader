@@ -149,7 +149,7 @@ void Database::migrate() {
       id TEXT PRIMARY KEY, document_id TEXT, page INTEGER,
       x REAL, y REAL, w REAL, h REAL, anchor_text TEXT,
       kind TEXT, color TEXT, created_at INTEGER, section_id TEXT, block_id TEXT,
-      object_type TEXT, object_id TEXT))",
+      object_type TEXT, object_id TEXT, group_id TEXT))",
     R"(CREATE TABLE IF NOT EXISTS notes(
       id TEXT PRIMARY KEY, document_id TEXT, page INTEGER,
       x REAL, y REAL, w REAL, h REAL, anchor_text TEXT,
@@ -233,6 +233,7 @@ void Database::migrate() {
         !ensureColumn("notes", "object_id", "ALTER TABLE notes ADD COLUMN object_id TEXT") ||
         !ensureColumn("annotations", "object_type", "ALTER TABLE annotations ADD COLUMN object_type TEXT") ||
         !ensureColumn("annotations", "object_id", "ALTER TABLE annotations ADD COLUMN object_id TEXT") ||
+        !ensureColumn("annotations", "group_id", "ALTER TABLE annotations ADD COLUMN group_id TEXT") ||
         !ensureMessageReferenceColumn("document_id", "ALTER TABLE message_references ADD COLUMN document_id TEXT"))
         return;
     if (!ensureMessageReferenceColumn("object_type", "ALTER TABLE message_references ADD COLUMN object_type TEXT") ||

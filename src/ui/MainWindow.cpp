@@ -13,9 +13,11 @@
 #include "ui/WebPanel.h"
 #include <QFileDialog>
 #include <QApplication>
+#include <QCloseEvent>
 #include <QFile>
 #include <QFileInfo>
 #include <QDesktopServices>
+#include <QDockWidget>
 #include <QDir>
 #include <QFrame>
 #include <QFutureWatcher>
@@ -91,6 +93,10 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
     });
     addAction("Toggle AI", [this] { toggleAiPane(); });
     addAction("Reader tools", [this] { openReaderTools(); });
+    addAction("Notes", [this] {
+        if (notesDock_->isVisible()) notesDock_->hide();
+        else showNotes();
+    });
     QAction* saveAct = addAction("Save", [this] { saveHighlightsToPdf(); });
     saveAct->setToolTip("Save highlights into this PDF (Ctrl+S)");
     toolbar_->addSeparator();
@@ -127,14 +133,23 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
     readerTabs_ = new QTabWidget(readerOverlay_);
     searchPanel_ = new SearchPanel(app_, pdf_, readerTabs_);
     outlinePanel_ = new OutlinePanel(app_, readerTabs_);
-    marksPanel_ = new MarksPanel(app_, readerTabs_);
     readerTabs_->addTab(searchPanel_, "Search");
     readerTabs_->addTab(outlinePanel_, "Outline");
-    readerTabs_->addTab(marksPanel_, "Marks");
     overlayLayout->addWidget(readerTabs_);
     // Hidden by default: the left edge hover reveals it, moving away
     // hides it again. The Outline tab is pre-selected for reveals.
     selectReaderTab("Outline");
+
+    notesDock_ = new QDockWidget("Notes & highlights", this);
+    notesDock_->setObjectName("notesDock");
+    notesDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
+    notesDock_->setFeatures(QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable);
+    marksPanel_ = new MarksPanel(app_, notesDock_);
+    marksPanel_->setMinimumWidth(280);
+    notesDock_->setWidget(marksPanel_);
+    addDockWidget(Qt::RightDockWidgetArea, notesDock_);
+    resizeDocks({notesDock_}, {340}, Qt::Horizontal);
+    notesDock_->hide();
 
     statusPage_ = new QLabel("No document", this);
     statusHint_ = new QLabel("Ready", this);
@@ -147,6 +162,7 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
             web_->clearQuestionDrafts();
             web_->refreshContext();
         }
+        marksPanel_->setSelection(anchor);
         if (app_->state.settings.copySelectionToClipboard && !anchor.anchorText.empty())
             QGuiApplication::clipboard()->setText(QString::fromStdString(anchor.anchorText));
         showSelectionHint();
@@ -202,9 +218,15 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
     connect(marksPanel_, &MarksPanel::anchorActivated, this,
             [this](const reader::DocumentAnchor& a) {
                 navigateToAnchor(a);
-                edgeRevealActive_ = false;
-                readerOverlay_->hide();
             });
+    connect(pdf_, &PdfView::annotationsChanged, marksPanel_, &MarksPanel::rebuild);
+    connect(marksPanel_, &MarksPanel::annotationsChanged, pdf_, &PdfView::refreshUserOverlays);
+    connect(marksPanel_, &MarksPanel::noteOnSelectionRequested, pdf_,
+            &PdfView::promptNoteForCurrentSelection);
+    connect(pdf_, &PdfView::noteRequested, this, [this](const reader::DocumentAnchor& anchor) {
+        showNotes();
+        marksPanel_->beginNote(anchor);
+    });
     connect(searchPanel_, &SearchPanel::anchorActivated, this,
             [this](const reader::DocumentAnchor& a) {
                 navigateToAnchor(a);
@@ -258,6 +280,7 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
 }
 
 MainWindow::~MainWindow() {
+    if (marksPanel_) marksPanel_->flushPendingNote();
     persistWindowLayout();
     saveReadingState();
     documentToken_.cancel();
@@ -278,6 +301,7 @@ void MainWindow::saveReadingState() {
 }
 
 void MainWindow::openFile(const QString& path) {
+    if (marksPanel_ && !marksPanel_->flushPendingNote()) return;
     // Stage 1: page 1 visible immediately; never wait for analysis.
     // Shared ownership with deleteLater deleter: background doc-lane jobs
     // may still reference the document after a reopen supersedes them.
@@ -303,7 +327,10 @@ void MainWindow::openFile(const QString& path) {
             app_->context.removeReference(reference.id);
         for (const auto& reference : context.pinned)
             app_->context.removeReference(reference.id);
-        if (web_) web_->refreshContext();
+        if (web_) {
+            web_->clearQuestionDrafts();
+            web_->refreshContext();
+        }
     }
     documentToken_.cancel();
     documentToken_ = reader::CancellationToken{};
@@ -317,6 +344,7 @@ void MainWindow::openFile(const QString& path) {
     pdf_->attachRaster(raster, path);
     outlinePanel_->rebuild();
     marksPanel_->rebuild();
+    marksPanel_->setSelection(reader::DocumentAnchor{});
     app_->state.page = 0;
     app_->state.scrollY = 0;
     app_->state.history.clear();
@@ -645,9 +673,12 @@ void MainWindow::showReaderTools() {
     placeReaderOverlay();
     readerOverlay_->raise();
     if (!readerOverlay_->isVisible()) readerOverlay_->show();
-    // Marks change from inside PdfView (note saves) without a signal back;
-    // refresh when the reader tools become visible.
-    if (marksPanel_) marksPanel_->rebuild();
+}
+
+void MainWindow::showNotes() {
+    marksPanel_->rebuild();
+    notesDock_->show();
+    notesDock_->raise();
 }
 
 void MainWindow::placeReaderOverlay() {
@@ -661,6 +692,15 @@ void MainWindow::placeReaderOverlay() {
 void MainWindow::resizeEvent(QResizeEvent* event) {
     QMainWindow::resizeEvent(event);
     if (readerOverlay_ && readerOverlay_->isVisible()) placeReaderOverlay();
+}
+
+void MainWindow::closeEvent(QCloseEvent* event) {
+    if (!marksPanel_->flushPendingNote()) {
+        showNotes();
+        event->ignore();
+        return;
+    }
+    QMainWindow::closeEvent(event);
 }
 
 void MainWindow::setupShortcuts() {
@@ -679,7 +719,11 @@ void MainWindow::setupShortcuts() {
             else navigateBack();
         });
     }
-    add(QKeySequence("Ctrl+S"), [this] { saveHighlightsToPdf(); });
+    add(QKeySequence("Ctrl+S"), [this] {
+        if (notesDock_->isVisible() && marksPanel_->isAncestorOf(QApplication::focusWidget()))
+            marksPanel_->flushPendingNote();
+        else saveHighlightsToPdf();
+    });
     // h/n/a act on the live PDF selection from anywhere in the window.
     // PdfView rarely owns keyboard focus (mouse selection does not move
     // it), so window shortcuts — not viewport keys — own them. Typing
@@ -787,7 +831,7 @@ void MainWindow::toggleBookmark() {
     app_->annotations->saveAnnotation(docId, bookmark);
     pdf_->refreshUserOverlays();
     marksPanel_->rebuild();
-    statusHint_->setText(QString("Bookmarked p.%1 — see the Marks tab").arg(page + 1));
+    statusHint_->setText(QString("Bookmarked p.%1 — see Notes").arg(page + 1));
 }
 
 bool MainWindow::chatHasFocus() const {

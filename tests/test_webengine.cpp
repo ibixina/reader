@@ -357,6 +357,23 @@ static void testSessions(QApplication& qt) {
     CHECK(tabs->count() == 1);
     CHECK(panel.currentView() != first);
     CHECK(panel.currentView()->page()->profile() == profile);
+    // Changing selections clears the old draft. A late confirmation for
+    // that request cannot clear a freshly typed question with the same words.
+    auto* fresh = panel.currentView();
+    loadMock(*fresh, chatMock());
+    runJsSync(*fresh, "window.__enableDelay = -1");
+    question->setText("Explain this passage");
+    panel.refreshContext();
+    CHECK(question->text() == "Explain this passage");
+    pressEnter(*question);
+    CHECK(waitFor(qt, [&] { return runJsSync(*fresh, "window.__fills").toInt() == 1; }));
+    panel.clearQuestionDrafts();
+    CHECK(question->text().isEmpty());
+    question->setText("Explain this passage");
+    runJsSync(*fresh, "button.disabled = false; button.removeAttribute('aria-disabled')");
+    CHECK(waitFor(qt, [&] { return ask->isEnabled(); }));
+    CHECK(question->text() == "Explain this passage");
+    CHECK(runJsSync(*fresh, "window.__sends").toInt() == 1);
 }
 
 int main(int argc, char** argv) {

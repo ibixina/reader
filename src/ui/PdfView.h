@@ -26,7 +26,6 @@
 class QPdfDocument;
 class QPdfLinkModel;
 class QPdfLink;
-class QDialog;
 class QKeyEvent;
 class QResizeEvent;
 class QTimer;
@@ -105,6 +104,8 @@ signals:
     void sourceActivated(const reader::DocumentAnchor& anchor);
     void linkActivated(int page, const QString& uri);
     void internalLinkActivated(int page, const QPointF& location, qreal zoom);
+    void noteRequested(const reader::DocumentAnchor& anchor);
+    void annotationsChanged();
     // Empty seed means the user pressed A on a live selection; focusing the
     // ask box is the whole action.
     void quickAskRequested(const QString& seed);
@@ -125,10 +126,6 @@ private:
     QWidget* pageWidget(int page) const;
     void keyPressEvent(QKeyEvent* event) override;
     QPdfLink linkAt(int page, const QPointF& point) const;
-    void promptNoteForAnchor(const reader::DocumentAnchor& anchor);
-    // Screen position for the floating note editor: above the selection
-    // when its geometry is known, otherwise at the cursor.
-    QPoint noteEditorPos(const reader::DocumentAnchor& anchor, const QSize& size) const;
     reader::Application* app_;
     std::shared_ptr<QPdfDocument> doc_;
     QString docPath_;
@@ -150,8 +147,6 @@ private:
     bool pageMode_ = false;
     enum class FitMode { None, Width, Page } fitMode_ = FitMode::None;
     bool applyingFit_ = false;
-    reader::DocumentAnchor pendingHighlight_;
-    bool hasHighlight_ = false;
     std::shared_ptr<PopplerBridge> raster_;
     std::unique_ptr<QPdfLinkModel> linkModel_;
     reader::TextIndex textIndex_;
@@ -170,9 +165,6 @@ private:
     // AI context truncates at 500 chars anyway; anything bigger is an
     // accidental page-size drag, never intent.
     static constexpr int kMaxSelectionChars = 2000;
-    // Floating note editor currently open, if any. A popup, never modal:
-    // click-away cancels, Save persists.
-    QPointer<QDialog> noteEditor_ = nullptr;
     QTimer* prefetchTimer_ = nullptr;
     int pendingPrefetchPage_ = -1;
     int lastScrollValue_ = 0;

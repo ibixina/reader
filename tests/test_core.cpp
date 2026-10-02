@@ -994,10 +994,12 @@ int main() {
         ua.id = "a1";
         ua.anchor = anchorForEquation(m, m.equations[0]);
         ua.kind = "highlight";
+        ua.groupId = "passage-1";
         ua.color = std::string("yellow\0's color", 15);
         CHECK(anns.saveAnnotation("doc1", ua));
         CHECK(anns.annotationsFor("doc1").size() == 1);
         CHECK(anns.annotationsFor("doc1").front().color == ua.color);
+        CHECK(anns.annotationsFor("doc1").front().groupId == ua.groupId);
         CHECK(anns.annotationsFor("doc1").front().anchor.objectId == m.equations[0].id);
         CHECK(anns.deleteNote("doc1", n.id));
         CHECK(anns.notesFor("doc1").empty());

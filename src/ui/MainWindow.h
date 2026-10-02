@@ -14,7 +14,9 @@ class QTabWidget;
 class QPdfDocument;
 class QtPdfEngine;
 class QFrame;
+class QDockWidget;
 class QResizeEvent;
+class QCloseEvent;
 
 namespace reader {
 class Application;
@@ -63,9 +65,11 @@ private:
     // the manual toggle show the same hovering sidebar, which never pushes
     // the document and needs no window-manager positioning.
     void showReaderTools();
+    void showNotes();
     void openReaderTools();
     void placeReaderOverlay();
     void resizeEvent(QResizeEvent* event) override;
+    void closeEvent(QCloseEvent* event) override;
     void selectReaderTab(const QString& name);
     void showSelectionHint();
     // Browser chat is the only AI chat: space/ask focus its question box.
@@ -88,6 +92,7 @@ private:
     SearchPanel* searchPanel_ = nullptr;
     OutlinePanel* outlinePanel_ = nullptr;
     MarksPanel* marksPanel_ = nullptr;
+    QDockWidget* notesDock_ = nullptr;
     QToolBar* toolbar_ = nullptr;
     QTimer* toolbarRevealTimer_ = nullptr;
     bool toolbarPinned_ = false;

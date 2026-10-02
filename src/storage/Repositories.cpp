@@ -263,11 +263,12 @@ bool AnnotationRepository::saveAnnotation(const DocumentId& doc, const UserAnnot
     const auto& a = ann.anchor;
     return db_->execPrepared(
         "INSERT INTO annotations(id,document_id,page,x,y,w,h,anchor_text,kind,color,"
-        "created_at,section_id,block_id,object_type,object_id) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) "
+        "created_at,section_id,block_id,object_type,object_id,group_id) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) "
         "ON CONFLICT(id) DO UPDATE SET document_id=excluded.document_id,page=excluded.page,"
         "x=excluded.x,y=excluded.y,w=excluded.w,h=excluded.h,anchor_text=excluded.anchor_text,"
         "kind=excluded.kind,color=excluded.color,section_id=excluded.section_id,"
-        "block_id=excluded.block_id,object_type=excluded.object_type,object_id=excluded.object_id",
+        "block_id=excluded.block_id,object_type=excluded.object_type,object_id=excluded.object_id,"
+        "group_id=excluded.group_id",
         [&](sqlite3_stmt* st) {
             return text(st, 1, ann.id) && text(st, 2, doc) && integer(st, 3, a.page) &&
                    real(st, 4, a.bounds.x) && real(st, 5, a.bounds.y) &&
@@ -275,7 +276,7 @@ bool AnnotationRepository::saveAnnotation(const DocumentId& doc, const UserAnnot
                    text(st, 8, a.anchorText) && text(st, 9, ann.kind) &&
                    text(st, 10, ann.color) && integer(st, 11, nowMs()) &&
                    optionalText(st, 12, a.section) && optionalText(st, 13, a.block) &&
-                   text(st, 14, a.objectType) && text(st, 15, a.objectId);
+                   text(st, 14, a.objectType) && text(st, 15, a.objectId) && text(st, 16, ann.groupId);
         });
 }
 
@@ -283,7 +284,7 @@ std::vector<UserAnnotation> AnnotationRepository::annotationsFor(const DocumentI
     std::vector<UserAnnotation> out;
     if (!db_->queryPrepared(
         "SELECT id,document_id,page,x,y,w,h,anchor_text,kind,color,section_id,block_id,"
-        "object_type,object_id "
+        "object_type,object_id,group_id "
         "FROM annotations WHERE document_id=? ORDER BY created_at,id",
         [&](sqlite3_stmt* st) { return text(st, 1, doc); },
         [&](sqlite3_stmt* st) {
@@ -294,6 +295,7 @@ std::vector<UserAnnotation> AnnotationRepository::annotationsFor(const DocumentI
             a.color = columnText(st, 9);
             a.anchor.objectType = columnText(st, 12);
             a.anchor.objectId = columnText(st, 13);
+            a.groupId = columnText(st, 14);
             out.push_back(std::move(a));
         }))
         std::fprintf(stderr, "paper-reader: annotations query failed: %s\n",

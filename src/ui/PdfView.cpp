@@ -6,8 +6,6 @@
 #include <QAbstractButton>
 #include <QApplication>
 #include <QClipboard>
-#include <QDialog>
-#include <QDialogButtonBox>
 #include <QGuiApplication>
 #include <QKeyEvent>
 #include <QLineEdit>
@@ -23,7 +21,6 @@
 #include <QPdfSelection>
 #include <QPointer>
 #include <QPushButton>
-#include <QScreen>
 #include <QScrollBar>
 #include <QResizeEvent>
 #include <QRegion>
@@ -119,6 +116,7 @@ public:
     QRectF widgetRect(const QRectF& rect) const { return mapRect(rect); }
 
 signals:
+    void selectionStarted(int page);
     void dragSelected(int page, QRectF rectPoints, QString text);
     void clickedAt(int page, QPointF pointPoints);
 
@@ -269,6 +267,7 @@ protected:
     }
     void mousePressEvent(QMouseEvent* ev) override {
         if (ev->button() != Qt::LeftButton) return;
+        emit selectionStarted(page_);
         // Snapshot once per gesture: consistent even if the background
         // indexer lands mid-drag. Zero engine calls on this thread.
         snap_ = selIndex_ ? selIndex_->snapshot(page_) : reader::PageWords{};
@@ -599,6 +598,7 @@ PdfView::PdfView(reader::Application* app, QWidget* parent)
         app_->context.clearCurrentSelection();
         selection_.reset();
         selectionRows_.clear();
+        emit selectionChanged(reader::DocumentAnchor{});
     });
 }
 
@@ -615,7 +615,10 @@ std::vector<QSizeF> PdfView::pageSizes() const {
 void PdfView::clearAllSelections() {
     QLayout* layout = pageHost_->layout();
     for (int i = 0; i < layout->count(); ++i)
-        if (auto* w = qobject_cast<PageWidget*>(layout->itemAt(i)->widget())) w->clearSelection();
+        if (auto* w = qobject_cast<PageWidget*>(layout->itemAt(i)->widget())) {
+            w->clearSelection();
+            w->setHighlights({});
+        }
 }
 
 bool PdfView::isSelectionTooLarge(const QString& text) {
@@ -637,6 +640,15 @@ void PdfView::rebuildPages() {
             i, pageSizes_[i], std::shared_ptr<reader::PdfRenderer>(renderer_.get(),
                                                                   [](reader::PdfRenderer*) {}),
             selIndex_.get(), zoom_, rotation_, pageHost_);
+        connect(w, &PageWidget::selectionStarted, this, [this](int page) {
+            QLayout* layout = pageHost_->layout();
+            for (int i = 0; i < layout->count(); ++i) {
+                if (auto* widget = qobject_cast<PageWidget*>(layout->itemAt(i)->widget())) {
+                    widget->setHighlights({});
+                    if (widget->pageIndex() != page) widget->clearSelection();
+                }
+            }
+        });
         connect(w, &PageWidget::clickedAt, this, [this](int page, QPointF point) {
             suppressNextClickClear_ = false;
             const QPdfLink link = linkAt(page, point);
@@ -833,6 +845,10 @@ void PdfView::goToPage(int page) {
 }
 
 void PdfView::jumpToAnchor(const reader::DocumentAnchor& anchor, bool highlight) {
+    QLayout* layout = pageHost_->layout();
+    for (int i = 0; i < layout->count(); ++i)
+        if (auto* widget = qobject_cast<PageWidget*>(layout->itemAt(i)->widget()))
+            widget->setHighlights({});
     goToPage(anchor.page);
     if (auto* w = qobject_cast<PageWidget*>(pageWidget(anchor.page))) {
         const auto& bounds = anchor.bounds;
@@ -842,8 +858,6 @@ void PdfView::jumpToAnchor(const reader::DocumentAnchor& anchor, bool highlight)
                                                     viewport()->height() * 0.2)));
     }
     if (highlight) {
-        pendingHighlight_ = anchor;
-        hasHighlight_ = true;
         if (auto* w = qobject_cast<PageWidget*>(pageWidget(anchor.page))) {
             // Restoring the live selection reuses its exact rows; every
             // other anchor (equation, figure, chat source) is one rect.
@@ -852,8 +866,16 @@ void PdfView::jumpToAnchor(const reader::DocumentAnchor& anchor, bool highlight)
                 sameHighlightTarget(*selection_, anchor))
                 rows = selectionRows_;
             else if (anchor.bounds.valid()) {
+                if (app_->annotations) {
+                    for (const auto& ann : app_->annotations->annotationsFor(anchor.document)) {
+                        if (ann.kind != "highlight" || ann.anchor.anchorText != anchor.anchorText ||
+                            !sameHighlightTarget(ann.anchor, anchor)) continue;
+                        const auto& b = ann.anchor.bounds;
+                        rows.push_back(QRectF(b.x, b.y, b.width, b.height));
+                    }
+                }
                 const auto& b = anchor.bounds;
-                rows = {QRectF(b.x, b.y, b.width, b.height)};
+                if (rows.isEmpty()) rows = {QRectF(b.x, b.y, b.width, b.height)};
             }
             w->setHighlights(rows);
         }
@@ -1193,17 +1215,24 @@ bool PdfView::highlightCurrentSelection() {
         rows = {QRectF(b.x, b.y, b.width, b.height)};
     }
     if (rows.isEmpty()) return false;
-    for (const QRectF& row : rows) {
-        reader::UserAnnotation ann;
-        ann.id = QUuid::createUuid().toString(QUuid::WithoutBraces).toStdString();
-        ann.anchor = *selection_;
-        ann.anchor.bounds = {float(row.x()), float(row.y()), float(row.width()),
-                             float(row.height())};
-        ann.kind = "highlight";
-        ann.color = "#ffe066";
-        if (!app_->annotations->saveAnnotation(doc, ann)) return false;
-    }
+    const std::string groupId = QUuid::createUuid().toString(QUuid::WithoutBraces).toStdString();
+    const bool saved = app_->db->transaction([&] {
+        for (const QRectF& row : rows) {
+            reader::UserAnnotation ann;
+            ann.id = QUuid::createUuid().toString(QUuid::WithoutBraces).toStdString();
+            ann.anchor = *selection_;
+            ann.anchor.bounds = {float(row.x()), float(row.y()), float(row.width()),
+                                 float(row.height())};
+            ann.kind = "highlight";
+            ann.color = "#ffe066";
+            ann.groupId = groupId;
+            if (!app_->annotations->saveAnnotation(doc, ann)) return false;
+        }
+        return true;
+    });
+    if (!saved) return false;
     refreshUserOverlays();
+    emit annotationsChanged();
     return true;
 }
 
@@ -1217,71 +1246,11 @@ bool PdfView::removeHighlightForCurrentSelection() {
             app_->annotations->deleteAnnotation(doc, ann.id);
             removed = true;
         }
-    if (removed) refreshUserOverlays();
+    if (removed) {
+        refreshUserOverlays();
+        emit annotationsChanged();
+    }
     return removed;
-}
-
-void PdfView::promptNoteForAnchor(const reader::DocumentAnchor& anchor) {
-    if (anchor.anchorText.empty() || !app_ || !app_->annotations) return;
-    const reader::DocumentId doc = app_->model.document.id;
-    if (doc.empty()) return;
-    // Small editor floating over the selection instead of a modal dialog:
-    // click-away or Esc cancels, Save (or Ctrl+Enter) persists.
-    if (noteEditor_) noteEditor_->close();
-    auto* dialog = new QDialog(window(), Qt::Popup);
-    dialog->setObjectName("noteEditor");
-    dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->setWindowTitle("Note");
-    auto* layout = new QVBoxLayout(dialog);
-    auto* edit = new QTextEdit(dialog);
-    edit->setObjectName("noteText");
-    edit->setPlaceholderText("Note on selected passage…");
-    edit->setMinimumSize(280, 90);
-    auto* buttons =
-        new QDialogButtonBox(QDialogButtonBox::Save | QDialogButtonBox::Cancel, dialog);
-    layout->addWidget(edit);
-    layout->addWidget(buttons);
-    connect(buttons, &QDialogButtonBox::accepted, dialog, [this, dialog, edit, anchor, doc] {
-        const QString text = edit->toPlainText();
-        if (!text.trimmed().isEmpty() && app_ && app_->annotations) {
-            reader::Note n;
-            n.id = QUuid::createUuid().toString(QUuid::WithoutBraces).toStdString();
-            n.anchor = anchor;
-            n.text = text.toStdString();
-            n.createdAt = n.updatedAt = reader::nowMs();
-            if (!app_->annotations->saveNote(doc, n))
-                QToolTip::showText(QCursor::pos(), "Could not save note");
-        }
-        dialog->accept();
-    });
-    connect(buttons, &QDialogButtonBox::rejected, dialog, &QDialog::reject);
-    auto* saveShortcut = new QShortcut(QKeySequence("Ctrl+Return"), edit);
-    connect(saveShortcut, &QShortcut::activated, buttons, [buttons] {
-        if (auto* save = buttons->button(QDialogButtonBox::Save)) save->click();
-    });
-    dialog->resize(300, 150);
-    dialog->move(noteEditorPos(anchor, dialog->size()));
-    noteEditor_ = dialog;
-    dialog->show();
-    edit->setFocus(Qt::PopupFocusReason);
-}
-
-QPoint PdfView::noteEditorPos(const reader::DocumentAnchor& anchor, const QSize& size) const {
-    QPoint anchorPos = QCursor::pos();
-    if (QWidget* w = pageWidget(anchor.page)) {
-        const auto& b = anchor.bounds;
-        if (b.valid())
-            anchorPos = w->mapToGlobal(QPoint(qRound(b.x + b.width / 2.0), qRound(b.y)));
-    }
-    QPoint pos(anchorPos.x() - size.width() / 2, anchorPos.y() - size.height() - 12);
-    if (QScreen* screen = QGuiApplication::screenAt(anchorPos)) {
-        const QRect available = screen->availableGeometry();
-        pos.setX(std::clamp(pos.x(), available.left(),
-                            std::max(available.left(), available.right() - size.width())));
-        pos.setY(std::clamp(pos.y(), available.top(),
-                            std::max(available.top(), available.bottom() - size.height())));
-    }
-    return pos;
 }
 
 bool PdfView::hasLiveSelection() const {
@@ -1290,7 +1259,7 @@ bool PdfView::hasLiveSelection() const {
 
 bool PdfView::promptNoteForCurrentSelection() {
     if (!hasLiveSelection()) return false;
-    promptNoteForAnchor(*selection_);
+    emit noteRequested(*selection_);
     return true;
 }
 

@@ -24,6 +24,7 @@ struct UserAnnotation {
     DocumentAnchor anchor;
     std::string kind; // highlight|underline|strikethrough|note|bookmark
     std::string color;
+    std::string groupId;
 };
 
 // Geometrically + textually anchored (§39) so notes survive re-extraction.
