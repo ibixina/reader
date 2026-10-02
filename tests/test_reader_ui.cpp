@@ -19,6 +19,7 @@
 #include <QListWidget>
 #include <QMouseEvent>
 #include <QPushButton>
+#include <QScrollBar>
 #include <QTextBrowser>
 #include <QThread>
 #include <QWebEngineView>
@@ -121,6 +122,8 @@ int main(int argc, char** argv) {
     CHECK(firstPage);
     if (firstPage) {
         QGuiApplication::clipboard()->setText("clipboard sentinel");
+        browserQuestion->setText("Question for the previous selection");
+        browserQuestion->setFocus();
         const auto blockIt = std::find_if(
             app.model.blocks.begin(), app.model.blocks.end(), [](const reader::TextBlock& block) {
                 return block.text.find("Interactive reading systems") != std::string::npos;
@@ -152,6 +155,8 @@ int main(int argc, char** argv) {
             selectionContextMs = selectionTimer.elapsed();
             CHECK(selectionContextMs < 500);
             CHECK(QGuiApplication::clipboard()->text() == "clipboard sentinel");
+            CHECK(browserQuestion->text().isEmpty());
+            CHECK(QApplication::focusWidget() == browserQuestion);
             // The browser chat surface reflects the live selection locally:
             // whatever the drag resolved to must appear verbatim.
             qt.processEvents(QEventLoop::AllEvents, 50);
@@ -487,6 +492,11 @@ int main(int argc, char** argv) {
     pdf->goToPage(0);
     pdf->fitWidth();
     qt.processEvents(QEventLoop::AllEvents, 100);
+    CHECK(waitFor(qt, 1000, [&] {
+        auto* page = window.findChild<QWidget*>("pdfPage_0");
+        return page && std::abs(page->width() - pdf->viewport()->width()) <= 1;
+    }));
+    CHECK(pdf->horizontalScrollBar()->maximum() == 0);
     window.grab().save("/tmp/reader-main-window.png");
     std::cout << "reader timings ms: first_paint=" << firstPaintMs
               << " literal_search=" << literalSearchMs

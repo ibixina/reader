@@ -331,6 +331,11 @@ void WebPanel::updateNavReveal() {
         navBar_->hide();
 }
 
+void WebPanel::clearQuestionDrafts() {
+    for (const auto& session : sessions_) session->question.clear();
+    question_->clear();
+}
+
 void WebPanel::refreshContext() {
     auto ctx = app_->context.currentContext();
     QString text = QString("📍 p.%1").arg(app_->state.page + 1);

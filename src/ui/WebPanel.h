@@ -23,6 +23,7 @@ public:
     explicit WebPanel(reader::Application* app, QWidget* parent = nullptr);
     ~WebPanel() override;
     void refreshContext();
+    void clearQuestionDrafts();
     void copyPrompt();
     void ask();
     void focusQuestion();

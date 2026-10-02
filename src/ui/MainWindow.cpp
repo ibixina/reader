@@ -149,7 +149,10 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
     statusBar()->hide();
 
     connect(pdf_, &PdfView::selectionChanged, this, [this](const reader::DocumentAnchor& anchor) {
-        if (web_) web_->refreshContext();
+        if (web_) {
+            web_->clearQuestionDrafts();
+            web_->refreshContext();
+        }
         if (app_->state.settings.copySelectionToClipboard && !anchor.anchorText.empty())
             QGuiApplication::clipboard()->setText(QString::fromStdString(anchor.anchorText));
         showSelectionHint();

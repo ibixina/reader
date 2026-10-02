@@ -560,8 +560,12 @@ PdfView::PdfView(reader::Application* app, QWidget* parent)
       selIndex_(std::make_shared<reader::SelectionIndex>()),
       renderer_(std::make_unique<reader::PdfRenderer>()) {
     setWidgetResizable(true);
+    setFrameShape(QFrame::NoFrame);
     pageHost_ = new QWidget(this);
-    pageHost_->setLayout(new QVBoxLayout(pageHost_));
+    auto* pageLayout = new QVBoxLayout(pageHost_);
+    pageLayout->setContentsMargins(0, 0, 0, 0);
+    pageLayout->setSpacing(6);
+    pageLayout->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
     setWidget(pageHost_);
     verticalScrollBar()->setSingleStep(40);
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this,
@@ -895,8 +899,8 @@ void PdfView::applyFitMode() {
     if (pageCount_ == 0) return;
     QSizeF pts = pageSizes_[0];
     if (rotation_ == 90 || rotation_ == 270) pts.transpose();
-    const double availableWidth = std::max(1, viewport()->width() - 28);
-    const double availableHeight = std::max(1, viewport()->height() - 28);
+    const double availableWidth = std::max(1, viewport()->width());
+    const double availableHeight = std::max(1, viewport()->height());
     double fitted = zoom_;
     if (fitMode_ == FitMode::Width)
         fitted = availableWidth / pts.width();
