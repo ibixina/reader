@@ -656,7 +656,7 @@ void PdfView::rebuildPages() {
                 suppressNextClickClear_ = true;
                 if (link.url().isEmpty() && link.page() >= 0) {
                     setFocus(Qt::MouseFocusReason);
-                    emit internalLinkActivated(link.page(), link.location(), link.zoom());
+                    emit internalLinkActivated(link.page(), link.location());
                 } else {
                     emit linkActivated(link.page(), link.url().toString());
                 }

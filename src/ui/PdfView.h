@@ -103,7 +103,7 @@ signals:
     void objectClicked(const reader::DocumentAnchor& anchor, const QString& kind);
     void sourceActivated(const reader::DocumentAnchor& anchor);
     void linkActivated(int page, const QString& uri);
-    void internalLinkActivated(int page, const QPointF& location, qreal zoom);
+    void internalLinkActivated(int page, const QPointF& location);
     void noteRequested(const reader::DocumentAnchor& anchor);
     void annotationsChanged();
     // Empty seed means the user pressed A on a live selection; focusing the

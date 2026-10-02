@@ -52,8 +52,7 @@ private:
     void navigateTo(const reader::NavEntry& entry);
     void navigateBack();
     void navigateForward();
-    void navigateToAnchor(const reader::DocumentAnchor& anchor, bool highlight = true,
-                          double zoom = 0);
+    void navigateToAnchor(const reader::DocumentAnchor& anchor, bool highlight = true);
     void persistWindowLayout();
     void setupToolbarAutoHide();
     void updateToolbarAutoHide();

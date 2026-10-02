@@ -293,17 +293,23 @@ int main(int argc, char** argv) {
     CHECK(std::abs(restoredHistory.zoom - 1.1) < 0.001);
     CHECK(restoredHistory.scrollY == 25);
 
-    // A real internal PDF link records both endpoints, including the
-    // source's within-page scroll offset. Ctrl+Left/Right restore each.
-    pdf->goToPage(0);
-    pdf->verticalScrollBar()->setValue(137);
-    const auto beforeLink = pdf->captureState();
-    app.state.history.clear();
-    app.state.history.visit({beforeLink.page, double(beforeLink.scrollY), beforeLink.zoom,
-                             beforeLink.selection});
-    if (auto* page = window.findChild<QWidget*>("pdfPage_0")) {
+    // Links with an explicit or unspecified destination zoom keep the
+    // reading scale. Ctrl+Left/Right restore both endpoints exactly.
+    for (bool fitToWidth : {false, true}) {
+        pdf->goToPage(0);
+        pdf->setZoom(1.65);
+        if (fitToWidth) pdf->fitWidth();
+        qt.processEvents(QEventLoop::AllEvents, 50);
+        pdf->verticalScrollBar()->setValue(137);
+        const auto beforeLink = pdf->captureState();
+        app.state.history.clear();
+        app.state.history.visit({beforeLink.page, double(beforeLink.scrollY), beforeLink.zoom,
+                                 beforeLink.selection});
+        auto* page = window.findChild<QWidget*>("pdfPage_0");
+        CHECK(page);
+        if (!page) continue;
         const double scale = beforeLink.zoom;
-        const QPointF point(140 * scale, 238 * scale);
+        const QPointF point(140 * scale, (fitToWidth ? 222 : 238) * scale);
         QMouseEvent press(QEvent::MouseButtonPress, point, point, Qt::LeftButton,
                           Qt::LeftButton, Qt::NoModifier);
         QMouseEvent release(QEvent::MouseButtonRelease, point, point, Qt::LeftButton,
@@ -311,8 +317,23 @@ int main(int argc, char** argv) {
         QApplication::sendEvent(page, &press);
         QApplication::sendEvent(page, &release);
         qt.processEvents(QEventLoop::AllEvents, 50);
+        if (fitToWidth) {
+            const QSize originalSize = window.size();
+            const int originalWidth = pdf->viewport()->width();
+            window.resize(originalSize.width() + 120, originalSize.height());
+            CHECK(waitFor(qt, 1500, [&] {
+                auto* target = window.findChild<QWidget*>("pdfPage_1");
+                return target && pdf->viewport()->width() != originalWidth &&
+                       std::abs(target->width() - pdf->viewport()->width()) <= 1;
+            }));
+            window.resize(originalSize);
+            CHECK(waitFor(qt, 1500, [&] {
+                return std::abs(pdf->captureState().zoom - beforeLink.zoom) < 0.001;
+            }));
+        }
         const auto afterLink = pdf->captureState();
         CHECK(afterLink.page == 1);
+        CHECK(std::abs(afterLink.zoom - beforeLink.zoom) < 0.001);
         CHECK(app.state.history.canBack());
         QKeyEvent backKey(QEvent::KeyPress, Qt::Key_Left, Qt::ControlModifier);
         QApplication::sendEvent(pdf, &backKey);
@@ -326,6 +347,7 @@ int main(int argc, char** argv) {
         qt.processEvents(QEventLoop::AllEvents, 50);
         CHECK(pdf->captureState().page == afterLink.page);
         CHECK(pdf->captureState().scrollY == afterLink.scrollY);
+        CHECK(std::abs(pdf->captureState().zoom - beforeLink.zoom) < 0.001);
         QApplication::sendEvent(pdf, &backKey);
     }
 

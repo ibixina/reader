@@ -248,7 +248,7 @@ inline void writeAcademicPdf(const std::string& path) {
     objects.reserve(19);
     objects.push_back("1 0 obj << /Type /Catalog /Pages 2 0 R /Outlines 15 0 R >> endobj");
     objects.push_back("2 0 obj << /Type /Pages /Kids [3 0 R 5 0 R 7 0 R 9 0 R] /Count 4 >> endobj");
-    objects.push_back("3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 11 0 R /F2 12 0 R >> >> /Annots [14 0 R] >> endobj");
+    objects.push_back("3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 11 0 R /F2 12 0 R >> >> /Annots [13 0 R 14 0 R] >> endobj");
     objects.push_back("");
     objects.push_back("5 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 6 0 R /Resources << /Font << /F1 11 0 R /F2 12 0 R >> >> >> endobj");
     objects.push_back("");
@@ -258,8 +258,8 @@ inline void writeAcademicPdf(const std::string& path) {
     objects.push_back("");
     objects.push_back("11 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj");
     objects.push_back("12 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >> endobj");
-    objects.push_back("13 0 obj << /Type /Annot /Subtype /Link /Rect [54 540 300 566] /Dest [5 0 R /Fit] >> endobj");
-    objects.push_back("14 0 obj << /Type /Annot /Subtype /Link /Rect [54 540 300 566] /Dest [5 0 R /Fit] >> endobj");
+    objects.push_back("13 0 obj << /Type /Annot /Subtype /Link /Rect [54 564 300 582] /Dest [5 0 R /XYZ 54 620 null] >> endobj");
+    objects.push_back("14 0 obj << /Type /Annot /Subtype /Link /Rect [54 540 300 566] /Dest [5 0 R /XYZ 54 620 0.75] >> endobj");
     objects.push_back("15 0 obj << /Type /Outlines /First 16 0 R /Last 18 0 R /Count 3 >> endobj");
     objects.push_back("16 0 obj << /Title (Introduction) /Parent 15 0 R /Dest [3 0 R /Fit] /Next 17 0 R >> endobj");
     objects.push_back("17 0 obj << /Title (Methods) /Parent 15 0 R /Dest [5 0 R /Fit] /Next 18 0 R >> endobj");

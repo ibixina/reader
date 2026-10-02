@@ -186,12 +186,12 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
         if (!uri.isEmpty()) QDesktopServices::openUrl(QUrl(uri));
     });
     connect(pdf_, &PdfView::internalLinkActivated, this,
-            [this](int page, const QPointF& location, qreal zoom) {
+            [this](int page, const QPointF& location) {
         reader::DocumentAnchor anchor;
         anchor.document = app_->model.document.id;
         anchor.page = page;
         anchor.bounds = {float(location.x()), float(location.y()), 0, 0};
-        navigateToAnchor(anchor, false, zoom);
+        navigateToAnchor(anchor, false);
     });
     connect(pdf_, &PdfView::objectClicked, this,
             [this](const reader::DocumentAnchor& a, const QString& kind) {
@@ -628,12 +628,11 @@ void MainWindow::navigateForward() {
     navigateTo(app_->state.history.forward());
 }
 
-void MainWindow::navigateToAnchor(const reader::DocumentAnchor& anchor, bool highlight, double zoom) {
+void MainWindow::navigateToAnchor(const reader::DocumentAnchor& anchor, bool highlight) {
     if (!pdf_) return;
     const auto state = pdf_->captureState();
     app_->state.history.updateCurrent({state.page, double(state.scrollY), state.zoom, state.selection});
     restoringHistory_ = true;
-    if (zoom > 0) pdf_->setZoom(zoom);
     pdf_->jumpToAnchor(anchor, highlight);
     restoringHistory_ = false;
     const auto destination = pdf_->captureState();

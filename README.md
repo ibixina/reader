@@ -54,7 +54,8 @@ passage and note editor; notes save automatically as you type and when you
 close the sidebar or change documents. You can search, edit, and delete notes
 there, or remove an entire multiline highlight with one click. **Ctrl+Left**
 and **Ctrl+Right** in the PDF pane return to previous and next reading positions,
-including the exact scroll offset before an internal document link.
+including the exact scroll offset before an internal document link. Internal
+links preserve your current zoom and fit mode.
 
 ## Providers and cache
 
