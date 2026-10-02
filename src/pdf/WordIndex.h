@@ -36,6 +36,8 @@ std::vector<WordBox> buildWordBoxes(QPdfDocument& doc, int page, QString& pageTe
 std::vector<WordBox> buildWordBoxesFromLayout(const QString& path, int page,
                                               QString& pageTextOut);
 
+bool sameTextRow(const QRectF& a, const QRectF& b);
+
 // Press/drag endpoint resolution (UI-thread safe: pure geometry, no engine
 // calls). Exact hit first; then the row the point visually sits on (a press
 // in the inter-line gap belongs to its row, not to a word lines away);

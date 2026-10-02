@@ -9,6 +9,7 @@
 #include <QPdfDocument>
 #include <QPdfSelection>
 #include <poppler-qt6.h>
+#include <algorithm>
 #include <memory>
 
 namespace reader {
@@ -55,6 +56,12 @@ std::vector<WordBox> legacyWordBoxes(QPdfDocument& doc, int page, QString& pageT
 
 } // namespace
 
+bool sameTextRow(const QRectF& a, const QRectF& b) {
+    // Font boxes on adjacent lines can overlap slightly with tight leading.
+    const double overlap = std::min(a.bottom(), b.bottom()) - std::max(a.top(), b.top());
+    return overlap >= 0.5 * std::min(a.height(), b.height());
+}
+
 std::vector<WordBox> buildWordBoxesFromLayout(const QString& path, int page,
                                               QString& pageTextOut) {
     pageTextOut.clear();
@@ -65,26 +72,26 @@ std::vector<WordBox> buildWordBoxesFromLayout(const QString& path, int page,
     const auto boxes = pg->textList();
     if (boxes.empty()) return {};
 
-    // Words arrive in content-stream order (the same order the old pdfium
-    // loop produced). Rebuild the page text as words joined by single
+    // Words arrive in reading order. Rebuild the page text as words joined by single
     // spaces, with '\n' whenever the layout starts a new visual row, so
     // character indices line up with the words that own them.
     std::vector<WordBox> out;
     out.reserve(boxes.size());
     QString text;
     int cursor = 0;
-    double lastBottom = -1e30;
+    QRectF rowRect;
     for (const auto& box : boxes) {
         if (!box) continue;
         QString word = normalizeLigatures(box->text());
         if (word.isEmpty()) continue;
         QRectF r = box->boundingBox();
         if (!r.isValid()) continue;
-        if (!text.isEmpty()) {
-            const bool newRow = r.top() >= lastBottom + 1.0 || r.bottom() <= lastBottom - 1.0;
+        const bool newRow = out.empty() || !sameTextRow(rowRect, r);
+        if (!out.empty()) {
             text += newRow ? '\n' : ' ';
             ++cursor;
         }
+        if (newRow) rowRect = r;
         WordBox w;
         w.text = word;
         w.startIndex = cursor;
@@ -92,7 +99,6 @@ std::vector<WordBox> buildWordBoxesFromLayout(const QString& path, int page,
         w.rect = r;
         text += word;
         cursor += word.size();
-        lastBottom = r.bottom();
         out.push_back(std::move(w));
     }
     pageTextOut = text;

@@ -5,11 +5,7 @@
 #include <string>
 #include <vector>
 
-inline void writeSamplePdf(const std::string& path) {
-    std::string txt = "BT /F1 18 Tf 72 720 Td (Neural Posterior Estimation) Tj ET";
-    std::string content =
-        "BT /F1 12 Tf 72 690 Td 15 TL (3.2 Posterior Estimation We use a recurrent "
-        "history encoder for amortization [12].) Tj ET";
+inline void writeTextPdf(const std::string& path, const std::string& stream) {
     std::vector<std::string> objs = {
         "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj",
         "2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj",
@@ -18,7 +14,6 @@ inline void writeSamplePdf(const std::string& path) {
         "",
         "5 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj",
     };
-    std::string stream = txt + "\n" + content;
     objs[3] = "4 0 obj << /Length " + std::to_string(stream.size()) + " >> stream\n" + stream +
               "\nendstream endobj";
     std::string out = "%PDF-1.4\n";
@@ -38,4 +33,11 @@ inline void writeSamplePdf(const std::string& path) {
            " /Root 1 0 R >>\nstartxref\n" + std::to_string(xref) + "\n%%EOF";
     std::ofstream f(path, std::ios::binary);
     f << out;
+}
+
+inline void writeSamplePdf(const std::string& path) {
+    writeTextPdf(path,
+        "BT /F1 18 Tf 72 720 Td (Neural Posterior Estimation) Tj ET\n"
+        "BT /F1 12 Tf 72 690 Td 15 TL (3.2 Posterior Estimation We use a recurrent "
+        "history encoder for amortization [12].) Tj ET");
 }

@@ -11,6 +11,8 @@
 #include <QPushButton>
 #include <QTextEdit>
 #include <QTimer>
+#include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <cstdlib>
 
@@ -438,6 +440,98 @@ int main(int argc, char** argv) {
     mousePress(*page, W(600, 400));
     mouseRelease(*page, W(600, 400));
     CHECK(currentText(rapp).empty());
+
+    // Tight leading lets adjacent lines' font boxes overlap slightly.
+    // A wrapped heading must still paint and save each complete visual row.
+    {
+        const QString tightPath = QString::fromStdString(std::string(home ? home : "/tmp") +
+                                                         "/qt_tight_leading.pdf");
+        writeTextPdf(tightPath.toStdString(),
+            "BT /F1 12 Tf 72 720 Td 10.75 TL "
+            "(A longitudinal design improves our understanding of) Tj T* (cognition) Tj ET\n"
+            "BT /F1 12 Tf 72 697 Td (Our findings show that the selection follows the text.) Tj ET");
+        auto tightDoc = std::make_shared<QPdfDocument>();
+        tightDoc->load(tightPath);
+        CHECK(tightDoc->status() == QPdfDocument::Status::Ready);
+        view.attachDocument(tightDoc, tightPath);
+        rapp.model.document.id = "tight-leading";
+        QEventLoop tightReadyLoop;
+        QTimer tightTimeout;
+        tightTimeout.setSingleShot(true);
+        bool tightReady = false;
+        const auto connection = QObject::connect(&view, &PdfView::selectionGeometryReady,
+            &tightReadyLoop, [&](int pageIndex) {
+                if (pageIndex == 0) {
+                    tightReady = true;
+                    tightReadyLoop.quit();
+                }
+            });
+        QObject::connect(&tightTimeout, &QTimer::timeout, &tightReadyLoop, &QEventLoop::quit);
+        view.prefetchAround(0);
+        tightTimeout.start(5000);
+        tightReadyLoop.exec();
+        QObject::disconnect(connection);
+        CHECK(tightReady);
+
+        QString tightText;
+        const auto boxes = reader::buildWordBoxesFromLayout(tightPath, 0, tightText);
+        const auto findWord = [&](const char* text) {
+            return std::find_if(boxes.begin(), boxes.end(), [&](const WordBox& word) {
+                return word.text == text;
+            });
+        };
+        const auto first = findWord("A");
+        const auto last = findWord("of");
+        const auto second = findWord("cognition");
+        const auto body = findWord("findings");
+        CHECK(first != boxes.end() && last != boxes.end() &&
+              second != boxes.end() && body != boxes.end());
+        const std::string heading =
+            "A longitudinal design improves our understanding of\ncognition";
+        CHECK(tightText.startsWith(QString::fromStdString(heading)));
+        for (const auto& word : boxes)
+            CHECK(tightText.mid(word.startIndex, word.length) == word.text);
+
+        auto* tightPage = view.findChild<QLabel*>("pdfPage_0");
+        CHECK(tightPage);
+        if (tightPage && first != boxes.end() && last != boxes.end() &&
+            second != boxes.end() && body != boxes.end()) {
+            CHECK(first->rect.bottom() > second->rect.top());
+            const double z = view.captureState().zoom;
+            const auto position = [&](const WordBox& word, bool atEnd) {
+                return QPoint(qRound((atEnd ? word.rect.right() : word.rect.left()) * z),
+                              qRound(word.rect.center().y() * z));
+            };
+            for (bool reverse : {false, true}) {
+                const QPoint from = position(*first, false);
+                const QPoint to = position(*second, true);
+                mousePress(*tightPage, reverse ? to : from);
+                mouseMove(*tightPage, reverse ? from : to);
+                mouseRelease(*tightPage, reverse ? from : to);
+                CHECK(currentText(rapp) == heading);
+                CHECK(view.highlightCurrentSelection());
+                auto rows = rapp.annotations->annotationsFor("tight-leading");
+                std::sort(rows.begin(), rows.end(), [](const auto& a, const auto& b) {
+                    return a.anchor.bounds.y < b.anchor.bounds.y;
+                });
+                CHECK(rows.size() == 2);
+                if (rows.size() == 2) {
+                    CHECK(std::abs(rows[0].anchor.bounds.x - first->rect.left()) < 1);
+                    CHECK(std::abs(rows[0].anchor.bounds.width -
+                                   (last->rect.right() - first->rect.left())) < 1);
+                    CHECK(std::abs(rows[0].anchor.bounds.height - first->rect.height()) < 1);
+                    CHECK(std::abs(rows[1].anchor.bounds.width - second->rect.width()) < 1);
+                }
+                CHECK(view.removeHighlightForCurrentSelection());
+            }
+            mousePress(*tightPage, position(*first, false));
+            mouseRelease(*tightPage, position(*body, true));
+            CHECK(currentText(rapp) == heading + "\nOur findings");
+            CHECK(view.highlightCurrentSelection());
+            CHECK(rapp.annotations->annotationsFor("tight-leading").size() == 3);
+            CHECK(view.removeHighlightForCurrentSelection());
+        }
+    }
 
     // Renderer lifecycle: a queued result from the old document must be
     // discarded after a generation switch, and a failed backend must still

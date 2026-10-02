@@ -418,7 +418,7 @@ private:
                 int j = k;
                 while (j + 1 <= bW) {
                     const QRectF& n = words[j + 1].rect;
-                    if (n.top() >= rowBot || n.bottom() <= rowTop) break;
+                    if (!reader::sameTextRow(words[k].rect, n)) break;
                     ++j;
                     rowTop = qMin(rowTop, n.top());
                     rowBot = qMax(rowBot, n.bottom());
