@@ -45,7 +45,10 @@ conversation and question draft while sharing your ChatGPT login. Double-click
 a tab to name it, drag tabs to reorder them, or use its close button. With focus
 in the AI pane, Ctrl+T opens a chat and Ctrl+W closes the current chat.
 
-The **Notes** sidebar lists highlights, notes, and bookmarks in document order.
+Move the cursor to the left edge to reveal the sidebar; moving back into the
+document hides it. It overlays the document without changing its width and
+stays open while an input in the sidebar has focus. The **Notes** tab lists
+highlights, notes, and bookmarks in document order.
 Click a passage to jump to it. Press **N** on selected text to open its quoted
 passage and note editor; notes save automatically as you type and when you
 close the sidebar or change documents. You can search, edit, and delete notes

@@ -17,7 +17,6 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDesktopServices>
-#include <QDockWidget>
 #include <QDir>
 #include <QFrame>
 #include <QFutureWatcher>
@@ -94,7 +93,7 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
     addAction("Toggle AI", [this] { toggleAiPane(); });
     addAction("Reader tools", [this] { openReaderTools(); });
     addAction("Notes", [this] {
-        if (notesDock_->isVisible()) notesDock_->hide();
+        if (marksPanel_->isVisible()) readerOverlay_->hide();
         else showNotes();
     });
     QAction* saveAct = addAction("Save", [this] { saveHighlightsToPdf(); });
@@ -133,23 +132,14 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
     readerTabs_ = new QTabWidget(readerOverlay_);
     searchPanel_ = new SearchPanel(app_, pdf_, readerTabs_);
     outlinePanel_ = new OutlinePanel(app_, readerTabs_);
+    marksPanel_ = new MarksPanel(app_, readerTabs_);
     readerTabs_->addTab(searchPanel_, "Search");
     readerTabs_->addTab(outlinePanel_, "Outline");
+    readerTabs_->addTab(marksPanel_, "Notes");
     overlayLayout->addWidget(readerTabs_);
     // Hidden by default: the left edge hover reveals it, moving away
-    // hides it again. The Outline tab is pre-selected for reveals.
+    // hides it again. Subsequent reveals keep the last selected tab.
     selectReaderTab("Outline");
-
-    notesDock_ = new QDockWidget("Notes & highlights", this);
-    notesDock_->setObjectName("notesDock");
-    notesDock_->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
-    notesDock_->setFeatures(QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable);
-    marksPanel_ = new MarksPanel(app_, notesDock_);
-    marksPanel_->setMinimumWidth(280);
-    notesDock_->setWidget(marksPanel_);
-    addDockWidget(Qt::RightDockWidgetArea, notesDock_);
-    resizeDocks({notesDock_}, {340}, Qt::Horizontal);
-    notesDock_->hide();
 
     statusPage_ = new QLabel("No document", this);
     statusHint_ = new QLabel("Ready", this);
@@ -230,7 +220,6 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
     connect(searchPanel_, &SearchPanel::anchorActivated, this,
             [this](const reader::DocumentAnchor& a) {
                 navigateToAnchor(a);
-                edgeRevealActive_ = false;
                 readerOverlay_->hide();
             });
     connect(outlinePanel_, &OutlinePanel::anchorActivated, this,
@@ -239,7 +228,6 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
             [this](const QString& seed) { focusBrowserQuestionWithSeed(seed); });
     connect(pdf_, &PdfView::findRequested, this, [this] {
         showReaderTools();
-        edgeRevealActive_ = false;
         if (searchPanel_) searchPanel_->focusQuery();
     });
     connect(pdf_, &PdfView::sidecarToggleRequested, this, &MainWindow::toggleAiPane);
@@ -603,13 +591,10 @@ void MainWindow::updateEdgeReveal() {
             if (QWidget* at = QApplication::widgetAt(cursor);
                 !at || window()->isAncestorOf(at) || at == window()) {
                 showReaderTools();
-                selectReaderTab("Outline");
-                edgeRevealActive_ = true;
             }
         }
         return;
     }
-    if (!edgeRevealActive_) return;
     if (readerOverlay_->underMouse()) return;
     if (QWidget* focus = QApplication::focusWidget();
         focus && readerOverlay_->isAncestorOf(focus))
@@ -617,7 +602,6 @@ void MainWindow::updateEdgeReveal() {
     const int hideBeyond = readerOverlay_->width() + 40;
     if (local.x() > hideBeyond || local.x() < 0 || local.y() < 0 || local.y() >= height()) {
         readerOverlay_->hide();
-        edgeRevealActive_ = false;
     }
 }
 
@@ -659,7 +643,6 @@ void MainWindow::navigateToAnchor(const reader::DocumentAnchor& anchor, bool hig
 
 void MainWindow::openReaderTools() {
     if (!readerOverlay_) return;
-    edgeRevealActive_ = false;
     if (readerOverlay_->isVisible()) {
         readerOverlay_->hide();
         return;
@@ -677,8 +660,8 @@ void MainWindow::showReaderTools() {
 
 void MainWindow::showNotes() {
     marksPanel_->rebuild();
-    notesDock_->show();
-    notesDock_->raise();
+    selectReaderTab("Notes");
+    showReaderTools();
 }
 
 void MainWindow::placeReaderOverlay() {
@@ -720,7 +703,7 @@ void MainWindow::setupShortcuts() {
         });
     }
     add(QKeySequence("Ctrl+S"), [this] {
-        if (notesDock_->isVisible() && marksPanel_->isAncestorOf(QApplication::focusWidget()))
+        if (marksPanel_->isVisible() && marksPanel_->isAncestorOf(QApplication::focusWidget()))
             marksPanel_->flushPendingNote();
         else saveHighlightsToPdf();
     });

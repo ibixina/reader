@@ -14,7 +14,6 @@ class QTabWidget;
 class QPdfDocument;
 class QtPdfEngine;
 class QFrame;
-class QDockWidget;
 class QResizeEvent;
 class QCloseEvent;
 
@@ -92,12 +91,10 @@ private:
     SearchPanel* searchPanel_ = nullptr;
     OutlinePanel* outlinePanel_ = nullptr;
     MarksPanel* marksPanel_ = nullptr;
-    QDockWidget* notesDock_ = nullptr;
     QToolBar* toolbar_ = nullptr;
     QTimer* toolbarRevealTimer_ = nullptr;
     bool toolbarPinned_ = false;
     QTimer* edgeRevealTimer_ = nullptr;
-    bool edgeRevealActive_ = false;
     QTabWidget* readerTabs_ = nullptr;
     QLabel* statusPage_ = nullptr;
     QLabel* statusHint_ = nullptr;

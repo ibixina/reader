@@ -14,8 +14,8 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QCloseEvent>
+#include <QCursor>
 #include <QDialog>
-#include <QDockWidget>
 #include <QElapsedTimer>
 #include <QLabel>
 #include <QLineEdit>
@@ -24,6 +24,7 @@
 #include <QPushButton>
 #include <QPlainTextEdit>
 #include <QScrollBar>
+#include <QTabWidget>
 #include <QTextBrowser>
 #include <QThread>
 #include <QWebEngineView>
@@ -84,7 +85,10 @@ int main(int argc, char** argv) {
     window.resize(1100, 760);
     window.show();
     window.activateWindow();
+    QCursor::setPos(window.mapToGlobal(QPoint(500, 400)));
     qt.processEvents(QEventLoop::AllEvents, 50);
+    auto* readerTools = window.findChild<QWidget*>("readerToolsOverlay");
+    CHECK(readerTools && !readerTools->isVisible());
     QElapsedTimer firstPaintTimer;
     firstPaintTimer.start();
     window.openFile(QString::fromStdString(pdfPath));
@@ -225,7 +229,6 @@ int main(int argc, char** argv) {
     pdf->setFocus(Qt::OtherFocusReason);
     QKeyEvent findKey(QEvent::KeyPress, Qt::Key_F, Qt::ControlModifier);
     QApplication::sendEvent(pdf, &findKey);
-    auto* readerTools = window.findChild<QWidget*>("readerToolsOverlay");
     CHECK(readerTools && readerTools->isVisible());
     // In-window overlay: hovers over the left edge without pushing the
     // document and without relying on window-manager positioning.
@@ -455,18 +458,18 @@ int main(int argc, char** argv) {
     }
 
     // Multiline highlights appear as one passage in Notes immediately.
-    // Notes are edited beside the document and survive autosave and closing.
+    // Notes use the edge overlay and survive autosave and closing.
     {
         pdf->setRotation(0);
         pdf->setZoom(1.25);
         pdf->goToPage(0);
         pdf->setFocus();
         auto* notes = window.findChild<MarksPanel*>();
-        auto* dock = window.findChild<QDockWidget*>("notesDock");
+        auto* tabs = readerTools ? readerTools->findChild<QTabWidget*>() : nullptr;
         auto* list = window.findChild<QListWidget*>("marksList");
         auto* editor = window.findChild<QPlainTextEdit*>("noteText");
         auto* quote = window.findChild<QTextBrowser*>("noteQuote");
-        CHECK(notes && dock && list && editor && quote);
+        CHECK(notes && readerTools && tabs && list && editor && quote);
         QString text;
         const auto words = reader::buildWordBoxesFromLayout(QString::fromStdString(pdfPath), 0, text);
         const auto first = std::find_if(words.begin(), words.end(), [](const auto& word) {
@@ -477,7 +480,7 @@ int main(int argc, char** argv) {
         });
         auto* page = window.findChild<QWidget*>("pdfPage_0");
         CHECK(first != words.end() && last != words.end() && page);
-        if (notes && dock && list && editor && quote && page &&
+        if (notes && readerTools && tabs && list && editor && quote && page &&
             first != words.end() && last != words.end()) {
             const double scale = pdf->captureState().zoom;
             const QPointF start(qRound(first->rect.left() * scale),
@@ -498,9 +501,12 @@ int main(int argc, char** argv) {
                 CHECK(rows[0].groupId == rows[1].groupId);
             }
             CHECK(list->count() == 1 && list->item(0)->text().contains("Highlight"));
+            qt.processEvents(QEventLoop::AllEvents, 50);
+            const int viewportWidth = pdf->viewport()->width();
             CHECK(pdf->promptNoteForCurrentSelection());
             qt.processEvents(QEventLoop::AllEvents, 50);
-            CHECK(dock->isVisible());
+            CHECK(readerTools->isVisible() && notes->isVisible());
+            CHECK(pdf->viewport()->width() == viewportWidth);
             CHECK(editor->isVisible() && editor->hasFocus());
             CHECK(quote->toPlainText().contains("Interactive reading systems"));
             CHECK(window.findChild<QDialog*>("noteEditor") == nullptr);
@@ -509,10 +515,13 @@ int main(int argc, char** argv) {
                 return std::abs(page->width() - pdf->viewport()->width()) <= 1;
             }));
             editor->setPlainText("This connects reading and explanation.");
+            // Leaving the edge while typing keeps the editor available.
+            QCursor::setPos(window.mapToGlobal(QPoint(500, 400)));
             CHECK(waitFor(qt, 1500, [&] {
                 const auto saved = app.annotations->notesFor(app.model.document.id);
                 return saved.size() == 1 && saved.front().text == "This connects reading and explanation.";
             }));
+            CHECK(readerTools->isVisible() && editor->hasFocus());
             const auto noteId = app.annotations->notesFor(app.model.document.id).front().id;
             CHECK(list->count() == 1);
             editor->setPlainText("Revised note without a duplicate.");
@@ -539,20 +548,24 @@ int main(int argc, char** argv) {
             CHECK(list->item(0)->isHidden());
             filter->clear();
             editor->setPlainText("Saved when the sidebar closes.");
-            dock->hide();
-            qt.processEvents(QEventLoop::AllEvents, 50);
+            pdf->setFocus();
+            CHECK(waitFor(qt, 1500, [&] { return !readerTools->isVisible(); }));
             CHECK(app.annotations->notesFor(app.model.document.id).front().text ==
                   "Saved when the sidebar closes.");
-            dock->show();
+            CHECK(pdf->viewport()->width() == viewportWidth);
+            QCursor::setPos(window.mapToGlobal(QPoint(2, 300)));
+            CHECK(waitFor(qt, 1500, [&] { return readerTools->isVisible(); }));
+            CHECK(notes->isVisible() && tabs->tabText(tabs->currentIndex()) == "Notes");
+            CHECK(pdf->viewport()->width() == viewportWidth);
+            QCursor::setPos(window.mapToGlobal(QPoint(160, 300)));
             pdf->goToPage(2);
             QMetaObject::invokeMethod(list, "itemClicked", Qt::DirectConnection,
                                       Q_ARG(QListWidgetItem*, list->item(0)));
             qt.processEvents(QEventLoop::AllEvents, 50);
             CHECK(pdf->currentPage() == 0);
-            CHECK(dock->isVisible());
+            CHECK(readerTools->isVisible());
             CHECK(editor->toPlainText() == "Saved when the sidebar closes.");
-            readerTools->hide();
-            window.grab().save("/tmp/reader-notes-sidebar.png");
+            window.grab().save("/tmp/reader-notes-edge-sidebar.png");
             auto* remove = window.findChild<QPushButton*>("removeHighlightButton");
             CHECK(remove && remove->isEnabled());
             remove->click();
@@ -601,7 +614,8 @@ int main(int argc, char** argv) {
                 CHECK(app.annotations->deleteAnnotation(app.model.document.id,
                                                         "legacy-word-" + std::to_string(i)));
             notes->rebuild();
-            dock->hide();
+            readerTools->hide();
+            QCursor::setPos(window.mapToGlobal(QPoint(500, 400)));
         }
     }
 
