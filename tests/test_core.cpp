@@ -1,6 +1,7 @@
 // Core verification: document model, anchors, extraction, structure,
 // indexes, context manager, prompts, manifest, ingestor, storage,
 // navigation history. No Qt; builds with g++ -std=c++20.
+#include <algorithm>
 #include <cassert>
 #include <cstdlib>
 #include <cstdio>
@@ -978,11 +979,23 @@ int main() {
         DocumentModel isolated;
         CHECK(docs.loadModel("doc1", isolated));
         CHECK(isolated.document.id == "doc1" && isolated.blocks.size() == m.blocks.size());
-        CHECK(docs.saveReadingState("doc1", 4, 120.5, 1.5));
-        int page = 0;
-        double sy = 0, z = 0;
-        CHECK(docs.loadReadingState("doc1", page, sy, z));
-        CHECK(page == 4);
+        CHECK(docs.saveReadingState("doc1", {4, 120.5, 1.5, 90, true}));
+        ReadingPosition position;
+        CHECK(docs.loadReadingState("doc1", position));
+        CHECK(position.page == 4 && position.scrollY == 120.5 && position.zoom == 1.5);
+        CHECK(position.rotation == 90 && position.pageMode);
+        CHECK(db.exec("UPDATE documents SET last_opened=1234 WHERE id='doc1'"));
+        CHECK(docs.saveModel(m));
+        const auto activity = docs.documentActivity();
+        const auto saved = std::find_if(activity.begin(), activity.end(), [](const auto& entry) {
+            return entry.lastOpened == 1234;
+        });
+        CHECK(saved != activity.end());
+        if (saved != activity.end()) {
+            CHECK(saved->page == 4);
+            CHECK(saved->pageCount == m.document.pageCount);
+            CHECK(saved->filePath == m.document.filePath);
+        }
         Note n;
         n.id = "n1";
         n.anchor = anchorForBlock(m, m.blocks[0]);
@@ -1079,6 +1092,32 @@ int main() {
                                ++doc2Concepts;
                        }));
         CHECK(doc1Concepts == 1 && doc2Concepts == 1);
+    }
+
+    // Existing reading positions survive the display-mode schema migration.
+    {
+        const std::string path = (testHome / "legacy-reading-state.db").string();
+        sqlite3* legacy = nullptr;
+        CHECK(sqlite3_open(path.c_str(), &legacy) == SQLITE_OK);
+        CHECK(sqlite3_exec(legacy,
+            "CREATE TABLE reading_state(document_id TEXT PRIMARY KEY,page INTEGER,"
+            "scroll_y REAL,zoom REAL,updated_at INTEGER);"
+            "INSERT INTO reading_state VALUES('legacy',3,412.5,1.8,123);",
+            nullptr, nullptr, nullptr) == SQLITE_OK);
+        sqlite3_close(legacy);
+        Database db(path);
+        CHECK(db.ok());
+        DocumentRepository docs(&db);
+        ReadingPosition position;
+        CHECK(docs.loadReadingState("legacy", position));
+        CHECK(position.page == 3 && position.scrollY == 412.5 && position.zoom == 1.8);
+        CHECK(position.rotation == 0 && !position.pageMode);
+        position.rotation = 270;
+        position.pageMode = true;
+        CHECK(docs.saveReadingState("legacy", position));
+        ReadingPosition restored;
+        CHECK(docs.loadReadingState("legacy", restored));
+        CHECK(restored.rotation == 270 && restored.pageMode);
     }
 
     // Navigation history restores exact position.

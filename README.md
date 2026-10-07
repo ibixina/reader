@@ -39,6 +39,29 @@ A Qt-free build is supported with `-DBUILD_UI=OFF -DBUILD_TESTS=ON`; it builds
 the core library plus the core and chat-lifecycle tests using only C++20,
 threads, and SQLite.
 
+The app starts on **Your documents**. Use **Choose folder…** to select a folder;
+the shelf remembers it and shows all readable PDFs directly inside it (including
+`.PDF` files), ordered by the latest open or creation time. On filesystems without
+creation dates, modification time is used instead. The shelf refreshes as files
+are added or removed. Papers appear in a responsive grid with first-page covers,
+titles, and reading progress. Cover previews load as you scroll and are cached
+locally; changing a PDF refreshes its preview. Click a document, or select it and
+press Enter, to open it at its saved page, scroll position, zoom, rotation, and
+page mode. The library search filters filenames as you type, ignoring case and
+matching every word. Results keep their recent-activity order. Press Enter in
+the search bar to open the selected match, or clear it to show the full shelf.
+The query stays when you return from a paper and resets when you choose a new
+folder or restart the app. Use **Shelf** in the reader toolbar
+or **Ctrl+L** to return to the list. Reading position saves automatically and
+when returning to the shelf, switching documents, or closing the app. Launching
+with a PDF argument still opens that file directly.
+
+**Open** in the toolbar has a search bar that filters PDF filenames in the
+current folder as you type. Search ignores case and matches every word you enter.
+Select a result and click **Open**, double-click it, or press Enter to open it.
+Clear the search to see all PDFs and folders; use **Up** or **Choose folder…**
+to browse elsewhere. The folder path is read-only and there is no filename field.
+
 In the browser chat pane, Enter sends the current selection and question in
 one step. **New chat** opens another conversation; each tab keeps its own
 conversation and question draft while sharing your ChatGPT login. Double-click

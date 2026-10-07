@@ -128,7 +128,7 @@ void Database::migrate() {
       extraction_complete INTEGER DEFAULT 0))",
     R"(CREATE TABLE IF NOT EXISTS reading_state(
       document_id TEXT PRIMARY KEY, page INTEGER, scroll_y REAL, zoom REAL,
-      updated_at INTEGER))",
+      updated_at INTEGER, rotation INTEGER DEFAULT 0, page_mode INTEGER DEFAULT 0))",
     R"(CREATE TABLE IF NOT EXISTS sections(
       id TEXT, document_id TEXT, title TEXT, level INTEGER,
       start_page INTEGER, end_page INTEGER, PRIMARY KEY(document_id,id)))",
@@ -221,7 +221,9 @@ void Database::migrate() {
             return false;
         return present || exec(alter);
     };
-    if (!ensureColumn("documents", "abstract_text", "ALTER TABLE documents ADD COLUMN abstract_text TEXT") ||
+    if (!ensureColumn("reading_state", "rotation", "ALTER TABLE reading_state ADD COLUMN rotation INTEGER DEFAULT 0") ||
+        !ensureColumn("reading_state", "page_mode", "ALTER TABLE reading_state ADD COLUMN page_mode INTEGER DEFAULT 0") ||
+        !ensureColumn("documents", "abstract_text", "ALTER TABLE documents ADD COLUMN abstract_text TEXT") ||
         !ensureColumn("documents", "keywords", "ALTER TABLE documents ADD COLUMN keywords TEXT") ||
         !ensureColumn("documents", "extraction_version", "ALTER TABLE documents ADD COLUMN extraction_version INTEGER DEFAULT 0") ||
         !ensureColumn("documents", "extraction_complete", "ALTER TABLE documents ADD COLUMN extraction_complete INTEGER DEFAULT 0") ||

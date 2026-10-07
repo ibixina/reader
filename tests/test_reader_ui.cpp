@@ -6,6 +6,8 @@
 #include "app/Application.h"
 #include "document/DocumentAnchor.h"
 #include "academic_fixture.h"
+#include "ui/DocumentOpenDialog.h"
+#include "ui/DocumentShelf.h"
 #include "ui/MainWindow.h"
 #include "ui/MarksPanel.h"
 #include "ui/OutlinePanel.h"
@@ -16,7 +18,9 @@
 #include <QCloseEvent>
 #include <QCursor>
 #include <QDialog>
+#include <QDir>
 #include <QElapsedTimer>
+#include <QFile>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
@@ -24,9 +28,12 @@
 #include <QPushButton>
 #include <QPlainTextEdit>
 #include <QScrollBar>
+#include <QSettings>
 #include <QTabWidget>
 #include <QTextBrowser>
 #include <QThread>
+#include <QTimer>
+#include <QToolBar>
 #include <QWebEngineView>
 #include <cstdlib>
 #include <filesystem>
@@ -58,6 +65,352 @@ bool waitFor(QApplication& app, int timeoutMs, Predicate predicate) {
     return predicate();
 }
 
+void checkOpenDialog(QApplication& qt, const QString& home) {
+    const QString folder = home + "/open papers";
+    const QString nested = folder + "/More papers";
+    CHECK(QDir().mkpath(nested));
+    const QString learning = folder + "/Bayesian learning.PDF";
+    reader_test::writeAcademicPdf(learning.toStdString());
+    reader_test::writeAcademicPdf((folder + "/Bayesian design.pdf").toStdString());
+    reader_test::writeAcademicPdf((folder + "/World models.pdf").toStdString());
+    reader_test::writeAcademicPdf((nested + "/Nested paper.pdf").toStdString());
+    std::ofstream(folder.toStdString() + "/ignored.txt") << "not a PDF";
+
+    DocumentOpenDialog dialog(folder);
+    dialog.show();
+    auto* search = dialog.findChild<QLineEdit*>("documentSearch");
+    auto* results = dialog.findChild<QListView*>("documentResults");
+    auto* open = dialog.findChild<QPushButton*>("documentOpen");
+    auto* path = dialog.findChild<QLabel*>("documentFolder");
+    auto* status = dialog.findChild<QLabel*>("documentSearchStatus");
+    CHECK(search && results && open && path && status);
+    if (!search || !results || !open || !path || !status) return;
+    auto count = [&] { return results->model()->rowCount(results->rootIndex()); };
+    CHECK(waitFor(qt, 5000, [&] { return count() == 4; }));
+    CHECK(dialog.findChildren<QLineEdit*>().size() == 1);
+    CHECK(results->editTriggers() == QAbstractItemView::NoEditTriggers);
+    CHECK(path->text() == folder);
+    CHECK(search->hasFocus());
+
+    search->setText("BAYESIAN");
+    CHECK(count() == 2 && status->text() == "2 matching PDFs");
+    search->setText("LEARN   bayesian");
+    CHECK(count() == 1);
+    CHECK(results->currentIndex().data().toString() == "Bayesian learning.PDF");
+    CHECK(open->isEnabled());
+    search->setText("no-such-paper");
+    CHECK(count() == 0 && !open->isEnabled() && !results->currentIndex().isValid());
+    CHECK(status->text().contains("No matching PDFs"));
+    QKeyEvent enter(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier);
+    QApplication::sendEvent(search, &enter);
+    CHECK(dialog.isVisible() && dialog.selectedFile().isEmpty());
+
+    search->setText("bayesian learning");
+    const QString added = folder + "/New Bayesian learning.pdf";
+    reader_test::writeAcademicPdf(added.toStdString());
+    CHECK(waitFor(qt, 5000, [&] { return count() == 2; }));
+    CHECK(QFile::remove(added));
+    CHECK(waitFor(qt, 5000, [&] { return count() == 1; }));
+    dialog.grab().save("/tmp/reader-open-search.png");
+
+    // Folders remain navigable from the results and clear the old query.
+    search->setText("more");
+    CHECK(count() == 1);
+    results->setCurrentIndex(results->model()->index(0, 0, results->rootIndex()));
+    open->click();
+    CHECK(waitFor(qt, 5000, [&] { return path->text() == nested && count() == 1; }));
+    CHECK(search->text().isEmpty());
+    dialog.findChild<QPushButton*>("documentUp")->click();
+    CHECK(waitFor(qt, 5000, [&] { return path->text() == folder && count() == 4; }));
+    search->setText("bayesian learning");
+    QApplication::sendEvent(search, &enter);
+    CHECK(dialog.result() == QDialog::Accepted && dialog.selectedFile() == learning);
+
+    DocumentOpenDialog cancelled(folder);
+    cancelled.show();
+    QKeyEvent escape(QEvent::KeyPress, Qt::Key_Escape, Qt::NoModifier);
+    QApplication::sendEvent(&cancelled, &escape);
+    CHECK(cancelled.result() == QDialog::Rejected && cancelled.selectedFile().isEmpty());
+}
+
+void checkShelf(QApplication& qt, const QString& home) {
+    const QString folder = home + "/papers' shelf";
+    const QString emptyFolder = home + "/empty-shelf";
+    CHECK(QDir().mkpath(folder));
+    CHECK(QDir().mkpath(emptyFolder));
+    auto writePdf = [](const QString& path) {
+        reader_test::writeAcademicPdf(path.toStdString());
+        std::ofstream append(path.toStdString(), std::ios::app);
+        append << "\n% " << path.toStdString() << '\n';
+    };
+    const QString resumePath = folder + "/Continue reading.pdf";
+    const QString secondPath = folder + "/Another paper.pdf";
+    writePdf(resumePath);
+    writePdf(secondPath);
+    writePdf(folder + "/Unread.PDF");
+    writePdf(home + "/outside.pdf");
+    for (int i = 0; i < 25; ++i) writePdf(folder + QString("/Paper %1.pdf").arg(i));
+    std::ofstream(folder.toStdString() + "/ignore.txt") << "not a document";
+    CHECK(QDir().mkpath(folder + "/subfolder"));
+    writePdf(folder + "/subfolder/Nested.pdf");
+    const auto resumeId = reader::sha256File(resumePath.toStdString());
+    reader::PdfViewState expected;
+    auto clickDocument = [&](QListWidget* list, const QString& path) {
+        QListWidgetItem* item = nullptr;
+        for (int i = 0; i < list->count(); ++i) {
+            auto* candidate = list->item(i);
+            if (candidate->data(Qt::UserRole).toString() == path) item = candidate;
+        }
+        CHECK(item);
+        if (!item) return;
+        list->scrollToItem(item);
+        const QPointF point = list->visualItemRect(item).center();
+        const QPointF global = list->viewport()->mapToGlobal(point.toPoint());
+        QMouseEvent press(QEvent::MouseButtonPress, point, global, Qt::LeftButton,
+                          Qt::LeftButton, Qt::NoModifier);
+        QMouseEvent release(QEvent::MouseButtonRelease, point, global, Qt::LeftButton,
+                            Qt::NoButton, Qt::NoModifier);
+        QApplication::sendEvent(list->viewport(), &press);
+        QApplication::sendEvent(list->viewport(), &release);
+    };
+    {
+        reader::Application app;
+        const auto timestamp = reader::nowMs();
+        auto remember = [&](const QString& path, reader::TimestampMs opened) {
+            reader::Document doc;
+            doc.id = doc.fileHash = reader::sha256File(path.toStdString());
+            doc.filePath = path.toStdString();
+            doc.pageCount = 4;
+            CHECK(app.documents->saveDocument(doc));
+            CHECK(app.db->exec("UPDATE documents SET last_opened=" + std::to_string(opened) +
+                               " WHERE id='" + doc.id + "'"));
+        };
+        remember(resumePath, timestamp + 60000);
+        remember(secondPath, timestamp + 30000);
+        for (int i = 0; i < 25; ++i)
+            remember(folder + QString("/Paper %1.pdf").arg(i), timestamp - 10000 - i);
+        remember(home + "/outside.pdf", timestamp + 90000);
+        CHECK(app.documents->saveReadingState(resumeId, {2, 2700, 1.6}));
+        MainWindow window(&app);
+        window.resize(1100, 760);
+        window.show();
+        window.activateWindow();
+        auto* shelf = window.findChild<DocumentShelf*>();
+        auto* list = window.findChild<QListWidget*>("shelfDocuments");
+        auto* message = window.findChild<QLabel*>("shelfMessage");
+        auto* search = window.findChild<QLineEdit*>("shelfSearch");
+        auto* pdf = window.findChild<PdfView*>();
+        auto* browser = window.findChild<WebPanel*>();
+        auto* toolbar = window.findChild<QToolBar*>("readerToolbar");
+        CHECK(shelf && list && message && search && pdf && browser && toolbar);
+        if (!shelf || !list || !message || !search || !pdf || !browser || !toolbar) return;
+        auto visibleDocuments = [list] {
+            QList<QListWidgetItem*> visible;
+            for (int i = 0; i < list->count(); ++i)
+                if (!list->item(i)->isHidden()) visible.append(list->item(i));
+            return visible;
+        };
+        CHECK(shelf->isVisible() && !pdf->isVisible() && !browser->isVisible());
+        CHECK(message->text().contains("Choose a folder"));
+        CHECK(!search->isEnabled());
+        window.grab().save("/tmp/reader-shelf-empty.png");
+        shelf->setFolder(folder);
+        CHECK(waitFor(qt, 5000, [&] { return list->count() == 28; }));
+        CHECK(list->item(0)->data(Qt::UserRole).toString() == resumePath);
+        CHECK(list->item(1)->data(Qt::UserRole).toString() == secondPath);
+        CHECK(list->item(0)->toolTip().contains("Page 3 of 4"));
+        CHECK(list->viewMode() == QListView::IconMode);
+        CHECK(waitFor(qt, 5000, [&] {
+            for (int i = 0; i < 4; ++i)
+                if (list->item(i)->data(Qt::DecorationRole).value<QImage>().isNull()) return false;
+            return true;
+        }));
+        const auto cover = list->item(0)->data(Qt::DecorationRole).value<QImage>();
+        CHECK(cover.height() > cover.width());
+        int ink = 0;
+        for (int y = 0; y < cover.height(); y += 4)
+            for (int x = 0; x < cover.width(); x += 4)
+                if (qGray(cover.pixel(x, y)) < 200) ++ink;
+        CHECK(ink > 30);
+        CHECK(list->item(list->count() - 1)->data(Qt::DecorationRole).value<QImage>().isNull());
+        list->scrollToBottom();
+        CHECK(waitFor(qt, 5000, [&] {
+            return !list->item(list->count() - 1)->data(Qt::DecorationRole).value<QImage>().isNull();
+        }));
+        CHECK(list->item(0)->data(Qt::DecorationRole).value<QImage>().isNull());
+        list->scrollToTop();
+        CHECK(waitFor(qt, 5000, [&] {
+            for (int i = 0; i < 4; ++i)
+                if (list->item(i)->data(Qt::DecorationRole).value<QImage>().isNull()) return false;
+            return true;
+        }));
+        CHECK(list->visualItemRect(list->item(1)).left() > list->visualItemRect(list->item(0)).left());
+        window.resize(800, 760);
+        CHECK(waitFor(qt, 2000, [&] {
+            return list->visualItemRect(list->item(3)).top() > list->visualItemRect(list->item(0)).top();
+        }));
+        window.resize(1100, 760);
+        CHECK(waitFor(qt, 2000, [&] {
+            return list->visualItemRect(list->item(3)).top() == list->visualItemRect(list->item(0)).top();
+        }));
+        CHECK(QSettings().value("library/folder").toString() == folder);
+        window.grab().save("/tmp/reader-shelf-grid.png");
+
+        // Live filtering keeps recent order and matches words and extensions.
+        CHECK(search->isEnabled());
+        search->setText("PAPER");
+        CHECK(visibleDocuments().size() == 26);
+        CHECK(visibleDocuments().first()->data(Qt::UserRole).toString() == secondPath);
+        search->setText("11   PaPeR");
+        CHECK(visibleDocuments().size() == 1);
+        CHECK(list->currentItem()->text() == "Paper 11");
+        search->setText("unread.pdf");
+        CHECK(visibleDocuments().size() == 1 && list->currentItem()->text() == "Unread");
+        search->setText("no-such-document");
+        CHECK(visibleDocuments().isEmpty() && !list->isVisible());
+        CHECK(message->text().contains("No matching documents"));
+        QKeyEvent noMatchEnter(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier);
+        QApplication::sendEvent(search, &noMatchEnter);
+        CHECK(shelf->isVisible() && app.model.document.id.empty());
+        search->setText("READ  continue");
+        CHECK(visibleDocuments().size() == 1);
+        CHECK(message->text() == "1 of 28 PDF documents");
+        shelf->refresh();
+        CHECK(waitFor(qt, 5000, [&] { return message->text() == "1 of 28 PDF documents"; }));
+        CHECK(search->text() == "READ  continue" && visibleDocuments().size() == 1);
+        CHECK(list->currentItem()->data(Qt::UserRole).toString() == resumePath);
+        CHECK(waitFor(qt, 5000, [&] {
+            return !list->currentItem()->data(Qt::DecorationRole).value<QImage>().isNull();
+        }));
+        const QImage filteredGrid = list->viewport()->grab().toImage();
+        const int belowCard = list->visualItemRect(list->currentItem()).bottom() + 8;
+        const QColor background = filteredGrid.pixelColor(filteredGrid.width() - 1, filteredGrid.height() - 1);
+        int strayPixels = 0;
+        for (int y = belowCard; y < filteredGrid.height(); y += 4)
+            for (int x = 0; x < filteredGrid.width(); x += 4)
+                if (filteredGrid.pixelColor(x, y) != background) ++strayPixels;
+        CHECK(belowCard < filteredGrid.height() && strayPixels == 0);
+        window.grab().save("/tmp/reader-shelf-search.png");
+
+        // Single-clicking a filtered result restores its saved offset and zoom.
+        clickDocument(list, resumePath);
+        CHECK(waitFor(qt, 8000, [&] { return app.model.blocks.size() > 8; }));
+        CHECK(!shelf->isVisible() && pdf->isVisible() && browser->isVisible());
+        CHECK(pdf->currentPage() == 2);
+        CHECK(pdf->captureState().scrollY == 2700);
+        CHECK(std::abs(pdf->captureState().zoom - 1.6) < 0.001);
+        pdf->setZoom(1.45);
+        pdf->goToPage(1);
+        pdf->verticalScrollBar()->setValue(pdf->verticalScrollBar()->value() + 123);
+        qt.processEvents(QEventLoop::AllEvents, 50);
+        expected = pdf->captureState();
+        window.showShelf();
+        reader::ReadingPosition saved;
+        CHECK(app.documents->loadReadingState(resumeId, saved));
+        CHECK(saved.page == expected.page && saved.scrollY == expected.scrollY && saved.zoom == expected.zoom);
+        CHECK(shelf->isVisible());
+        CHECK(search->text() == "READ  continue");
+        CHECK(waitFor(qt, 2000, [&] { return message->text() == "1 of 28 PDF documents"; }));
+        search->clear();
+        CHECK(visibleDocuments().size() == 28);
+        // Reader hover and keyboard handling must stay out of the shelf.
+        QCursor::setPos(window.mapToGlobal(QPoint(2, 2)));
+        CHECK(waitFor(qt, 2000, [&] { return message->text() == "28 PDF documents"; }));
+        CHECK(!toolbar->isVisible());
+        CHECK(!window.findChild<QWidget*>("readerToolsOverlay")->isVisible());
+        list->setFocus();
+        QKeyEvent space(QEvent::KeyPress, Qt::Key_Space, Qt::NoModifier);
+        QApplication::sendEvent(list, &space);
+        CHECK(list->hasFocus() && shelf->isVisible());
+
+        // Folder watches apply the active query to newly added and removed PDFs.
+        search->setText("ADDED.pdf");
+        CHECK(visibleDocuments().isEmpty());
+        const QString added = folder + "/Added.PDF";
+        writePdf(added);
+        CHECK(waitFor(qt, 5000, [&] {
+            return list->count() == 29 && visibleDocuments().size() == 1;
+        }));
+        CHECK(list->item(1)->data(Qt::UserRole).toString() == added);
+        CHECK(list->currentItem()->data(Qt::UserRole).toString() == added);
+        CHECK(QFile::remove(added));
+        CHECK(waitFor(qt, 5000, [&] { return list->count() == 28; }));
+        CHECK(visibleDocuments().isEmpty() && message->text().contains("No matching documents"));
+        search->clear();
+        window.openFile(folder + "/missing.pdf");
+        CHECK(shelf->isVisible() && message->text().contains("Could not open missing.pdf"));
+
+        shelf->setFolder(emptyFolder);
+        CHECK(waitFor(qt, 5000, [&] { return message->text().contains("No PDF"); }));
+        CHECK(list->count() == 0);
+        shelf->setFolder(home + "/missing-folder");
+        CHECK(waitFor(qt, 5000, [&] { return message->text().contains("unavailable"); }));
+        // A folder change during a scan cannot publish the previous folder.
+        shelf->setFolder(emptyFolder);
+        shelf->setFolder(folder);
+        shelf->refresh();
+        CHECK(waitFor(qt, 5000, [&] { return list->count() == 28; }));
+    }
+    // A fresh application starts on the remembered shelf, then resumes.
+    {
+        reader::Application app;
+        MainWindow window(&app);
+        window.resize(1100, 760);
+        window.show();
+        window.activateWindow();
+        auto* shelf = window.findChild<DocumentShelf*>();
+        auto* list = window.findChild<QListWidget*>("shelfDocuments");
+        auto* pdf = window.findChild<PdfView*>();
+        CHECK(shelf->isVisible() && shelf->folder() == folder);
+        CHECK(app.state.aiPaneVisible);
+        CHECK(waitFor(qt, 5000, [&] { return list->count() == 28; }));
+        for (int i = 0; i < list->count(); ++i) {
+            auto* item = list->item(i);
+            if (item->data(Qt::UserRole).toString() == resumePath) list->setCurrentItem(item);
+        }
+        list->setFocus();
+        QKeyEvent enter(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier);
+        QApplication::sendEvent(list, &enter);
+        CHECK(waitFor(qt, 8000, [&] { return app.model.blocks.size() > 8; }));
+        const auto restored = pdf->captureState();
+        CHECK(restored.page == expected.page && restored.scrollY == expected.scrollY);
+        CHECK(std::abs(restored.zoom - expected.zoom) < 0.001);
+        pdf->setRotation(90);
+        pdf->setPageMode(true);
+        pdf->setZoom(1.7);
+        pdf->goToPage(2);
+        pdf->verticalScrollBar()->setValue(pdf->verticalScrollBar()->value() + 77);
+        qt.processEvents(QEventLoop::AllEvents, 50);
+        expected = pdf->captureState();
+        window.close();
+    }
+    {
+        reader::Application app;
+        reader::ReadingPosition saved;
+        CHECK(app.documents->loadReadingState(resumeId, saved));
+        CHECK(saved.page == expected.page && saved.scrollY == expected.scrollY && saved.zoom == expected.zoom);
+        CHECK(saved.rotation == 90 && saved.pageMode);
+        MainWindow window(&app);
+        window.show();
+        window.activateWindow();
+        auto* list = window.findChild<QListWidget*>("shelfDocuments");
+        auto* search = window.findChild<QLineEdit*>("shelfSearch");
+        CHECK(waitFor(qt, 5000, [&] { return list->count() == 28; }));
+        CHECK(search->text().isEmpty());
+        search->setText("continue READING");
+        search->setFocus();
+        QKeyEvent enter(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier);
+        QApplication::sendEvent(search, &enter);
+        CHECK(waitFor(qt, 8000, [&] { return app.model.blocks.size() > 8; }));
+        auto* pdf = window.findChild<PdfView*>();
+        const auto restored = pdf->captureState();
+        CHECK(restored.page == expected.page && restored.scrollY == expected.scrollY);
+        CHECK(std::abs(restored.zoom - expected.zoom) < 0.001);
+        CHECK(restored.rotation == 90 && restored.pageMode);
+    }
+    QSettings().remove("library/folder");
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
@@ -71,6 +424,9 @@ int main(int argc, char** argv) {
     QApplication qt(argc, argv);
     QCoreApplication::setOrganizationName("ReaderUiAcceptance");
     QCoreApplication::setApplicationName("ReaderUiAcceptance");
+
+    checkOpenDialog(qt, QString::fromUtf8(testHome));
+    checkShelf(qt, QString::fromUtf8(testHome));
 
     const std::string pdfPath = std::string(testHome) + "/academic-fixture.pdf";
     const std::string secondPdfPath = std::string(testHome) + "/academic-fixture-copy.pdf";
@@ -91,7 +447,35 @@ int main(int argc, char** argv) {
     CHECK(readerTools && !readerTools->isVisible());
     QElapsedTimer firstPaintTimer;
     firstPaintTimer.start();
-    window.openFile(QString::fromStdString(pdfPath));
+    // The toolbar uses the searchable picker and opens its selected result.
+    QSettings().setValue("reader/lastOpenDir", QString::fromUtf8(testHome));
+    auto* toolbar = window.findChild<QToolBar*>("readerToolbar");
+    QAction* openAction = nullptr;
+    for (auto* action : toolbar->actions())
+        if (action->text() == "Open") openAction = action;
+    CHECK(openAction);
+    if (openAction) {
+        QTimer::singleShot(0, &window, [&] {
+            auto* dialog = window.findChild<DocumentOpenDialog*>();
+            CHECK(dialog);
+            if (!dialog) return;
+            auto* search = dialog->findChild<QLineEdit*>("documentSearch");
+            auto* results = dialog->findChild<QListView*>("documentResults");
+            search->setText("academic-fixture.pdf");
+            CHECK(waitFor(qt, 5000, [&] {
+                return results->model()->rowCount(results->rootIndex()) == 1
+                    && results->currentIndex().isValid();
+            }));
+            QKeyEvent enter(QEvent::KeyPress, Qt::Key_Return, Qt::NoModifier);
+            QApplication::sendEvent(search, &enter);
+            CHECK(dialog->result() == QDialog::Accepted);
+            if (dialog->isVisible()) dialog->reject();
+        });
+        openAction->trigger();
+        CHECK(QSettings().value("reader/lastOpenDir").toString() == QString::fromUtf8(testHome));
+        window.activateWindow();
+        CHECK(waitFor(qt, 1000, [&] { return window.isActiveWindow(); }));
+    }
 
     CHECK(waitFor(qt, 5000, [&] { return !app.model.document.id.empty(); }));
     CHECK(waitFor(qt, 8000, [&] { return app.model.blocks.size() > 8; }));

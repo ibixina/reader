@@ -310,13 +310,14 @@ bool AnnotationRepository::deleteAnnotation(const DocumentId& doc, const Annotat
                              });
 }
 
-bool DocumentRepository::saveDocument(const Document& doc) {
+bool DocumentRepository::saveDocument(const Document& doc, bool markOpened) {
     return db_->execPrepared(
         "INSERT INTO documents(id,path,hash,title,authors,abstract_text,keywords,page_count,last_opened,"
         "extraction_version,extraction_complete) VALUES(?,?,?,?,?,?,?,?,?,?,?) ON CONFLICT(id) DO UPDATE SET path=excluded.path,"
         "hash=excluded.hash,title=excluded.title,authors=excluded.authors,"
         "abstract_text=excluded.abstract_text,keywords=excluded.keywords,"
-        "page_count=excluded.page_count,last_opened=excluded.last_opened,"
+        "page_count=excluded.page_count,last_opened=CASE WHEN ? THEN excluded.last_opened "
+        "ELSE documents.last_opened END,"
         "extraction_version=excluded.extraction_version,extraction_complete=excluded.extraction_complete",
         [&](sqlite3_stmt* st) {
             return text(st, 1, doc.id) && text(st, 2, doc.filePath) &&
@@ -324,7 +325,7 @@ bool DocumentRepository::saveDocument(const Document& doc) {
                    text(st, 5, joinStrings(doc.authors)) && text(st, 6, doc.abstractText) &&
                    text(st, 7, joinStrings(doc.keywords)) && integer(st, 8, doc.pageCount) &&
                    integer(st, 9, nowMs()) && integer(st, 10, doc.extractionVersion) &&
-                   integer(st, 11, doc.extractionComplete ? 1 : 0);
+                   integer(st, 11, doc.extractionComplete ? 1 : 0) && integer(st, 12, markOpened);
         });
 }
 
@@ -352,12 +353,29 @@ std::vector<Document> DocumentRepository::recentDocuments(std::size_t limit) con
     return out;
 }
 
+std::vector<DocumentActivity> DocumentRepository::documentActivity() const {
+    std::vector<DocumentActivity> out;
+    db_->queryPrepared(
+        "SELECT d.path,d.last_opened,r.page,d.page_count FROM documents d "
+        "LEFT JOIN reading_state r ON r.document_id=d.id", {},
+        [&](sqlite3_stmt* st) {
+            DocumentActivity activity;
+            activity.filePath = columnText(st, 0);
+            activity.lastOpened = sqlite3_column_int64(st, 1);
+            if (sqlite3_column_type(st, 2) != SQLITE_NULL)
+                activity.page = sqlite3_column_int(st, 2);
+            activity.pageCount = sqlite3_column_int(st, 3);
+            out.push_back(std::move(activity));
+        });
+    return out;
+}
+
 bool DocumentRepository::saveModel(const DocumentModel& model) {
     return db_->transaction([&] {
         Document persisted = model.document;
         persisted.extractionVersion = kExtractionSchemaVersion;
         persisted.extractionComplete = true;
-        bool ok = saveDocument(persisted);
+        bool ok = saveDocument(persisted, false);
         ok = ok && db_->execPrepared("DELETE FROM section_blocks WHERE document_id=?",
                                     [&](sqlite3_stmt* st) { return text(st, 1, model.document.id); });
         ok = ok && db_->execPrepared("DELETE FROM sections WHERE document_id=?",
@@ -596,27 +614,28 @@ bool DocumentRepository::loadModel(const DocumentId& doc, const std::string& exp
     });
 }
 
-bool DocumentRepository::saveReadingState(const DocumentId& doc, int page, double scrollY,
-                                          double zoom) {
+bool DocumentRepository::saveReadingState(const DocumentId& doc, const ReadingPosition& position) {
     return db_->execPrepared(
-        "INSERT OR REPLACE INTO reading_state(document_id,page,scroll_y,zoom,updated_at) "
-        "VALUES(?,?,?,?,?)",
+        "INSERT OR REPLACE INTO reading_state(document_id,page,scroll_y,zoom,rotation,page_mode,updated_at) "
+        "VALUES(?,?,?,?,?,?,?)",
         [&](sqlite3_stmt* st) {
-            return text(st, 1, doc) && integer(st, 2, page) && real(st, 3, scrollY) &&
-                   real(st, 4, zoom) && integer(st, 5, nowMs());
+            return text(st, 1, doc) && integer(st, 2, position.page) && real(st, 3, position.scrollY) &&
+                   real(st, 4, position.zoom) && integer(st, 5, position.rotation) &&
+                   integer(st, 6, position.pageMode) && integer(st, 7, nowMs());
         });
 }
 
-bool DocumentRepository::loadReadingState(const DocumentId& doc, int& page, double& scrollY,
-                                          double& zoom) const {
+bool DocumentRepository::loadReadingState(const DocumentId& doc, ReadingPosition& position) const {
     bool found = false;
     const bool queried = db_->queryPrepared(
-        "SELECT page,scroll_y,zoom FROM reading_state WHERE document_id=?",
+        "SELECT page,scroll_y,zoom,rotation,page_mode FROM reading_state WHERE document_id=?",
         [&](sqlite3_stmt* st) { return text(st, 1, doc); },
         [&](sqlite3_stmt* st) {
-            page = sqlite3_column_int(st, 0);
-            scrollY = sqlite3_column_double(st, 1);
-            zoom = sqlite3_column_double(st, 2);
+            position.page = sqlite3_column_int(st, 0);
+            position.scrollY = sqlite3_column_double(st, 1);
+            position.zoom = sqlite3_column_double(st, 2);
+            position.rotation = sqlite3_column_int(st, 3);
+            position.pageMode = sqlite3_column_int(st, 4) != 0;
             found = true;
         });
     return queried && found;

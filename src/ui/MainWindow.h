@@ -16,6 +16,7 @@ class QtPdfEngine;
 class QFrame;
 class QResizeEvent;
 class QCloseEvent;
+class QStackedWidget;
 
 namespace reader {
 class Application;
@@ -27,16 +28,16 @@ class SearchPanel;
 class OutlinePanel;
 class MarksPanel;
 class QTimer;
+class DocumentShelf;
 
-// Minimal reader: PDF viewer + browser chat + outline/search overlay.
-// Keeps viewer, fit/zoom, history, literal search, outline, notes,
-// highlights, selection→browser-chat and shortcuts. Nothing else.
+// Folder-backed document shelf and reader with browser chat and tools.
 class MainWindow : public QMainWindow {
     Q_OBJECT
 public:
     explicit MainWindow(reader::Application* app, QWidget* parent = nullptr);
     ~MainWindow() override;
     void openFile(const QString& path);
+    void showShelf();
 
 private slots:
     void toggleAiPane();
@@ -47,6 +48,7 @@ private slots:
 
 private:
     void setupShortcuts();
+    bool readerVisible() const;
     void scheduleReadingStateSave();
     void saveReadingState();
     void navigateTo(const reader::NavEntry& entry);
@@ -83,6 +85,8 @@ private:
     bool chatHasFocus() const;
     bool eventFilter(QObject* watched, QEvent* event) override;
     reader::Application* app_;
+    QStackedWidget* pages_ = nullptr;
+    DocumentShelf* shelf_ = nullptr;
     QSplitter* splitter_ = nullptr;
     PdfView* pdf_ = nullptr;
     WebPanel* web_ = nullptr;

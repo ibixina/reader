@@ -962,6 +962,7 @@ void PdfView::setRotation(int degrees) {
     else {
         rebuildPages();
     }
+    emit viewModeChanged();
 }
 
 void PdfView::rotate(int quarterTurns) {
@@ -972,6 +973,7 @@ void PdfView::setPageMode(bool enabled) {
     if (pageMode_ == enabled) return;
     pageMode_ = enabled;
     rebuildPages();
+    emit viewModeChanged();
 }
 
 reader::PdfViewState PdfView::captureState() const {

@@ -6,12 +6,13 @@
 #include "pdf/PopplerBridge.h"
 #include "pdf/QtPdfEngine.h"
 #include "pdf/TextExtractor.h"
+#include "ui/DocumentOpenDialog.h"
+#include "ui/DocumentShelf.h"
 #include "ui/MarksPanel.h"
 #include "ui/OutlinePanel.h"
 #include "ui/PdfView.h"
 #include "ui/SearchPanel.h"
 #include "ui/WebPanel.h"
-#include <QFileDialog>
 #include <QApplication>
 #include <QCloseEvent>
 #include <QFile>
@@ -37,6 +38,7 @@
 #include <QPushButton>
 #include <QAbstractButton>
 #include <QSplitter>
+#include <QStackedWidget>
 #include <QStandardPaths>
 #include <QStatusBar>
 #include <QTabWidget>
@@ -67,6 +69,7 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
         connect(act, &QAction::triggered, this, fn);
         return act;
     };
+    addAction("Shelf", [this] { showShelf(); })->setToolTip("Your documents (Ctrl+L)");
     addAction("Open", [this] {
         QSettings settings;
         const QString startDir =
@@ -74,9 +77,9 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
                            QStandardPaths::writableLocation(
                                QStandardPaths::DocumentsLocation))
                 .toString();
-        QString path =
-            QFileDialog::getOpenFileName(this, "Open paper", startDir, "PDF (*.pdf)");
-        if (path.isEmpty()) return;
+        DocumentOpenDialog dialog(startDir, this);
+        if (dialog.exec() != QDialog::Accepted) return;
+        const QString path = dialog.selectedFile();
         settings.setValue("reader/lastOpenDir", QFileInfo(path).absolutePath());
         openFile(path);
     });
@@ -116,7 +119,12 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
     splitter_->addWidget(web_);
     splitter_->setStretchFactor(0, 3);
     splitter_->setStretchFactor(1, 2);
-    setCentralWidget(splitter_);
+    pages_ = new QStackedWidget(this);
+    shelf_ = new DocumentShelf(app_->documents.get(), pages_);
+    pages_->addWidget(shelf_);
+    pages_->addWidget(splitter_);
+    setCentralWidget(pages_);
+    connect(shelf_, &DocumentShelf::documentActivated, this, &MainWindow::openFile);
     if (!app_->state.aiPaneVisible) web_->hide();
 
     // Reader-owned navigation/search tools stay separate from the chat and
@@ -174,6 +182,7 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
     });
     connect(pdf_, &PdfView::zoomChanged, this,
             [this](double) { scheduleReadingStateSave(); });
+    connect(pdf_, &PdfView::viewModeChanged, this, &MainWindow::scheduleReadingStateSave);
     connect(pdf_->verticalScrollBar(), &QScrollBar::valueChanged, this,
             [this](int value) {
                 app_->state.scrollY = value;
@@ -277,15 +286,31 @@ MainWindow::~MainWindow() {
 }
 
 void MainWindow::scheduleReadingStateSave() {
-    if (readingStateTimer_) readingStateTimer_->start(150);
+    if (readerVisible() && readingStateTimer_) readingStateTimer_->start(150);
 }
 
 void MainWindow::saveReadingState() {
-    if (!app_ || !app_->documents || app_->state.openDocument.empty() || !pdf_ ||
+    if (!readerVisible() || !app_ || !app_->documents || app_->state.openDocument.empty() || !pdf_ ||
         app_->model.document.id != app_->state.openDocument) return;
-    app_->state.scrollY = pdf_->verticalScrollBar()->value();
-    app_->documents->saveReadingState(app_->state.openDocument, app_->state.page,
-                                      app_->state.scrollY, app_->state.zoom);
+    const auto position = pdf_->captureState();
+    app_->state.scrollY = position.scrollY;
+    app_->documents->saveReadingState(app_->state.openDocument,
+        {position.page, double(position.scrollY), position.zoom, position.rotation, position.pageMode});
+}
+
+bool MainWindow::readerVisible() const {
+    return pages_ && pages_->currentWidget() == splitter_;
+}
+
+void MainWindow::showShelf() {
+    if (marksPanel_ && !marksPanel_->flushPendingNote()) return;
+    saveReadingState();
+    persistWindowLayout();
+    readingStateTimer_->stop();
+    readerOverlay_->hide();
+    pages_->setCurrentWidget(shelf_);
+    toolbar_->hide();
+    setWindowTitle("Paper Reader");
 }
 
 void MainWindow::openFile(const QString& path) {
@@ -307,8 +332,12 @@ void MainWindow::openFile(const QString& path) {
     if (!raster->open(path) || raster->pageCount() == 0) {
         statusPage_->setText("Could not open PDF");
         statusHint_->setText("The previous paper stays open.");
+        if (!readerVisible()) shelf_->showOpenError(path);
         return;
     }
+    pages_->setCurrentWidget(splitter_);
+    updateToolbarAutoHide();
+    setWindowTitle(QString("%1 — Paper Reader").arg(QFileInfo(path).fileName()));
     if (switchingDocuments) {
         const auto context = app_->context.currentContext();
         for (const auto& reference : context.temporary)
@@ -373,20 +402,20 @@ void MainWindow::openFile(const QString& path) {
                     app_->documents->saveDocument(model.document);
                     app_->state.openDocument = model.document.id;
 
-                    int savedPage = 0;
-                    double savedScroll = 0, savedZoom = 0;
-                    if (app_->documents->loadReadingState(model.document.id, savedPage,
-                                                          savedScroll, savedZoom)) {
-                        pdf_->setZoom(savedZoom > 0 ? savedZoom : app_->state.zoom);
-                        pdf_->goToPage(savedPage);
-                        app_->state.scrollY = savedScroll;
+                    reader::ReadingPosition saved;
+                    if (app_->documents->loadReadingState(model.document.id, saved)) {
+                        pdf_->setZoom(saved.zoom > 0 ? saved.zoom : app_->state.zoom);
+                        pdf_->setRotation(saved.rotation);
+                        pdf_->setPageMode(saved.pageMode);
+                        pdf_->goToPage(saved.page);
+                        app_->state.scrollY = saved.scrollY;
                         app_->state.history.clear();
-                        app_->state.history.visit({savedPage, savedScroll,
-                                                   savedZoom > 0 ? savedZoom : app_->state.zoom,
+                        app_->state.history.visit({saved.page, saved.scrollY,
+                                                   saved.zoom > 0 ? saved.zoom : app_->state.zoom,
                                                    std::nullopt});
-                        QTimer::singleShot(0, this, [this, savedScroll, generation] {
-                            if (generation != openGeneration_ || !pdf_) return;
-                            pdf_->verticalScrollBar()->setValue(static_cast<int>(savedScroll));
+                        QTimer::singleShot(0, this, [this, saved, generation] {
+                            if (generation != openGeneration_ || !pdf_ || !readerVisible()) return;
+                            pdf_->verticalScrollBar()->setValue(static_cast<int>(saved.scrollY));
                         });
                     }
                     statusPage_->setText(QString("p.%1 / %2")
@@ -488,7 +517,8 @@ void MainWindow::openFile(const QString& path) {
 }
 
 void MainWindow::toggleAiPane() {
-    const bool visible = !web_->isVisible();
+    if (!readerVisible()) return;
+    const bool visible = !app_->state.aiPaneVisible;
     web_->setVisible(visible);
     app_->state.aiPaneVisible = visible;
     persistWindowLayout();
@@ -497,10 +527,10 @@ void MainWindow::toggleAiPane() {
 void MainWindow::persistWindowLayout() {
     if (!splitter_ || !web_) return;
     QSettings settings;
-    settings.setValue("reader/aiPaneVisible", web_->isVisible());
+    settings.setValue("reader/aiPaneVisible", app_->state.aiPaneVisible);
     settings.setValue("reader/toolbarPinned", toolbarPinned_);
     const QList<int> sizes = splitter_->sizes();
-    if (sizes.size() == 2)
+    if (readerVisible() && sizes.size() == 2)
         settings.setValue("reader/splitterSizes",
                           QByteArray::number(sizes[0]) + "," + QByteArray::number(sizes[1]));
     settings.setValue("reader/windowGeometry", saveGeometry());
@@ -517,6 +547,10 @@ void MainWindow::setupToolbarAutoHide() {
 
 void MainWindow::updateToolbarAutoHide() {
     if (!toolbar_) return;
+    if (!readerVisible()) {
+        toolbar_->hide();
+        return;
+    }
     if (toolbarPinned_) {
         if (!toolbar_->isVisible()) toolbar_->show();
         return;
@@ -581,7 +615,7 @@ void MainWindow::showSelectionHint() {
 }
 
 void MainWindow::updateEdgeReveal() {
-    if (!readerOverlay_) return;
+    if (!readerVisible() || !readerOverlay_) return;
     const QPoint cursor = QCursor::pos();
     const QPoint local = mapFromGlobal(cursor);
     constexpr int kEdgeWidth = 6;
@@ -651,7 +685,7 @@ void MainWindow::openReaderTools() {
 }
 
 void MainWindow::showReaderTools() {
-    if (!readerOverlay_) return;
+    if (!readerVisible() || !readerOverlay_) return;
     placeReaderOverlay();
     readerOverlay_->raise();
     if (!readerOverlay_->isVisible()) readerOverlay_->show();
@@ -682,14 +716,21 @@ void MainWindow::closeEvent(QCloseEvent* event) {
         event->ignore();
         return;
     }
+    saveReadingState();
+    persistWindowLayout();
+    readingStateTimer_->stop();
     QMainWindow::closeEvent(event);
 }
 
 void MainWindow::setupShortcuts() {
     auto add = [this](const QKeySequence& key, auto fn) {
         auto* sc = new QShortcut(key, this);
-        connect(sc, &QShortcut::activated, this, fn);
+        connect(sc, &QShortcut::activated, this, [this, fn] {
+            if (readerVisible()) fn();
+        });
     };
+    auto* shelfShortcut = new QShortcut(QKeySequence("Ctrl+L"), this);
+    connect(shelfShortcut, &QShortcut::activated, this, &MainWindow::showShelf);
     add(QKeySequence("Ctrl+Shift+A"), [this] { toggleAiPane(); });
     add(QKeySequence("Alt+Left"), [this] { navigateBack(); });
     add(QKeySequence("Alt+Right"), [this] { navigateForward(); });
@@ -712,6 +753,7 @@ void MainWindow::setupShortcuts() {
     // inside any text input, the browser chat, or a modal dialog is never
     // hijacked.
     auto typingElsewhere = [this] {
+        if (!readerVisible()) return true;
         if (QApplication::activeModalWidget()) return true;
         if (chatHasFocus()) return true;
         if (QWidget* focus = QApplication::focusWidget();
@@ -727,7 +769,7 @@ void MainWindow::setupShortcuts() {
     });
     auto* highlightGlobal = new QShortcut(QKeySequence("Ctrl+H"), this);
     connect(highlightGlobal, &QShortcut::activated, this, [this] {
-        if (QApplication::activeModalWidget() || chatHasFocus() || !pdf_) return;
+        if (!readerVisible() || QApplication::activeModalWidget() || chatHasFocus() || !pdf_) return;
         toggleHighlight();
     });
     auto* noteShortcut = new QShortcut(QKeySequence(Qt::Key_N), this);
@@ -742,7 +784,7 @@ void MainWindow::setupShortcuts() {
     });
     auto* noteGlobal = new QShortcut(QKeySequence("Ctrl+N"), this);
     connect(noteGlobal, &QShortcut::activated, this, [this] {
-        if (QApplication::activeModalWidget() || chatHasFocus() || !pdf_) return;
+        if (!readerVisible() || QApplication::activeModalWidget() || chatHasFocus() || !pdf_) return;
         pdf_->promptNoteForCurrentSelection();
     });
     auto* askShortcut = new QShortcut(QKeySequence(Qt::Key_A), this);
@@ -754,14 +796,14 @@ void MainWindow::setupShortcuts() {
 }
 
 void MainWindow::focusBrowserQuestion() {
-    if (web_) {
+    if (readerVisible() && web_) {
         if (!web_->isVisible()) toggleAiPane();
         web_->focusQuestion();
     }
 }
 
 void MainWindow::focusBrowserQuestionWithSeed(const QString& seed) {
-    if (web_) {
+    if (readerVisible() && web_) {
         if (!web_->isVisible()) toggleAiPane();
         web_->focusQuestionWithSeed(seed);
     }
@@ -822,6 +864,7 @@ bool MainWindow::chatHasFocus() const {
 }
 
 bool MainWindow::eventFilter(QObject* watched, QEvent* event) {
+    if (!readerVisible()) return QMainWindow::eventFilter(watched, event);
     // Space starts typing in the ask box from anywhere: highlighting and
     // selecting never steal focus, so space is the explicit "take me to
     // the composer" key. Text inputs, buttons (space activates a focused

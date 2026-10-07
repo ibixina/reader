@@ -42,18 +42,34 @@ private:
     Database* db_;
 };
 
+struct DocumentActivity {
+    std::string filePath;
+    TimestampMs lastOpened = 0;
+    std::optional<int> page;
+    int pageCount = 0;
+};
+
+struct ReadingPosition {
+    int page = 0;
+    double scrollY = 0;
+    double zoom = 1.25;
+    int rotation = 0;
+    bool pageMode = false;
+};
+
 class DocumentRepository {
 public:
     explicit DocumentRepository(Database* db) : db_(db) {}
-    bool saveDocument(const Document& doc);
+    bool saveDocument(const Document& doc, bool markOpened = true);
     std::vector<Document> recentDocuments(std::size_t limit = 20) const;
+    std::vector<DocumentActivity> documentActivity() const;
     // Persist the extracted model and its document-scoped stable IDs.
     bool saveModel(const DocumentModel& model);
     bool loadModel(const DocumentId& doc, DocumentModel& model) const;
     bool loadModel(const DocumentId& doc, const std::string& expectedFileHash,
                    DocumentModel& model) const;
-    bool saveReadingState(const DocumentId& doc, int page, double scrollY, double zoom);
-    bool loadReadingState(const DocumentId& doc, int& page, double& scrollY, double& zoom) const;
+    bool saveReadingState(const DocumentId& doc, const ReadingPosition& position);
+    bool loadReadingState(const DocumentId& doc, ReadingPosition& position) const;
     bool saveAnalysisRefs(const DocumentId& doc, const PaperAnalysis& analysis);
     bool saveAnalysisCache(const DocumentId& doc, const std::string& fileHash,
                            const PaperAnalysis& analysis);

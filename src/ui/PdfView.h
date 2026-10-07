@@ -112,6 +112,7 @@ signals:
     void pageChanged(int page);
     void selectionGeometryReady(int page);
     void zoomChanged(double zoom);
+    void viewModeChanged();
     void findRequested();
     void sidecarToggleRequested();
     void historyBackRequested();
