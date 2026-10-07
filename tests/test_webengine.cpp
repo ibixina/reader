@@ -5,12 +5,17 @@
 #include <QDirIterator>
 #include <QEventLoop>
 #include <QElapsedTimer>
+#include <QFile>
+#include <QFileDialog>
+#include <QFileInfo>
 #include <QKeyEvent>
 #include <QLineEdit>
+#include <QMouseEvent>
 #include <QPointer>
 #include <QPushButton>
 #include <QTabBar>
 #include <QTabWidget>
+#include <QTemporaryDir>
 #include <QThread>
 #include <QTimer>
 #include <QWebEnginePage>
@@ -231,6 +236,121 @@ static QString chatMock() {
     )HTML");
 }
 
+static void testFilePicker(QApplication& qt) {
+    QTemporaryDir files(QDir::homePath() + "/uploads-XXXXXX");
+    CHECK(files.isValid());
+    if (!files.isValid()) return;
+    const QString firstPdf = files.filePath("Current paper.pdf");
+    const QString secondPdf = files.filePath("Different paper.PDF");
+    QDir().mkpath(files.filePath("other"));
+    const QString otherFile = files.filePath("other/Notes.txt");
+    for (const auto& path : {firstPdf, secondPdf, otherFile}) {
+        QFile file(path);
+        CHECK(file.open(QIODevice::WriteOnly));
+        file.write("Upload fixture");
+    }
+
+    reader::Application app;
+    app.model.document.filePath = firstPdf.toStdString();
+    LocalRequestInterceptor interceptor;
+    WebPanel panel(&app);
+    panel.findChild<QWebEngineProfile*>()->setUrlRequestInterceptor(&interceptor);
+    auto* first = panel.currentView();
+    const QString uploadMock = QStringLiteral(R"HTML(
+        <input type="file" id="upload" multiple>
+        <script>
+          window.__changes = 0;
+          document.getElementById('upload').addEventListener('change', function() {
+            ++window.__changes;
+          });
+        </script>
+    )HTML");
+    loadMock(*first, uploadMock);
+    panel.resize(750, 850);
+    panel.show();
+    qt.processEvents();
+
+    auto choose = [&](QWebEngineView& view, const QString& expectedPdf,
+                      const QString& choice, QFileDialog::FileMode mode) {
+        panel.activateWindow();
+        view.setFocus();
+        runJsSync(view,
+            "window.__pickerReady = false;"
+            "requestAnimationFrame(() => requestAnimationFrame(() => window.__pickerReady = true))");
+        CHECK(waitFor(qt, [&] { return runJsSync(view, "window.__pickerReady").toBool(); }));
+        const auto coordinates = runJsSync(view,
+            "(function() { var r = document.getElementById('upload').getBoundingClientRect();"
+            " return [r.left + 10, r.top + r.height / 2]; })()").toList();
+        CHECK(coordinates.size() == 2);
+        if (coordinates.size() != 2) return;
+        const QPointF point(coordinates[0].toDouble(), coordinates[1].toDouble());
+        auto* target = view.focusProxy() ? view.focusProxy() : &view;
+        bool seen = false;
+        QTimer observer;
+        observer.setInterval(10);
+        QObject::connect(&observer, &QTimer::timeout, &panel, [&] {
+            auto* dialog = qobject_cast<QFileDialog*>(QApplication::activeModalWidget());
+            if (!dialog) return;
+            observer.stop();
+            seen = true;
+            CHECK(dialog->fileMode() == mode);
+            CHECK(dialog->directory().absolutePath() == QFileInfo(expectedPdf).absolutePath());
+            CHECK(dialog->selectedFiles() == QStringList{expectedPdf});
+            if (choice.isEmpty()) {
+                dialog->reject();
+            } else {
+                dialog->setDirectory(QFileInfo(choice).absolutePath());
+                dialog->selectFile(choice);
+                QMetaObject::invokeMethod(dialog, "accept");
+            }
+        });
+        QTimer timeout;
+        timeout.setSingleShot(true);
+        QObject::connect(&timeout, &QTimer::timeout, &panel, [] {
+            if (auto* dialog = qobject_cast<QFileDialog*>(QApplication::activeModalWidget()))
+                dialog->reject();
+        });
+        observer.start();
+        timeout.start(5000);
+        QMouseEvent press(QEvent::MouseButtonPress, point, target->mapToGlobal(point.toPoint()),
+                          Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+        QMouseEvent release(QEvent::MouseButtonRelease, point, target->mapToGlobal(point.toPoint()),
+                            Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+        QApplication::sendEvent(target, &press);
+        QApplication::sendEvent(target, &release);
+        CHECK(waitFor(qt, [&] { return seen; }));
+        if (!seen) std::cout << "Picker did not open for " << choice.toStdString() << '\n';
+    };
+    auto filenames = [](QWebEngineView& view) {
+        return runJsSync(view,
+            "Array.from(document.getElementById('upload').files, f => f.name).join('|')").toString();
+    };
+
+    // Preselection never attaches anything until the user confirms.
+    choose(*first, firstPdf, {}, QFileDialog::ExistingFiles);
+    CHECK(filenames(*first).isEmpty());
+    CHECK(runJsSync(*first, "window.__changes").toInt() == 0);
+    choose(*first, firstPdf, firstPdf, QFileDialog::ExistingFiles);
+    CHECK(waitFor(qt, [&] { return filenames(*first) == "Current paper.pdf"; }));
+
+    // The suggested PDF can be replaced with a non-PDF in another folder.
+    choose(*first, firstPdf, otherFile, QFileDialog::ExistingFiles);
+    CHECK(waitFor(qt, [&] { return filenames(*first) == "Notes.txt"; }));
+
+    // Existing and new chats use the paper open when the picker is invoked.
+    app.model.document.filePath = secondPdf.toStdString();
+    choose(*first, secondPdf, secondPdf, QFileDialog::ExistingFiles);
+    CHECK(waitFor(qt, [&] { return filenames(*first) == "Different paper.PDF"; }));
+    panel.newSession();
+    auto* second = panel.currentView();
+    loadMock(*second, uploadMock);
+    runJsSync(*second,
+        "document.getElementById('upload').multiple = false;"
+        "document.getElementById('upload').accept = '.pdf,application/pdf'");
+    choose(*second, secondPdf, secondPdf, QFileDialog::ExistingFile);
+    CHECK(waitFor(qt, [&] { return filenames(*second) == "Different paper.PDF"; }));
+}
+
 static void testSessions(QApplication& qt) {
     reader::Application app;
     app.model.document.title = "Selection paper";
@@ -377,6 +497,7 @@ static void testSessions(QApplication& qt) {
 }
 
 int main(int argc, char** argv) {
+    QCoreApplication::setAttribute(Qt::AA_DontUseNativeDialogs);
     QApplication app(argc, argv);
     QWebEngineView view;
     auto* interceptor = new LocalRequestInterceptor;
@@ -640,6 +761,7 @@ int main(int argc, char** argv) {
     CHECK(runJsSync(view, attachScript("SGVsbG8=", "paper.pdf")).toString() ==
           "no-file-input");
 
+    testFilePicker(app);
     testSessions(app);
     if (failures == 0) std::cout << "ALL WEBENGINE TESTS PASSED\n";
     return failures == 0 ? 0 : 1;

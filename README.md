@@ -67,6 +67,9 @@ one step. **New chat** opens another conversation; each tab keeps its own
 conversation and question draft while sharing your ChatGPT login. Double-click
 a tab to name it, drag tabs to reorder them, or use its close button. With focus
 in the AI pane, Ctrl+T opens a chat and Ctrl+W closes the current chat.
+ChatGPT's **Add files** picker opens in the current PDF's folder with that PDF
+preselected. You can choose other files or cancel; files attach only after you
+confirm the picker.
 
 Move the cursor to the left edge to reveal the sidebar; moving back into the
 document hides it. It overlays the document without changing its width and

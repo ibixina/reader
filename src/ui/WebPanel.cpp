@@ -5,11 +5,14 @@
 #include <QClipboard>
 #include <QCursor>
 #include <QFile>
+#include <QFileDialog>
 #include <QFileInfo>
 #include <QHBoxLayout>
 #include <QInputDialog>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMimeDatabase>
+#include <QMimeType>
 #include <QPointer>
 #include <QPushButton>
 #include <QShowEvent>
@@ -31,6 +34,55 @@ std::string webProfileDir() {
     const char* home = std::getenv("HOME");
     return std::string(home ? home : "/tmp") + "/.local/share/paper-reader/webprofile";
 }
+
+class ReaderWebPage final : public QWebEnginePage {
+public:
+    ReaderWebPage(reader::Application* app, QWebEngineProfile* profile, QWebEngineView* view)
+        : QWebEnginePage(profile, view), app_(app), view_(view) {}
+
+protected:
+    QStringList chooseFiles(FileSelectionMode mode, const QStringList& oldFiles,
+                            const QStringList& acceptedMimeTypes) override {
+        const QFileInfo pdf(QString::fromStdString(app_->model.document.filePath));
+        if ((mode != FileSelectOpen && mode != FileSelectOpenMultiple) ||
+            !pdf.isFile() || !pdf.isReadable())
+            return QWebEnginePage::chooseFiles(mode, oldFiles, acceptedMimeTypes);
+
+        QStringList patterns;
+        const QMimeDatabase mimeDatabase;
+        for (const auto& acceptedType : acceptedMimeTypes) {
+            const QString type = acceptedType.trimmed().toLower();
+            if (type.startsWith('.')) {
+                patterns.append('*' + type);
+            } else if (type.endsWith("/*")) {
+                const QString prefix = type.chopped(1);
+                for (const auto& mime : mimeDatabase.allMimeTypes())
+                    if (mime.name().startsWith(prefix)) patterns.append(mime.globPatterns());
+            } else {
+                patterns.append(mimeDatabase.mimeTypeForName(type).globPatterns());
+            }
+        }
+        patterns.removeDuplicates();
+        QStringList filters;
+        if (!patterns.isEmpty())
+            filters.append(tr("Accepted files (%1)").arg(patterns.join(' ')));
+        filters.append(tr("All files (*)"));
+
+        QFileDialog dialog(view_, tr("Select files"), pdf.absolutePath());
+        dialog.setAcceptMode(QFileDialog::AcceptOpen);
+        dialog.setFileMode(mode == FileSelectOpenMultiple ? QFileDialog::ExistingFiles
+                                                         : QFileDialog::ExistingFile);
+        dialog.setNameFilters(filters);
+        dialog.setOption(QFileDialog::HideNameFilterDetails);
+        dialog.selectFile(pdf.absoluteFilePath());
+        if (dialog.exec() != QDialog::Accepted) return {};
+        return dialog.selectedFiles();
+    }
+
+private:
+    reader::Application* app_;
+    QWebEngineView* view_;
+};
 
 } // namespace
 
@@ -240,7 +292,7 @@ void WebPanel::newSession() {
     auto session = std::make_shared<Session>();
     auto* view = new QWebEngineView(tabs_);
     view->setObjectName(QString("browserChatView_%1").arg(++nextSession_));
-    view->setPage(new QWebEnginePage(profile_, view));
+    view->setPage(new ReaderWebPage(app_, profile_, view));
     session->view = view;
     session->status = "Ask about a selection or start a conversation.";
     session->timeout = new QTimer(view);
