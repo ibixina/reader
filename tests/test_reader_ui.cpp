@@ -698,8 +698,20 @@ int main(int argc, char** argv) {
                           Qt::LeftButton, Qt::NoModifier);
         QMouseEvent release(QEvent::MouseButtonRelease, point, point, Qt::LeftButton,
                             Qt::NoButton, Qt::NoModifier);
+        int linkedPage = -1;
+        QPointF linkedLocation;
+        const auto linkConnection = QObject::connect(
+            pdf, &PdfView::internalLinkActivated, pdf,
+            [&](int targetPage, const QPointF& location) {
+                linkedPage = targetPage;
+                linkedLocation = location;
+            });
         QApplication::sendEvent(page, &press);
         QApplication::sendEvent(page, &release);
+        QObject::disconnect(linkConnection);
+        CHECK(linkedPage == 1);
+        CHECK(std::abs(linkedLocation.x() - 54) < 0.01);
+        CHECK(std::abs(linkedLocation.y() - 172) < 0.01);
         qt.processEvents(QEventLoop::AllEvents, 50);
         if (fitToWidth) {
             const QSize originalSize = window.size();

@@ -623,7 +623,7 @@ int main(int argc, char** argv) {
 
     // Login persistence regression: a cookie written through a
     // preconfigured named profile must reach disk and be readable again
-    // through a fresh profile on the same storage (the relogin-every-time
+    // through a fresh instance of the same named profile (the relogin-every-time
     // bug was a profile that never persisted anything).
     {
         const QString cookieRoot = QDir::homePath() + "/cookietest";
@@ -653,6 +653,7 @@ int main(int argc, char** argv) {
                 loadTimer.start(20000);
                 loaded.exec();
                 runJsSync(va, "document.cookie='persist-test=abc123;max-age=3600;path=/'");
+                CHECK(runJsSync(va, "document.cookie").toString().contains("persist-test=abc123"));
                 QEventLoop settle;
                 QTimer::singleShot(3000, &settle, &QEventLoop::quit);
                 settle.exec();
@@ -661,7 +662,7 @@ int main(int argc, char** argv) {
         }
         CHECK(!cookieFile().isEmpty());
         {
-            auto* pb = new QWebEngineProfile("persist-b", &app);
+            auto* pb = new QWebEngineProfile("persist-a", &app);
             pb->setPersistentCookiesPolicy(QWebEngineProfile::AllowPersistentCookies);
             pb->setCachePath(cookieRoot + "/cache");
             pb->setPersistentStoragePath(cookieRoot + "/storage");

@@ -7,6 +7,40 @@ uses a compatible provider.
 
 ## Build and test
 
+### Ubuntu installer
+
+The built installer is tracked in [`dist/`](dist/) for **Ubuntu 24.04,
+Intel/AMD 64-bit (`amd64`)**. It uses Ubuntu's Qt and Poppler packages; the
+Fedora executable in `build-qt/` requires different runtime libraries.
+Check your system with `cat /etc/os-release` and `dpkg --print-architecture`.
+
+From this repository, install and launch it with:
+
+```sh
+sudo apt update
+sudo apt install ./dist/paper-reader_*_ubuntu24.04_amd64.deb
+paper-reader
+```
+
+You can also launch **Paper Reader** from Ubuntu's applications menu. Pass a
+PDF path to `paper-reader` to open it directly. The installer does not bundle
+personal PDFs or application data. Other Ubuntu releases and ARM processors
+need a build made for that release and architecture.
+
+To rebuild the installer on Ubuntu:
+
+```sh
+sudo apt install build-essential cmake ninja-build pkg-config git dpkg-dev \
+  libsqlite3-dev libexpat1-dev qt6-base-dev qt6-pdf-dev qt6-webengine-dev \
+  libpoppler-qt6-dev libqt6sql6-sqlite qt6-wayland qpdf poppler-utils
+./packaging/build-deb.sh
+```
+
+The packaging script builds in Release mode, runs the existing tests, and writes
+the installer and its SHA-256 checksum to `dist/`.
+
+### Development build
+
 The core build needs C++20 and SQLite development files. The full application
 also needs Qt 6 Widgets, Network, Pdf, Sql, Concurrent, and Poppler Qt 6.
 WebEngine and the browser transcript are optional when those Qt components are

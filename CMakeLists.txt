@@ -99,7 +99,8 @@ if(BUILD_UI)
   # Discard an incompatible cached value from a previous configuration.
   unset(EXPAT_LIBRARY CACHE)
   find_file(EXPAT_LIBRARY NAMES libexpat.so libexpat.so.1
-    PATHS /usr/lib64 $ENV{CONDA_PREFIX}/lib /usr/lib
+    PATHS /usr/lib64 /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}
+      $ENV{CONDA_PREFIX}/lib /usr/lib
     NO_DEFAULT_PATH)
   if(NOT EXPAT_LIBRARY)
     message(FATAL_ERROR "Qt WebEngine requires an expat runtime library.")
@@ -112,6 +113,12 @@ if(BUILD_UI)
   target_link_libraries(paper-reader PRIVATE ${EXPAT_LIBRARY})
   target_compile_definitions(paper-reader PRIVATE HAVE_WEBENGINE)
   message(STATUS "Qt WebEngine required: browser chat is the only AI chat.")
+  include(GNUInstallDirs)
+  install(TARGETS paper-reader RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+  install(FILES packaging/paper-reader.desktop
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/applications)
+  install(FILES packaging/paper-reader.svg
+    DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor/scalable/apps)
 endif()
 
 # --- Tests ---

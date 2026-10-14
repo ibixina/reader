@@ -15,9 +15,12 @@
 #include <QPlainTextEdit>
 #include <QPdfBookmarkModel>
 #include <QPdfDocument>
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
 #include <QPdfLink>
 #include <QPdfLinkModel>
-#include <QPdfPageNavigator>
+#else
+#include <poppler-link.h>
+#endif
 #include <QPdfSelection>
 #include <QPointer>
 #include <QPushButton>
@@ -651,14 +654,14 @@ void PdfView::rebuildPages() {
         });
         connect(w, &PageWidget::clickedAt, this, [this](int page, QPointF point) {
             suppressNextClickClear_ = false;
-            const QPdfLink link = linkAt(page, point);
-            if (link.isValid()) {
+            const auto link = linkAt(page, point);
+            if (link) {
                 suppressNextClickClear_ = true;
-                if (link.url().isEmpty() && link.page() >= 0) {
+                if (link->url.isEmpty() && link->page >= 0) {
                     setFocus(Qt::MouseFocusReason);
-                    emit internalLinkActivated(link.page(), link.location());
+                    emit internalLinkActivated(link->page, link->location);
                 } else {
-                    emit linkActivated(link.page(), link.url().toString());
+                    emit linkActivated(link->page, link->url.toString());
                 }
                 return;
             }
@@ -786,7 +789,11 @@ void PdfView::attachRaster(std::shared_ptr<PopplerBridge> raster, const QString&
         else renderer_->detach();
     }
     doc_.reset();
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
     linkModel_.reset();
+#else
+    linkDocument_.reset();
+#endif
     currentPage_ = 0;
     rebuildPages();
     verticalScrollBar()->setValue(0);
@@ -828,8 +835,12 @@ void PdfView::attachDocument(std::shared_ptr<QPdfDocument> doc, const QString& p
         scrollDirection_ = 1;
     }
     doc_ = std::move(doc);
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
     linkModel_ = std::make_unique<QPdfLinkModel>();
     linkModel_->setDocument(doc_.get());
+#else
+    linkDocument_ = doc_ ? Poppler::Document::load(path) : nullptr;
+#endif
     if (!sameDoc) prefetchPixelsAround(0);
 }
 
@@ -1009,10 +1020,44 @@ QWidget* PdfView::pageWidget(int page) const {
     return nullptr;
 }
 
-QPdfLink PdfView::linkAt(int page, const QPointF& point) const {
-    if (!doc_ || page < 0 || !linkModel_) return {};
+std::optional<PdfView::LinkTarget> PdfView::linkAt(int page, const QPointF& point) const {
+    if (!doc_ || page < 0 || page >= pageCount_) return {};
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
+    if (!linkModel_) return {};
     linkModel_->setPage(page);
-    return linkModel_->linkAt(point);
+    const auto link = linkModel_->linkAt(point);
+    if (!link.isValid()) return {};
+    return LinkTarget{link.page(), link.location(), link.url()};
+#else
+    if (!linkDocument_) return {};
+    const auto source = linkDocument_->page(page);
+    const auto size = pageSizes_[page];
+    if (!source || size.isEmpty()) return {};
+    const QPointF normalized(point.x() / size.width(), point.y() / size.height());
+    for (const auto& link : source->links()) {
+        if (!link->linkArea().contains(normalized)) continue;
+        if (link->linkType() == Poppler::Link::Browse) {
+            const auto* browse = static_cast<const Poppler::LinkBrowse*>(link.get());
+            return LinkTarget{-1, {}, QUrl(browse->url())};
+        }
+        if (link->linkType() != Poppler::Link::Goto) continue;
+        const auto* goTo = static_cast<const Poppler::LinkGoto*>(link.get());
+        if (goTo->isExternal()) continue;
+        auto destination = goTo->destination();
+        if (!destination.destinationName().isEmpty()) {
+            const auto resolved = linkDocument_->linkDestination(destination.destinationName());
+            if (resolved) destination = *resolved;
+        }
+        const int targetPage = destination.pageNumber() - 1;
+        if (targetPage < 0 || targetPage >= pageCount_) continue;
+        const auto targetSize = pageSizes_[targetPage];
+        return LinkTarget{targetPage,
+                          {destination.isChangeLeft() ? destination.left() * targetSize.width() : 0,
+                           destination.isChangeTop() ? destination.top() * targetSize.height() : 0},
+                          {}};
+    }
+    return {};
+#endif
 }
 
 void PdfView::keyPressEvent(QKeyEvent* event) {

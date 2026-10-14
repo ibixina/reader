@@ -15,6 +15,7 @@
 #include <QRectF>
 #include <QSize>
 #include <QSizeF>
+#include <QUrl>
 #include <atomic>
 #include <functional>
 #include <mutex>
@@ -25,7 +26,6 @@
 
 class QPdfDocument;
 class QPdfLinkModel;
-class QPdfLink;
 class QKeyEvent;
 class QResizeEvent;
 class QTimer;
@@ -126,7 +126,12 @@ private:
     void prefetchPixelsAround(int page);
     QWidget* pageWidget(int page) const;
     void keyPressEvent(QKeyEvent* event) override;
-    QPdfLink linkAt(int page, const QPointF& point) const;
+    struct LinkTarget {
+        int page = -1;
+        QPointF location;
+        QUrl url;
+    };
+    std::optional<LinkTarget> linkAt(int page, const QPointF& point) const;
     reader::Application* app_;
     std::shared_ptr<QPdfDocument> doc_;
     QString docPath_;
@@ -149,7 +154,12 @@ private:
     enum class FitMode { None, Width, Page } fitMode_ = FitMode::None;
     bool applyingFit_ = false;
     std::shared_ptr<PopplerBridge> raster_;
+#if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
     std::unique_ptr<QPdfLinkModel> linkModel_;
+#else
+    // Keep link queries independent of the raster worker's Poppler document.
+    std::unique_ptr<Poppler::Document> linkDocument_;
+#endif
     reader::TextIndex textIndex_;
     // Literal-search index rebuild guard: the index is rebuilt only when
     // the underlying model changes, not on every search.

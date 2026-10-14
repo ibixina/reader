@@ -118,7 +118,8 @@ int main(int argc, char** argv) {
     CHECK(delivered->pageCount() == pages);
     const QImage shot2 = delivered->renderPage(0, QSize(306, 396));
     CHECK(!shot2.isNull());
-    CHECK(washed(shot2, int((row.left() + 10) * sx), int((row.top() + 10) * sy)));
+    // A single probe can hit glyph ink when the platform substitutes a font.
+    CHECK(shot2 == shot);
 
     // In-place save (the Ctrl+S path): dest == src is replaced atomically
     // and no staging files are left behind.
@@ -131,7 +132,7 @@ int main(int argc, char** argv) {
     CHECK(saved->pageCount() == pages);
     const QImage shot3 = saved->renderPage(0, QSize(306, 396));
     CHECK(!shot3.isNull());
-    CHECK(washed(shot3, int((row.left() + 10) * sx), int((row.top() + 10) * sy)));
+    CHECK(shot3 == shot);
     bool stagedLeft = false;
     for (const auto& entry : QDir(root).entryList(QDir::Files))
         if (entry.startsWith(".reader-hl-")) stagedLeft = true;
