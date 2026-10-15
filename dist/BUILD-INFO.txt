@@ -1,17 +1,15 @@
-Package: paper-reader_0.1.0+git67b7ec2c92fc_ubuntu24.04_amd64.deb
-Source commit: 67b7ec2c92fc0dcca14ff88525d4155bcaf0861c
+Package: paper-reader_0.1.0+git044d9ee48689_ubuntu24.04_amd64.deb
+Source commit: 044d9ee48689fb388c0a5d79a52f06a09469d3e4
 Target: Ubuntu 24.04, amd64 (Intel/AMD 64-bit)
 Build type: Release
 Compiler: GCC 13.3.0
 Qt: 6.4.2
 Poppler: 24.02.0
-Build command: PAPER_READER_PACKAGE_VERSION=0.1.0+git67b7ec2c92fc ./packaging/build-deb.sh
+Build command: PAPER_READER_PACKAGE_VERSION=0.1.0+git044d9ee48689 ./packaging/build-deb.sh
 
-Verification (2026-10-14):
+Verification (2026-10-15):
 - All 13 existing tests passed on Ubuntu, including highlight export.
-- The reader, browser, and export regressions passed on the Fedora host.
-- Installed with apt in a separate Ubuntu 24.04 container.
-- All runtime libraries resolved; the installed executable matched the package.
-- Launched as a regular user under Xvfb for 10 seconds without an application crash.
-- The container launch check disabled Chromium's sandbox and blocked external
-  browser traffic through a local proxy. Installed application defaults are unchanged.
+- All 13 tests passed on the Fedora host.
+- Installed with apt in a separate Ubuntu 24.04 container; all runtime
+  libraries resolved.
+- Runtime dependencies are unchanged from the 67b7ec2c92fc package.
