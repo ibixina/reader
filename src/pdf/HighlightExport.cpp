@@ -22,7 +22,7 @@ QString num(double v) {
 QByteArray buildHighlightOverlay(const std::vector<QSizeF>& pageSizes,
                                  const std::vector<HighlightRow>& rows) {
     if (pageSizes.empty()) return {};
-    std::vector<std::vector<QRectF>> byPage(pageSizes.size());
+    std::vector<std::vector<std::pair<QRectF, QColor>>> byPage(pageSizes.size());
     for (const auto& row : rows) {
         if (row.page < 0 || row.page >= (int)pageSizes.size()) continue;
         const QSizeF& size = pageSizes[row.page];
@@ -32,7 +32,8 @@ QByteArray buildHighlightOverlay(const std::vector<QSizeF>& pageSizes,
         const double w = row.rect.width();
         const double h = row.rect.height();
         const double y = size.height() - row.rect.y() - h;
-        byPage[row.page].push_back(QRectF(x, y, w, h));
+        byPage[row.page].push_back({QRectF(x, y, w, h),
+                                    row.color.isValid() ? row.color : QColor(0xff, 0xe0, 0x66)});
     }
     bool any = false;
     for (const auto& list : byPage) any = any || !list.empty();
@@ -54,10 +55,12 @@ QByteArray buildHighlightOverlay(const std::vector<QSizeF>& pageSizes,
                        num(pageSizes[i].height()).toLatin1() + "] /Contents " +
                        QByteArray::number(3 + n + i) + " 0 R /Resources << /ExtGState << /GS0 << /ca 0.45 >> >> >> >> endobj");
     for (int i = 0; i < n; ++i) {
-        QByteArray ops = "q /GS0 gs 1 0.88 0.4 rg\n";
-        for (const QRectF& r : byPage[i])
-            ops += num(r.x()).toLatin1() + " " + num(r.y()).toLatin1() + " " +
-                   num(r.width()).toLatin1() + " " + num(r.height()).toLatin1() + " re f\n";
+        QByteArray ops = "q /GS0 gs\n";
+        for (const auto& [r, c] : byPage[i])
+            ops += num(c.redF()).toLatin1() + " " + num(c.greenF()).toLatin1() + " " +
+                   num(c.blueF()).toLatin1() + " rg " + num(r.x()).toLatin1() + " " +
+                   num(r.y()).toLatin1() + " " + num(r.width()).toLatin1() + " " +
+                   num(r.height()).toLatin1() + " re f\n";
         ops += "Q";
         objs.push_back(QByteArray::number(3 + n + i) + " 0 obj << /Length " +
                        QByteArray::number(ops.size()) + " >> stream\n" + ops +

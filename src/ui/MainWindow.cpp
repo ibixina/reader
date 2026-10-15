@@ -15,6 +15,7 @@
 #include "ui/WebPanel.h"
 #include <QApplication>
 #include <QCloseEvent>
+#include <QColorDialog>
 #include <QFile>
 #include <QFileInfo>
 #include <QDesktopServices>
@@ -26,6 +27,9 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMenu>
+#include <QPainter>
+#include <QPixmap>
 #include <QPlainTextEdit>
 #include <QMetaObject>
 #include <QPdfDocument>
@@ -45,6 +49,7 @@
 #include <QTextEdit>
 #include <QTimer>
 #include <QToolBar>
+#include <QToolButton>
 #include <QUrl>
 #include <QUuid>
 #include <QVBoxLayout>
@@ -101,6 +106,30 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
     });
     QAction* saveAct = addAction("Save", [this] { saveHighlightsToPdf(); });
     saveAct->setToolTip("Save highlights into this PDF (Ctrl+S)");
+    highlightColorButton_ = new QToolButton(toolbar_);
+    highlightColorButton_->setObjectName("highlightColorButton");
+    highlightColorButton_->setText("Color");
+    highlightColorButton_->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    highlightColorButton_->setPopupMode(QToolButton::InstantPopup);
+    highlightColorButton_->setToolTip("Highlight color — also recolors the selected highlight");
+    auto* colorMenu = new QMenu(highlightColorButton_);
+    const std::pair<const char*, const char*> swatches[] = {
+        {"Yellow", "#ffe066"}, {"Green", "#8ce99a"}, {"Blue", "#74c0fc"},
+        {"Pink", "#faa2c1"},   {"Orange", "#ffc078"}, {"Purple", "#d0bfff"}};
+    for (const auto& [name, hex] : swatches) {
+        const QColor color(hex);
+        QAction* act = colorMenu->addAction(colorSwatch(color), name);
+        connect(act, &QAction::triggered, this, [this, color] { setHighlightColor(color); });
+    }
+    colorMenu->addSeparator();
+    connect(colorMenu->addAction("Custom…"), &QAction::triggered, this, [this] {
+        const QColor picked = QColorDialog::getColor(
+            pdf_ ? pdf_->highlightColor() : PdfView::defaultHighlightColor(), this,
+            "Highlight color");
+        if (picked.isValid()) setHighlightColor(picked);
+    });
+    highlightColorButton_->setMenu(colorMenu);
+    toolbar_->addWidget(highlightColorButton_);
     toolbar_->addSeparator();
     QAction* pinToolbarAct = toolbar_->addAction("Pin toolbar");
     pinToolbarAct->setCheckable(true);
@@ -116,6 +145,11 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
     web_ = new WebPanel(app_, splitter_);
     web_->setObjectName("browserChat");
     splitter_->addWidget(pdf_);
+    {
+        const QColor saved(settings.value("reader/highlightColor").toString());
+        pdf_->setHighlightColor(saved.isValid() ? saved : PdfView::defaultHighlightColor());
+        highlightColorButton_->setIcon(colorSwatch(pdf_->highlightColor()));
+    }
     splitter_->addWidget(web_);
     splitter_->setStretchFactor(0, 3);
     splitter_->setStretchFactor(1, 2);
@@ -219,6 +253,7 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
                 navigateToAnchor(a);
             });
     connect(pdf_, &PdfView::annotationsChanged, marksPanel_, &MarksPanel::rebuild);
+    connect(pdf_, &PdfView::highlightToggleRequested, this, &MainWindow::toggleHighlight);
     connect(marksPanel_, &MarksPanel::annotationsChanged, pdf_, &PdfView::refreshUserOverlays);
     connect(marksPanel_, &MarksPanel::noteOnSelectionRequested, pdf_,
             &PdfView::promptNoteForCurrentSelection);
@@ -568,6 +603,7 @@ void MainWindow::updateToolbarAutoHide() {
         return;
     }
     if (toolbar_->underMouse()) return;
+    if (QApplication::activePopupWidget()) return; // color menu is open
     if (QWidget* focus = QApplication::focusWidget();
         focus && toolbar_->isAncestorOf(focus))
         return;
@@ -818,6 +854,27 @@ void MainWindow::toggleHighlight() {
     showSelectionHint();
 }
 
+QIcon MainWindow::colorSwatch(const QColor& color) {
+    QPixmap swatch(16, 16);
+    swatch.fill(Qt::transparent);
+    QPainter p(&swatch);
+    p.setRenderHint(QPainter::Antialiasing);
+    p.setPen(QColor(0, 0, 0, 90));
+    p.setBrush(color);
+    p.drawRoundedRect(QRectF(1.5, 1.5, 13, 13), 3, 3);
+    return QIcon(swatch);
+}
+
+void MainWindow::setHighlightColor(const QColor& color) {
+    if (!color.isValid() || !pdf_) return;
+    pdf_->setHighlightColor(color);
+    highlightColorButton_->setIcon(colorSwatch(color));
+    QSettings settings;
+    settings.setValue("reader/highlightColor", color.name());
+    if (pdf_->recolorHighlightForCurrentSelection() && statusHint_)
+        statusHint_->setText("Highlight recolored");
+}
+
 void MainWindow::toggleBookmark() {
     if (!app_->annotations || app_->model.document.id.empty() || !pdf_) return;
     const reader::DocumentId docId = app_->model.document.id;
@@ -902,7 +959,9 @@ void MainWindow::saveHighlightsToPdf() {
         for (const auto& ann : app_->annotations->annotationsFor(docId)) {
             if (ann.kind != "highlight" || !ann.anchor.bounds.valid()) continue;
             const auto& b = ann.anchor.bounds;
-            rows.push_back({ann.anchor.page, QRectF(b.x, b.y, b.width, b.height)});
+            const QColor color(QString::fromStdString(ann.color));
+            rows.push_back({ann.anchor.page, QRectF(b.x, b.y, b.width, b.height),
+                            color.isValid() ? color : PdfView::defaultHighlightColor()});
         }
     if (rows.empty()) {
         statusHint_->setText("No highlights to save — select text and press h first.");

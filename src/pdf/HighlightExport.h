@@ -1,5 +1,6 @@
 #pragma once
 #include <QByteArray>
+#include <QColor>
 #include <QRectF>
 #include <QSizeF>
 #include <QString>
@@ -12,10 +13,11 @@ namespace reader {
 struct HighlightRow {
     int page = 0;
     QRectF rect;
+    QColor color = QColor(0xff, 0xe0, 0x66);
 };
 
 // Overlay PDF for `qpdf --overlay`: same page count and MediaBoxes as the
-// source, translucent yellow row rects in bottom-origin content space.
+// source, translucent row rects in each row's color in bottom-origin content space.
 // Pages without rows get empty content. Empty when there is nothing to
 // export or inputs are invalid. Hand-written bytes (no PDF library needed);
 // numbers are C-locale formatted, objects sequentially numbered.

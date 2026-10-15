@@ -336,6 +336,78 @@ int main(int argc, char** argv) {
         }
     }
 
+    // A neighbouring passage that starts on the same line as an earlier
+    // highlight and wraps to the next line is a new highlight, never a
+    // toggle-off of its neighbour: the wrapped selection's bounding box
+    // covers the earlier highlight, but none of its rows do.
+    {
+        QString pageText;
+        auto boxes = reader::buildWordBoxes(*doc, 0, pageText);
+        const auto findWord = [&](const char* t) {
+            return std::find_if(boxes.begin(), boxes.end(), [&](const reader::WordBox& w) {
+                return w.text == t;
+            });
+        };
+        auto neural = findWord("Neural");       // first line
+        auto posterior = findWord("Posterior"); // first line
+        auto history = findWord("history");     // second line
+        CHECK(neural != boxes.end() && posterior != boxes.end() && history != boxes.end());
+        if (neural != boxes.end() && posterior != boxes.end() && history != boxes.end()) {
+            const double z = 1.25;
+            const std::size_t before = rapp.annotations->annotationsFor("testdoc").size();
+            const int rowY = int(neural->rect.center().y() * z);
+            mousePress(*page, QPoint(int((neural->rect.left() + 0.5) * z), rowY));
+            mouseRelease(*page, QPoint(int((neural->rect.right() - 0.5) * z), rowY));
+            CHECK(view.highlightCurrentSelection());
+            CHECK(rapp.annotations->annotationsFor("testdoc").size() == before + 1);
+            mousePress(*page, QPoint(int(posterior->rect.left() * z), rowY));
+            mouseRelease(*page, QPoint(int(history->rect.center().x() * z),
+                                       int(history->rect.center().y() * z)));
+            CHECK(!currentText(rapp).empty());
+            CHECK(!view.hasHighlightForCurrentSelection());
+            CHECK(!view.removeHighlightForCurrentSelection());
+            CHECK(rapp.annotations->annotationsFor("testdoc").size() == before + 1);
+            // New highlights take the picked color; the earlier one keeps its own.
+            view.setHighlightColor(QColor("#8ce99a"));
+            CHECK(view.highlightCurrentSelection());
+            const auto rows = rapp.annotations->annotationsFor("testdoc");
+            CHECK(rows.size() == before + 3);
+            int green = 0;
+            for (const auto& row : rows) green += row.color == "#8ce99a";
+            CHECK(green == 2);
+            // Recolor rewrites only the highlight under the selection.
+            view.setHighlightColor(QColor("#74c0fc"));
+            CHECK(view.recolorHighlightForCurrentSelection());
+            int blue = 0;
+            for (const auto& row : rapp.annotations->annotationsFor("testdoc"))
+                blue += row.color == "#74c0fc";
+            CHECK(blue == 2);
+            CHECK(view.removeHighlightForCurrentSelection());
+            CHECK(rapp.annotations->annotationsFor("testdoc").size() == before + 1);
+            mousePress(*page, QPoint(int((neural->rect.left() + 0.5) * z), rowY));
+            mouseRelease(*page, QPoint(int((neural->rect.right() - 0.5) * z), rowY));
+            CHECK(view.removeHighlightForCurrentSelection());
+            CHECK(rapp.annotations->annotationsFor("testdoc").size() == before);
+            view.setHighlightColor(PdfView::defaultHighlightColor());
+        }
+    }
+
+    // Right-click with a live selection asks for the highlight toggle.
+    {
+        int requests = 0;
+        const auto connection = QObject::connect(&view, &PdfView::highlightToggleRequested,
+                                                 &view, [&] { ++requests; });
+        mousePress(*page, W(70, 60));
+        mouseRelease(*page, W(250, 80));
+        CHECK(!currentText(rapp).empty());
+        QMouseEvent right(QEvent::MouseButtonPress, QPointF(W(150, 70)), QPointF(W(150, 70)),
+                          Qt::RightButton, Qt::RightButton, Qt::NoModifier);
+        QApplication::sendEvent(page, &right);
+        CHECK(requests == 1);
+        CHECK(!currentText(rapp).empty()); // selection survives the right-click
+        QObject::disconnect(connection);
+    }
+
     // A sub-passage re-selected inside an existing highlight is a
     // toggle-off, never a stacked duplicate: pressing h on a re-selection
     // that sits mostly inside a stored row must find and remove it.

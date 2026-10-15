@@ -8,6 +8,7 @@
 #include "search/TextIndex.h"
 #include "ai/References.h"
 #include <QScrollArea>
+#include <QColor>
 #include <QImage>
 #include <QList>
 #include <QPoint>
@@ -33,6 +34,7 @@ class QTimer;
 namespace reader {
 class Application;
 struct NavEntry;
+struct UserAnnotation;
 
 struct PdfViewState {
     int page = 0;
@@ -85,9 +87,20 @@ public:
     bool hasHighlightForCurrentSelection() const;
     bool highlightCurrentSelection();
     bool removeHighlightForCurrentSelection();
+    // Color for new highlights (the toolbar picker). Recolor applies it to
+    // saved highlights under the live selection.
+    static QColor defaultHighlightColor() { return QColor(0xff, 0xe0, 0x66); }
+    void setHighlightColor(const QColor& color);
+    QColor highlightColor() const { return highlightColor_; }
+    bool recolorHighlightForCurrentSelection();
     bool promptNoteForCurrentSelection();
     bool askAboutCurrentSelection();
     // Repaint saved user highlights from SQLite (§38).
+    struct UserOverlay {
+        QRectF rect;
+        QString kind;
+        QColor color;
+    };
     void refreshUserOverlays();
     // Index word geometry around a page on the serial doc lane.
     void prefetchAround(int page);
@@ -106,6 +119,8 @@ signals:
     void internalLinkActivated(int page, const QPointF& location);
     void noteRequested(const reader::DocumentAnchor& anchor);
     void annotationsChanged();
+    // Right-click on a page while a selection is live.
+    void highlightToggleRequested();
     // Empty seed means the user pressed A on a live selection; focusing the
     // ask box is the whole action.
     void quickAskRequested(const QString& seed);
@@ -132,6 +147,7 @@ private:
         QUrl url;
     };
     std::optional<LinkTarget> linkAt(int page, const QPointF& point) const;
+    bool selectionCoversHighlight(const reader::UserAnnotation& ann) const;
     reader::Application* app_;
     std::shared_ptr<QPdfDocument> doc_;
     QString docPath_;
@@ -170,6 +186,7 @@ private:
     // time: the paint truth used when a highlight is saved, so multiline
     // highlights hug the selected rows instead of the bounding box.
     QList<QRectF> selectionRows_;
+    QColor highlightColor_ = defaultHighlightColor();
     bool pendingG_ = false;
     bool suppressNextClickClear_ = false;
     // Upper bound for one drag selection: about a long paragraph or two.

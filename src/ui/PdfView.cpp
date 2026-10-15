@@ -73,7 +73,7 @@ public:
     // Pure data: no engine calls here or in paint (§7).
     void setLines(std::vector<reader::TextSpan> lines) { lines_ = std::move(lines); }
     int pageIndex() const { return page_; }
-    void setUserOverlays(QList<QPair<QRectF, QString>> overlays) {
+    void setUserOverlays(QList<PdfView::UserOverlay> overlays) {
         userOverlays_ = std::move(overlays);
         update();
     }
@@ -122,6 +122,7 @@ signals:
     void selectionStarted(int page);
     void dragSelected(int page, QRectF rectPoints, QString text);
     void clickedAt(int page, QPointF pointPoints);
+    void contextClicked(int page);
 
 protected:
     void paintEvent(QPaintEvent* ev) override {
@@ -228,9 +229,9 @@ protected:
             }
             p.restore();
         }
-        // User highlights: pale yellow wash, saved to SQLite.
+        // User highlights: translucent wash in the saved color (SQLite).
         if (!userOverlays_.isEmpty()) {
-            for (const auto& [r, kind] : userOverlays_) {
+            for (const auto& [r, kind, color] : userOverlays_) {
                 const QRectF mapped = mapRect(r);
                 if (kind == "underline") {
                     p.setPen(QPen(QColor(79, 140, 255), 2));
@@ -244,8 +245,10 @@ protected:
                     p.setBrush(QColor(180, 120, 220, 170));
                     p.drawEllipse(mapped.topLeft() + QPointF(-4, -4), 4, 4);
                 } else {
+                    QColor wash = color.isValid() ? color : PdfView::defaultHighlightColor();
+                    wash.setAlpha(110);
                     p.setPen(Qt::NoPen);
-                    p.setBrush(QColor(255, 224, 102, 110));
+                    p.setBrush(wash);
                     p.drawRect(mapped);
                 }
             }
@@ -269,6 +272,12 @@ protected:
         (void)ev;
     }
     void mousePressEvent(QMouseEvent* ev) override {
+        // Right-click acts on the live selection (same toggle as h) and
+        // leaves it in place.
+        if (ev->button() == Qt::RightButton) {
+            emit contextClicked(page_);
+            return;
+        }
         if (ev->button() != Qt::LeftButton) return;
         emit selectionStarted(page_);
         // Snapshot once per gesture: consistent even if the background
@@ -542,7 +551,7 @@ private:
     QString liveText_;
     QRectF liveRect_;
     QList<QRectF> highlightRows_;
-    QList<QPair<QRectF, QString>> userOverlays_;
+    QList<PdfView::UserOverlay> userOverlays_;
     QImage cache_;
     QImage preview_;
     QList<QPair<QRect, QImage>> tiles_;
@@ -651,6 +660,9 @@ void PdfView::rebuildPages() {
                     if (widget->pageIndex() != page) widget->clearSelection();
                 }
             }
+        });
+        connect(w, &PageWidget::contextClicked, this, [this] {
+            if (hasLiveSelection()) emit highlightToggleRequested();
         });
         connect(w, &PageWidget::clickedAt, this, [this](int page, QPointF point) {
             suppressNextClickClear_ = false;
@@ -1177,18 +1189,19 @@ void PdfView::refreshUserOverlays() {
         if (auto* w = qobject_cast<PageWidget*>(layout->itemAt(i)->widget()))
             w->setUserOverlays({});
     if (!app_->annotations || app_->model.document.id.empty()) return;
-    std::unordered_map<int, QList<QPair<QRectF, QString>>> perPage;
+    std::unordered_map<int, QList<UserOverlay>> perPage;
     for (const auto& ann : app_->annotations->annotationsFor(app_->model.document.id)) {
         const auto& b = ann.anchor.bounds;
         if (b.valid())
             perPage[ann.anchor.page].push_back(
-                {QRectF(b.x, b.y, b.width, b.height), QString::fromStdString(ann.kind)});
+                {QRectF(b.x, b.y, b.width, b.height), QString::fromStdString(ann.kind),
+                 QColor(QString::fromStdString(ann.color))});
     }
     for (const auto& note : app_->annotations->notesFor(app_->model.document.id)) {
         const auto& b = note.anchor.bounds;
         if (b.valid())
             perPage[note.anchor.page].push_back(
-                {QRectF(b.x, b.y, b.width, b.height), QStringLiteral("note")});
+                {QRectF(b.x, b.y, b.width, b.height), QStringLiteral("note"), QColor()});
     }
     for (const auto& [page, rects] : perPage) {
         if (auto* w = qobject_cast<PageWidget*>(pageWidget(page))) w->setUserOverlays(rects);
@@ -1235,13 +1248,28 @@ static bool sameHighlightTarget(const reader::DocumentAnchor& a,
     return selectionArea > 0 && intersection / selectionArea >= 0.5;
 }
 
+// A stored highlight row belongs to the live selection when it overlaps
+// one of the selection's own rows. The selection's bounding box is never
+// used when rows exist: a passage starting mid-line spans the full text
+// width on its later rows, so its box swallows an earlier highlight on
+// the first line and h would toggle that neighbour off.
+bool PdfView::selectionCoversHighlight(const reader::UserAnnotation& ann) const {
+    if (ann.kind != "highlight" || !selection_) return false;
+    if (selectionRows_.isEmpty()) return sameHighlightTarget(ann.anchor, *selection_);
+    reader::DocumentAnchor row = *selection_;
+    for (const QRectF& r : selectionRows_) {
+        row.bounds = {float(r.x()), float(r.y()), float(r.width()), float(r.height())};
+        if (sameHighlightTarget(ann.anchor, row)) return true;
+    }
+    return false;
+}
+
 bool PdfView::hasHighlightForCurrentSelection() const {
     if (!hasLiveSelection() || !app_ || !app_->annotations) return false;
     const reader::DocumentId doc = app_->model.document.id;
     if (doc.empty()) return false;
     for (const auto& ann : app_->annotations->annotationsFor(doc))
-        if (ann.kind == "highlight" && sameHighlightTarget(ann.anchor, *selection_))
-            return true;
+        if (selectionCoversHighlight(ann)) return true;
     return false;
 }
 
@@ -1252,8 +1280,7 @@ bool PdfView::highlightCurrentSelection() {
     // Apply exactly once: a repeat press is a no-op (removal is the
     // separate path below, which also cleans up legacy stacks).
     for (const auto& ann : app_->annotations->annotationsFor(doc))
-        if (ann.kind == "highlight" && sameHighlightTarget(ann.anchor, *selection_))
-            return false;
+        if (selectionCoversHighlight(ann)) return false;
     // One annotation per visual row: a multiline highlight hugs the
     // selected rows instead of painting the whole bounding box.
     QList<QRectF> rows = selectionRows_;
@@ -1271,7 +1298,7 @@ bool PdfView::highlightCurrentSelection() {
             ann.anchor.bounds = {float(row.x()), float(row.y()), float(row.width()),
                                  float(row.height())};
             ann.kind = "highlight";
-            ann.color = "#ffe066";
+            ann.color = highlightColor_.name().toStdString();
             ann.groupId = groupId;
             if (!app_->annotations->saveAnnotation(doc, ann)) return false;
         }
@@ -1289,7 +1316,7 @@ bool PdfView::removeHighlightForCurrentSelection() {
     if (doc.empty()) return false;
     bool removed = false;
     for (const auto& ann : app_->annotations->annotationsFor(doc))
-        if (ann.kind == "highlight" && sameHighlightTarget(ann.anchor, *selection_)) {
+        if (selectionCoversHighlight(ann)) {
             app_->annotations->deleteAnnotation(doc, ann.id);
             removed = true;
         }
@@ -1298,6 +1325,28 @@ bool PdfView::removeHighlightForCurrentSelection() {
         emit annotationsChanged();
     }
     return removed;
+}
+
+void PdfView::setHighlightColor(const QColor& color) {
+    if (color.isValid()) highlightColor_ = color;
+}
+
+bool PdfView::recolorHighlightForCurrentSelection() {
+    if (!hasLiveSelection() || !app_ || !app_->annotations) return false;
+    const reader::DocumentId doc = app_->model.document.id;
+    if (doc.empty()) return false;
+    const std::string color = highlightColor_.name().toStdString();
+    bool changed = false;
+    for (auto ann : app_->annotations->annotationsFor(doc)) {
+        if (!selectionCoversHighlight(ann) || ann.color == color) continue;
+        ann.color = color;
+        changed = app_->annotations->saveAnnotation(doc, ann) || changed;
+    }
+    if (changed) {
+        refreshUserOverlays();
+        emit annotationsChanged();
+    }
+    return changed;
 }
 
 bool PdfView::hasLiveSelection() const {

@@ -17,6 +17,9 @@ class QFrame;
 class QResizeEvent;
 class QCloseEvent;
 class QStackedWidget;
+class QToolButton;
+class QColor;
+class QIcon;
 
 namespace reader {
 class Application;
@@ -79,6 +82,10 @@ private:
     // again to remove). Ctrl+H does the same from anywhere, including
     // while typing: plain keys can never hijack the composer.
     void toggleHighlight();
+    // Toolbar color picker: new highlights use it, and a live selection
+    // over an existing highlight is recolored. Persisted in QSettings.
+    void setHighlightColor(const QColor& color);
+    static QIcon colorSwatch(const QColor& color);
     // Focus inside the browser chat (including ChatGPT's own composer,
     // which Qt sees as the web view): reading shortcuts must never steal
     // keystrokes from a conversation.
@@ -95,6 +102,7 @@ private:
     OutlinePanel* outlinePanel_ = nullptr;
     MarksPanel* marksPanel_ = nullptr;
     QToolBar* toolbar_ = nullptr;
+    QToolButton* highlightColorButton_ = nullptr;
     QTimer* toolbarRevealTimer_ = nullptr;
     bool toolbarPinned_ = false;
     QTimer* edgeRevealTimer_ = nullptr;
