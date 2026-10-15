@@ -3,6 +3,7 @@
 #include "app/Application.h"
 #include <QApplication>
 #include <QClipboard>
+#include <QComboBox>
 #include <QCursor>
 #include <QFile>
 #include <QFileDialog>
@@ -15,6 +16,7 @@
 #include <QMimeType>
 #include <QPointer>
 #include <QPushButton>
+#include <QSettings>
 #include <QShowEvent>
 #include <QShortcut>
 #include <QSignalBlocker>
@@ -88,6 +90,7 @@ private:
 
 struct WebPanel::Session {
     QPointer<QWebEngineView> view;
+    ChatSite site = ChatSite::ChatGPT;
     QPointer<QTimer> timeout;
     QString question;
     QString sentQuestion;
@@ -129,8 +132,69 @@ QString WebPanel::jsonQuoted(const QString& text) {
     return payload;
 }
 
+QString WebPanel::siteName(ChatSite site) {
+    return site == ChatSite::Claude ? QStringLiteral("Claude") : QStringLiteral("ChatGPT");
+}
+
+QUrl WebPanel::homeUrl(ChatSite site) {
+    return site == ChatSite::Claude ? QUrl("https://claude.ai/new")
+                                    : QUrl("https://chatgpt.com/?temporary-chat=true");
+}
+
+std::optional<WebPanel::ChatSite> WebPanel::siteForUrl(const QUrl& url) {
+    const QString host = url.host().toLower();
+    auto under = [&](const char* domain) {
+        const QString d = QString::fromLatin1(domain);
+        return host == d || host.endsWith('.' + d);
+    };
+    if (under("claude.ai")) return ChatSite::Claude;
+    if (under("chatgpt.com") || under("chat.openai.com")) return ChatSite::ChatGPT;
+    return std::nullopt;
+}
+
+// DOM contract per site, as a JS object literal for the fill/send scripts:
+// editor candidates in priority order, busy (stop) button, sent user
+// messages, send buttons, the composer container that scopes the send
+// lookup, and whether Enter submits when no send button exists at all.
+QString WebPanel::siteConfig(ChatSite site) {
+    QStringList editors;
+    QString stop, users, send, scope;
+    bool enter = false;
+    if (site == ChatSite::Claude) {
+        editors = {"div.ProseMirror[contenteditable=\"true\"]", "[data-testid=\"chat-input\"]",
+                   "fieldset [contenteditable=\"true\"]", "[contenteditable=\"true\"]",
+                   "fieldset textarea"};
+        stop = "button[aria-label=\"Stop response\"], button[aria-label=\"Stop Response\"], "
+               "button[aria-label^=\"Stop\"]";
+        users = "[data-testid=\"user-message\"]";
+        send = "button[aria-label=\"Send message\"], button[aria-label=\"Send Message\"], "
+               "button[aria-label*=\"Send\"], button[type=\"submit\"]";
+        scope = "fieldset, form";
+        enter = true;
+    } else {
+        editors = {"#prompt-textarea", "[data-testid=\"composer-text-input\"]",
+                   "form [contenteditable=\"true\"], form textarea", "[contenteditable=\"true\"]"};
+        stop = "[data-testid=\"stop-button\"], button[aria-label=\"Stop generating\"]";
+        users = "[data-message-author-role=\"user\"]";
+        send = "#composer-submit-button, [data-testid=\"send-button\"], "
+               "[data-testid=\"composer-send-button\"], button[aria-label=\"Send prompt\"], "
+               "button[aria-label*=\"Send\"], button[type=\"submit\"]";
+        scope = "form";
+    }
+    QStringList quotedEditors;
+    for (const QString& e : editors) quotedEditors << jsonQuoted(e);
+    return QString("{editors: [%1], stop: %2, users: %3, send: %4, scope: %5, enter: %6}")
+        .arg(quotedEditors.join(", "), jsonQuoted(stop), jsonQuoted(users), jsonQuoted(send),
+             jsonQuoted(scope), enter ? "true" : "false");
+}
+
 WebPanel::WebPanel(reader::Application* app, QWidget* parent)
     : QWidget(parent), app_(app) {
+    {
+        QSettings settings;
+        if (settings.value("reader/chatSite").toString() == "claude")
+            defaultSite_ = ChatSite::Claude;
+    }
     // Dedicated persistent profile: login, history and cookies survive
     // restarts. Paths are fixed BEFORE the profile is used by any page —
     // reconfiguring the shared default profile is silently ignored once
@@ -151,9 +215,10 @@ WebPanel::WebPanel(reader::Application* app, QWidget* parent)
     auto* back = new QPushButton("‹", navBar_);
     auto* forward = new QPushButton("›", navBar_);
     auto* reload = new QPushButton("⟳", navBar_);
-    auto* home = new QPushButton("chatgpt.com", navBar_);
+    auto* home = new QPushButton(navBar_);
+    homeButton_ = home;
     auto* copy = new QPushButton("Copy prompt", navBar_);
-    copy->setToolTip("Copy selection + question as a ChatGPT-ready prompt");
+    copy->setToolTip("Copy selection + question as a chat-ready prompt");
     context_ = new QTextBrowser(this);
     context_->setObjectName("browserContext");
     context_->setReadOnly(true);
@@ -208,10 +273,23 @@ WebPanel::WebPanel(reader::Application* app, QWidget* parent)
     tabs_->setTabsClosable(true);
     tabs_->setMovable(true);
     tabs_->tabBar()->setExpanding(false);
-    auto* newChat = new QPushButton("New chat", tabs_);
+    auto* corner = new QWidget(tabs_);
+    auto* cornerLayout = new QHBoxLayout(corner);
+    cornerLayout->setContentsMargins(0, 0, 0, 0);
+    siteBox_ = new QComboBox(corner);
+    siteBox_->setObjectName("browserChatSite");
+    siteBox_->addItem("ChatGPT", int(ChatSite::ChatGPT));
+    siteBox_->addItem("Claude", int(ChatSite::Claude));
+    siteBox_->setToolTip("Chat site for this tab and for new chats");
+    auto* newChat = new QPushButton("New chat", corner);
     newChat->setObjectName("browserNewChat");
     newChat->setToolTip("Open another chat (Ctrl+T). Double-click a tab to name it.");
-    tabs_->setCornerWidget(newChat, Qt::TopRightCorner);
+    cornerLayout->addWidget(siteBox_);
+    cornerLayout->addWidget(newChat);
+    tabs_->setCornerWidget(corner, Qt::TopRightCorner);
+    connect(siteBox_, &QComboBox::activated, this, [this](int index) {
+        setCurrentSite(static_cast<ChatSite>(siteBox_->itemData(index).toInt()));
+    });
     layout->addWidget(tabs_, 1);
     connect(newChat, &QPushButton::clicked, this, &WebPanel::newSession);
     connect(tabs_, &QTabWidget::currentChanged, this, &WebPanel::activateSession);
@@ -237,7 +315,7 @@ WebPanel::WebPanel(reader::Application* app, QWidget* parent)
         else ensureLoaded();
     });
     connect(home, &QPushButton::clicked, this, [this] {
-        if (auto* view = currentView()) view->load(temporaryChatUrl());
+        if (auto* view = currentView()) view->load(homeUrl(currentSite()));
     });
     connect(copy, &QPushButton::clicked, this, &WebPanel::copyPrompt);
     connect(askButton_, &QPushButton::clicked, this, &WebPanel::ask);
@@ -284,12 +362,42 @@ void WebPanel::activateSession(int index) {
     question_->setText(session->question);
     status_->setText(session->status);
     askButton_->setEnabled(!session->asking);
+    syncSiteControls();
     if (isVisible()) ensureLoaded();
+}
+
+WebPanel::ChatSite WebPanel::currentSite() const {
+    return current_ ? current_->site : defaultSite_;
+}
+
+void WebPanel::syncSiteControls() {
+    const ChatSite site = currentSite();
+    if (siteBox_) {
+        const QSignalBlocker blocker(siteBox_);
+        siteBox_->setCurrentIndex(siteBox_->findData(int(site)));
+    }
+    if (homeButton_) homeButton_->setText(homeUrl(site).host());
+}
+
+// Picking a site makes it the default for new chats and switches the
+// current tab to it (Back returns to the previous conversation).
+void WebPanel::setCurrentSite(ChatSite site) {
+    defaultSite_ = site;
+    QSettings settings;
+    settings.setValue("reader/chatSite", site == ChatSite::Claude ? "claude" : "chatgpt");
+    if (current_ && current_->site != site) {
+        cancel(current_);
+        current_->site = site;
+        if (current_->loaded) current_->view->load(homeUrl(site));
+        else if (isVisible()) ensureLoaded();
+    }
+    syncSiteControls();
 }
 
 void WebPanel::newSession() {
     if (shuttingDown_) return;
     auto session = std::make_shared<Session>();
+    session->site = defaultSite_;
     auto* view = new QWebEngineView(tabs_);
     view->setObjectName(QString("browserChatView_%1").arg(++nextSession_));
     view->setPage(new ReaderWebPage(app_, profile_, view));
@@ -303,7 +411,15 @@ void WebPanel::newSession() {
         if (!session->asking) return;
         finishAsk(session, false, session->clicked
             ? "Couldn't confirm sending — check the chat before retrying."
-            : "ChatGPT isn't ready to send yet — your question is kept. Sign in or reload and retry.");
+            : siteName(session->site) +
+                  " isn't ready to send yet — your question is kept. Sign in or reload and retry.");
+    });
+    connect(view, &QWebEngineView::urlChanged, this, [this, session](const QUrl& url) {
+        if (shuttingDown_ || session->closed) return;
+        const auto site = siteForUrl(url);
+        if (!site || *site == session->site) return;
+        session->site = *site;
+        if (current_ == session) syncSiteControls();
     });
     connect(view, &QWebEngineView::loadStarted, this, [this, session] {
         if (shuttingDown_ || session->closed) return;
@@ -311,15 +427,17 @@ void WebPanel::newSession() {
         session->initialLoad = false;
         session->loaded = true;
         if (session->asking && !initialLoad) cancel(session);
-        if (!session->asking) setStatus(session, "Loading ChatGPT…");
+        if (!session->asking) setStatus(session, "Loading " + siteName(session->site) + "…");
     });
     connect(view, &QWebEngineView::loadFinished, this, [this, session](bool ok) {
         if (shuttingDown_ || session->closed || session->asking) return;
-        setStatus(session, ok ? "ChatGPT ready — your login is shared across chats."
-                              : "Couldn't load ChatGPT — check the connection and reload.");
+        const QString name = siteName(session->site);
+        setStatus(session, ok ? name + " ready — your login is shared across chats."
+                              : "Couldn't load " + name + " — check the connection and reload.");
     });
     connect(view, &QWebEngineView::titleChanged, this, [this, session](const QString& title) {
-        if (shuttingDown_ || session->closed || session->named || title.isEmpty() || title == "ChatGPT") return;
+        if (shuttingDown_ || session->closed || session->named || title.isEmpty() || title == "ChatGPT" ||
+            title == "Claude") return;
         const int index = tabs_->indexOf(session->view);
         if (index < 0) return;
         tabs_->setTabText(index, title.left(32));
@@ -364,7 +482,7 @@ void WebPanel::ensureLoaded() {
     if (!current_ || current_->loaded) return;
     current_->loaded = true;
     current_->initialLoad = true;
-    current_->view->load(temporaryChatUrl());
+    current_->view->load(homeUrl(current_->site));
 }
 
 void WebPanel::updateNavReveal() {
@@ -431,16 +549,16 @@ QString WebPanel::buildPrompt(const QString& question) const {
     return prompt;
 }
 
-QString WebPanel::fillScript(const QString& prompt, const QString& requestId) {
+QString WebPanel::fillScript(const QString& prompt, const QString& requestId, ChatSite site) {
     return QStringLiteral(R"JS(
-(function(payload, id) {
+(function(payload, id, site) {
     try {
-        if (document.querySelector('[data-testid="stop-button"], button[aria-label="Stop generating"]'))
-            return 'busy';
-        var ed = document.getElementById('prompt-textarea')
-              || document.querySelector('[data-testid="composer-text-input"]')
-              || document.querySelector('form [contenteditable="true"], form textarea')
-              || document.querySelector('[contenteditable="true"]');
+        if (document.querySelector(site.stop)) return 'busy';
+        var ed = null;
+        for (var selector of site.editors) {
+            ed = document.querySelector(selector);
+            if (ed) break;
+        }
         if (!ed) return 'no-editor';
         var input = ed.querySelector('.ProseMirror, textarea, [contenteditable="true"]') || ed;
         input.focus();
@@ -458,24 +576,25 @@ QString WebPanel::fillScript(const QString& prompt, const QString& requestId) {
         window.__paperReaderAsk = {id: id, clicked: false, users: 0, url: location.href};
         return 'filled';
     } catch (error) { return 'error:' + error; }
-})(%1, %2)
-)JS").arg(jsonQuoted(prompt), jsonQuoted(requestId));
+})(%1, %2, %3)
+)JS").arg(jsonQuoted(prompt), jsonQuoted(requestId), siteConfig(site));
 }
 
-QString WebPanel::sendScript(const QString& requestId) {
+QString WebPanel::sendScript(const QString& requestId, ChatSite site) {
     return QStringLiteral(R"JS(
-(function(id) {
+(function(id, site) {
     try {
         var request = window.__paperReaderAsk;
         if (!request || request.id !== id) return 'cancelled';
-        var ed = document.getElementById('prompt-textarea')
-              || document.querySelector('[data-testid="composer-text-input"]')
-              || document.querySelector('form [contenteditable="true"], form textarea')
-              || document.querySelector('[contenteditable="true"]');
+        var ed = null;
+        for (var selector of site.editors) {
+            ed = document.querySelector(selector);
+            if (ed) break;
+        }
         var input = ed ? (ed.querySelector('.ProseMirror, textarea, [contenteditable="true"]') || ed) : null;
         var text = input ? (input.value === undefined ? (input.innerText || input.textContent || '') : input.value) : '';
-        var users = document.querySelectorAll('[data-message-author-role="user"]').length;
-        var stop = document.querySelector('[data-testid="stop-button"], button[aria-label="Stop generating"]');
+        var users = document.querySelectorAll(site.users).length;
+        var stop = document.querySelector(site.stop);
         if (request.clicked) {
             if (users > request.users || (input && !text.trim() && (stop || location.href !== request.url)))
                 return 'sent';
@@ -485,10 +604,8 @@ QString WebPanel::sendScript(const QString& requestId) {
         if (stop) return 'busy';
         if (!input) return 'no-editor';
         if (!text.trim()) return 'empty-editor';
-        var scope = input.closest('form') || document;
-        var buttons = scope.querySelectorAll('#composer-submit-button, [data-testid="send-button"], '
-            + '[data-testid="composer-send-button"], button[aria-label="Send prompt"], '
-            + 'button[aria-label*="Send"], button[type="submit"]');
+        var scope = input.closest(site.scope) || document;
+        var buttons = scope.querySelectorAll(site.send);
         for (var button of buttons) {
             if (button.disabled || button.getAttribute('aria-disabled') === 'true' || !button.getClientRects().length)
                 continue;
@@ -498,10 +615,21 @@ QString WebPanel::sendScript(const QString& requestId) {
             button.click();
             return 'clicked';
         }
+        // Composers without any send button submit on Enter. A present but
+        // disabled button means the site is not ready: keep waiting.
+        if (!buttons.length && site.enter) {
+            request.clicked = true;
+            request.users = users;
+            request.url = location.href;
+            input.focus();
+            input.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter', code: 'Enter',
+                keyCode: 13, which: 13, bubbles: true, cancelable: true}));
+            return 'clicked';
+        }
         return 'waiting-send';
     } catch (error) { return 'error:' + error; }
-})(%1)
-)JS").arg(jsonQuoted(requestId));
+})(%1, %2)
+)JS").arg(jsonQuoted(requestId), siteConfig(site));
 }
 
 void WebPanel::ask() {
@@ -515,7 +643,7 @@ void WebPanel::ask() {
     session->requestId = QString::number(++nextRequest_);
     const unsigned long generation = ++session->generation;
     askButton_->setEnabled(false);
-    setStatus(session, "Sending to ChatGPT…");
+    setStatus(session, "Sending to " + siteName(session->site) + "…");
     session->timeout->start();
     tryFill(session, buildPrompt(session->sentQuestion.trimmed()), generation);
 }
@@ -523,7 +651,7 @@ void WebPanel::ask() {
 void WebPanel::tryFill(const SessionPtr& session, const QString& prompt, unsigned long generation) {
     if (session->closed || !session->asking || session->generation != generation || !session->view) return;
     QPointer<WebPanel> guard(this);
-    session->view->page()->runJavaScript(fillScript(prompt, session->requestId),
+    session->view->page()->runJavaScript(fillScript(prompt, session->requestId, session->site),
         [this, guard, session, prompt, generation](const QVariant& result) {
             if (!guard || session->closed || !session->asking || session->generation != generation) return;
             const QString status = result.toString();
@@ -533,7 +661,8 @@ void WebPanel::tryFill(const SessionPtr& session, const QString& prompt, unsigne
             } else if (status == "no-editor" || status == "busy") {
                 QTimer::singleShot(250, this, [this, session, prompt, generation] { tryFill(session, prompt, generation); });
             } else {
-                finishAsk(session, false, "Couldn't prepare the ChatGPT composer — your question is kept. Reload and retry.");
+                finishAsk(session, false, "Couldn't prepare the " + siteName(session->site) +
+                                              " composer — your question is kept. Reload and retry.");
             }
         });
 }
@@ -541,7 +670,7 @@ void WebPanel::tryFill(const SessionPtr& session, const QString& prompt, unsigne
 void WebPanel::trySend(const SessionPtr& session, unsigned long generation) {
     if (session->closed || !session->asking || session->generation != generation || !session->view) return;
     QPointer<WebPanel> guard(this);
-    session->view->page()->runJavaScript(sendScript(session->requestId),
+    session->view->page()->runJavaScript(sendScript(session->requestId, session->site),
         [this, guard, session, generation](const QVariant& result) {
             if (!guard || session->closed || !session->asking || session->generation != generation) return;
             const QString status = result.toString();
@@ -554,7 +683,8 @@ void WebPanel::trySend(const SessionPtr& session, unsigned long generation) {
             } else {
                 finishAsk(session, false, session->clicked
                     ? "Couldn't confirm sending — check this chat before retrying."
-                    : "ChatGPT couldn't send the prompt — your question is kept. Reload and retry.");
+                    : siteName(session->site) +
+                          " couldn't send the prompt — your question is kept. Reload and retry.");
             }
         });
 }
@@ -595,7 +725,7 @@ void WebPanel::cancelPending() {
 void WebPanel::copyPrompt() {
     // Copy exactly what Ask would send: selection context + question box.
     QGuiApplication::clipboard()->setText(buildPrompt(question_->text().trimmed()));
-    context_->setPlainText(context_->toPlainText() + "  · prompt copied, paste into ChatGPT");
+    context_->setPlainText(context_->toPlainText() + "  · prompt copied, paste into " + siteName(currentSite()));
     if (auto* view = currentView()) view->setFocus();
 }
 

@@ -2,6 +2,7 @@
 #include <QWidget>
 #include <QUrl>
 #include <memory>
+#include <optional>
 #include <vector>
 
 class QWebEngineView;
@@ -12,6 +13,7 @@ class QPushButton;
 class QLineEdit;
 class QTabWidget;
 class QTimer;
+class QComboBox;
 
 namespace reader {
 class Application;
@@ -35,12 +37,23 @@ public:
     void closeSession(int index);
     QWebEngineView* currentView() const;
 
+    // Web chat sites the panel drives. Each tab remembers its own site; a
+    // tab that navigates to the other site's host switches with it.
+    enum class ChatSite { ChatGPT, Claude };
+    static QString siteName(ChatSite site);
+    static QUrl homeUrl(ChatSite site);
+    static std::optional<ChatSite> siteForUrl(const QUrl& url);
+    ChatSite currentSite() const;
+    void setCurrentSite(ChatSite site);
+
     // Fill once, then poll sendScript until the composer accepts the message.
     // A request token prevents an old callback from sending a newer draft.
-    static QString fillScript(const QString& prompt, const QString& requestId = "test");
-    static QString sendScript(const QString& requestId = "test");
+    static QString fillScript(const QString& prompt, const QString& requestId = "test",
+                              ChatSite site = ChatSite::ChatGPT);
+    static QString sendScript(const QString& requestId = "test",
+                              ChatSite site = ChatSite::ChatGPT);
     static QString jsonQuoted(const QString& text);
-    static QUrl temporaryChatUrl() { return QUrl("https://chatgpt.com/?temporary-chat=true"); }
+    static QUrl temporaryChatUrl() { return homeUrl(ChatSite::ChatGPT); }
 
 private:
     struct Session;
@@ -54,6 +67,8 @@ private:
     void trySend(const SessionPtr& session, unsigned long generation);
     void finishAsk(const SessionPtr& session, bool sent, const QString& status);
     QString buildPrompt(const QString& question) const;
+    static QString siteConfig(ChatSite site);
+    void syncSiteControls();
     reader::Application* app_;
     QWebEngineProfile* profile_ = nullptr;
     QTabWidget* tabs_ = nullptr;
@@ -67,6 +82,9 @@ private:
     QLabel* status_ = nullptr;
     QLineEdit* question_ = nullptr;
     QPushButton* askButton_ = nullptr;
+    QPushButton* homeButton_ = nullptr;
+    QComboBox* siteBox_ = nullptr;
+    ChatSite defaultSite_ = ChatSite::ChatGPT;
     bool shuttingDown_ = false;
 
 protected:

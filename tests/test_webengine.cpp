@@ -1,6 +1,7 @@
 // Exercises composer submission and independent sessions against local pages.
 #include "app/Application.h"
 #include <QApplication>
+#include <QComboBox>
 #include <QDir>
 #include <QDirIterator>
 #include <QEventLoop>
@@ -494,6 +495,22 @@ static void testSessions(QApplication& qt) {
     CHECK(waitFor(qt, [&] { return ask->isEnabled(); }));
     CHECK(question->text() == "Explain this passage");
     CHECK(runJsSync(*fresh, "window.__sends").toInt() == 1);
+
+    // The site picker switches the current tab and becomes the default for
+    // new chats; each tab keeps its own site.
+    auto* siteBox = panel.findChild<QComboBox*>("browserChatSite");
+    CHECK(siteBox && siteBox->currentText() == "ChatGPT");
+    panel.setCurrentSite(WebPanel::ChatSite::Claude);
+    CHECK(panel.currentSite() == WebPanel::ChatSite::Claude);
+    CHECK(siteBox && siteBox->currentText() == "Claude");
+    auto* claudeTab = panel.currentView();
+    CHECK(waitFor(qt, [&] { return claudeTab->url().host() == "claude.ai"; }));
+    newChat->click();
+    CHECK(panel.currentSite() == WebPanel::ChatSite::Claude);
+    panel.setCurrentSite(WebPanel::ChatSite::ChatGPT);
+    tabs->setCurrentWidget(claudeTab);
+    CHECK(panel.currentSite() == WebPanel::ChatSite::Claude);
+    CHECK(siteBox && siteBox->currentText() == "Claude");
 }
 
 int main(int argc, char** argv) {
@@ -600,6 +617,69 @@ int main(int argc, char** argv) {
     CHECK(runJsSync(view, WebPanel::sendScript("older-request")).toString() == "cancelled");
     CHECK(runJsSync(view, WebPanel::sendScript()).toString() == "clicked");
     CHECK(runJsSync(view, WebPanel::sendScript()).toString() == "sent");
+
+    // claude.ai composer: ProseMirror inside a fieldset, a "Send message"
+    // button that enables on input, "Stop response" while streaming, and
+    // user turns marked data-testid="user-message".
+    {
+        using Site = WebPanel::ChatSite;
+        loadMock(view, R"HTML(
+            <fieldset>
+              <div contenteditable="true" class="ProseMirror" aria-label="Write your prompt to Claude"></div>
+              <button aria-label="Send message" disabled>send</button>
+            </fieldset>
+            <button aria-label="Stop response">stop</button>
+            <button aria-label="Send feedback">unrelated</button>
+            <script>
+              var pm = document.querySelector('.ProseMirror');
+              var send = document.querySelector('fieldset button');
+              pm.addEventListener('input', function() { send.disabled = !pm.textContent.trim(); });
+              send.addEventListener('click', function() {
+                window.__claudeSends = (window.__claudeSends || 0) + 1;
+                setTimeout(function() {
+                  document.body.insertAdjacentHTML('beforeend', '<div data-testid="user-message">sent</div>');
+                  pm.textContent = '';
+                }, 50);
+              });
+            </script>
+        )HTML");
+        CHECK(runJsSync(view, WebPanel::fillScript(prompt, "c1", Site::Claude)).toString() == "busy");
+        runJsSync(view, "document.querySelector('[aria-label=\"Stop response\"]').remove()");
+        CHECK(runJsSync(view, WebPanel::fillScript(prompt, "c1", Site::Claude)).toString() == "filled");
+        CHECK(runJsSync(view, "document.querySelector('.ProseMirror').textContent").toString()
+                  .contains("amortization"));
+        CHECK(runJsSync(view, WebPanel::sendScript("c1", Site::Claude)).toString() == "clicked");
+        CHECK(runJsSync(view, "window.__claudeSends").toInt() == 1);
+        CHECK(waitFor(app, [&] {
+            return runJsSync(view, WebPanel::sendScript("c1", Site::Claude)).toString() == "sent";
+        }));
+        CHECK(runJsSync(view, "window.__claudeSends").toInt() == 1);
+
+        // Enter-only composer: no send button at all, Enter submits.
+        loadMock(view, R"HTML(
+            <fieldset><div contenteditable="true" class="ProseMirror"></div></fieldset>
+            <script>
+              var pm = document.querySelector('.ProseMirror');
+              pm.addEventListener('keydown', function(event) {
+                if (event.key !== 'Enter') return;
+                event.preventDefault();
+                window.__enterSends = (window.__enterSends || 0) + 1;
+                history.pushState({}, '', '/chat/abc');
+                pm.textContent = '';
+              });
+            </script>
+        )HTML");
+        CHECK(runJsSync(view, WebPanel::fillScript("enter only", "c2", Site::Claude)).toString() == "filled");
+        CHECK(runJsSync(view, WebPanel::sendScript("c2", Site::Claude)).toString() == "clicked");
+        CHECK(runJsSync(view, "window.__enterSends").toInt() == 1);
+        CHECK(runJsSync(view, WebPanel::sendScript("c2", Site::Claude)).toString() == "sent");
+
+        CHECK(WebPanel::siteForUrl(QUrl("https://claude.ai/chat/abc")) == Site::Claude);
+        CHECK(WebPanel::siteForUrl(QUrl("https://chatgpt.com/c/1")) == Site::ChatGPT);
+        CHECK(!WebPanel::siteForUrl(QUrl("http://reader.test/chat")));
+        CHECK(!WebPanel::siteForUrl(QUrl("https://notclaude.ai/")));
+        CHECK(WebPanel::homeUrl(Site::Claude).host() == "claude.ai");
+    }
 
     // Ingest polling: stop button visible -> generating; gone -> final text.
     view.setHtml(R"HTML(
