@@ -1,15 +1,15 @@
-Package: paper-reader_0.1.0+git044d9ee48689_ubuntu24.04_amd64.deb
-Source commit: 044d9ee48689fb388c0a5d79a52f06a09469d3e4
+Package: paper-reader_0.1.0+git9d6aec6f6d3b_ubuntu24.04_amd64.deb
+Source commit: 9d6aec6f6d3b767b4c66f351f2b75474b2d913cc
 Target: Ubuntu 24.04, amd64 (Intel/AMD 64-bit)
 Build type: Release
 Compiler: GCC 13.3.0
 Qt: 6.4.2
 Poppler: 24.02.0
-Build command: PAPER_READER_PACKAGE_VERSION=0.1.0+git044d9ee48689 ./packaging/build-deb.sh
+Build command: PAPER_READER_PACKAGE_VERSION=0.1.0+git9d6aec6f6d3b ./packaging/build-deb.sh
 
 Verification (2026-10-15):
 - All 13 existing tests passed on Ubuntu, including highlight export.
 - All 13 tests passed on the Fedora host.
 - Installed with apt in a separate Ubuntu 24.04 container; all runtime
   libraries resolved.
-- Runtime dependencies are unchanged from the 67b7ec2c92fc package.
+- Runtime dependencies are unchanged from the 044d9ee48689 package.
