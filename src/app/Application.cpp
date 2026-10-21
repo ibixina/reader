@@ -69,6 +69,7 @@ void Application::openDatabase() {
     documents = std::make_unique<DocumentRepository>(db.get());
     annotations = std::make_unique<AnnotationRepository>(db.get());
     chats = std::make_unique<ChatRepository>(db.get());
+    webChats = std::make_unique<WebChatRepository>(db.get());
     // One manager per app lifetime: conversations persist in SQLite (§30),
     // message references are snapshotted per send (§16).
     chatManager = std::make_unique<ChatManager>(buildProvider(), chats.get());

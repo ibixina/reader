@@ -98,4 +98,30 @@ private:
     Database* db_;
 };
 
+// Browser chats (claude.ai) remembered per paper so reopening it offers
+// the earlier conversations. Keyed by the chat's canonical URL.
+struct WebChat {
+    std::string site;
+    std::string url;
+    std::string title;
+    bool named = false;
+    TimestampMs createdAt = 0;
+    TimestampMs lastOpened = 0;
+};
+
+class WebChatRepository {
+public:
+    explicit WebChatRepository(Database* db) : db_(db) {}
+    // Insert or refresh: keeps createdAt and a user-given name; an empty
+    // title never overwrites a known one.
+    bool saveWebChat(const DocumentId& doc, const WebChat& chat);
+    bool touchWebChat(const DocumentId& doc, const std::string& url);
+    bool deleteWebChat(const DocumentId& doc, const std::string& url);
+    // Most recently opened first.
+    std::vector<WebChat> webChatsFor(const DocumentId& doc, const std::string& site) const;
+
+private:
+    Database* db_;
+};
+
 } // namespace reader

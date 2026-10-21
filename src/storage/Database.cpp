@@ -183,6 +183,9 @@ void Database::migrate() {
       document_id TEXT PRIMARY KEY, file_hash TEXT, schema_version INTEGER,
       prompt_version INTEGER, provider TEXT, model TEXT, generated_at INTEGER,
       json TEXT NOT NULL))",
+    R"(CREATE TABLE IF NOT EXISTS web_chats(
+      document_id TEXT, site TEXT, url TEXT, title TEXT, named INTEGER DEFAULT 0,
+      created_at INTEGER, last_opened INTEGER, PRIMARY KEY(document_id,url)))",
     "CREATE INDEX IF NOT EXISTS idx_message_refs_message ON message_references(message_id);",
     // The live read paths (overlays, notes panel, highlight toggling) filter
     // by document on every selection/page change: without these indexes the

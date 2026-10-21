@@ -11,9 +11,11 @@
 #include <QFileInfo>
 #include <QKeyEvent>
 #include <QLineEdit>
+#include <QListWidget>
 #include <QMouseEvent>
 #include <QPointer>
 #include <QPushButton>
+#include <QSettings>
 #include <QTabBar>
 #include <QTabWidget>
 #include <QTemporaryDir>
@@ -513,6 +515,115 @@ static void testSessions(QApplication& qt) {
     CHECK(siteBox && siteBox->currentText() == "Claude");
 }
 
+static void loadClaudeMock(QApplication& qt, QWebEngineView& view, const QString& title) {
+    bool done = false;
+    auto connection = QObject::connect(&view, &QWebEngineView::loadFinished,
+                                       [&](bool) { done = true; });
+    view.setHtml("<title>" + title + "</title><p>chat</p>", QUrl("https://claude.ai/new"));
+    CHECK(waitFor(qt, [&] { return done; }, 10000));
+    QObject::disconnect(connection);
+}
+
+// Claude chats are remembered per paper: reopening a paper lists them,
+// a pick reopens that conversation, and New starts one that joins the list.
+static void testSavedChats(QApplication& qt) {
+    using Site = WebPanel::ChatSite;
+    CHECK(WebPanel::claudeChatUrl(QUrl("https://claude.ai/chat/abc-123?x=1#m")) ==
+          "https://claude.ai/chat/abc-123");
+    CHECK(WebPanel::claudeChatUrl(QUrl("https://claude.ai/new")).isEmpty());
+    CHECK(WebPanel::claudeChatUrl(QUrl("https://claude.ai/chat/")).isEmpty());
+    CHECK(WebPanel::claudeChatUrl(QUrl("https://chatgpt.com/chat/abc")).isEmpty());
+    CHECK(WebPanel::chatTitle("Synapse questions - Claude") == "Synapse questions");
+    CHECK(WebPanel::chatTitle(" Claude ").isEmpty());
+
+    QSettings().setValue("reader/chatSite", "claude");
+    reader::Application app;
+    CHECK(app.webChats);
+    if (!app.webChats) return;
+    LocalRequestInterceptor interceptor;
+    WebPanel panel(&app);
+    panel.findChild<QWebEngineProfile*>()->setUrlRequestInterceptor(&interceptor);
+    auto* tabs = panel.findChild<QTabWidget*>("browserSessions");
+    auto* list = panel.findChild<QListWidget*>("browserChatList");
+    auto* listNew = panel.findChild<QPushButton*>("browserChatListNew");
+    auto* listBack = panel.findChild<QPushButton*>("browserChatListBack");
+    auto* chatsButton = panel.findChild<QPushButton*>("browserChatListButton");
+    CHECK(tabs && list && listNew && listBack && chatsButton);
+    if (!tabs || !list || !listNew || !listBack || !chatsButton) return;
+    auto savedFor = [&](const char* doc) { return app.webChats->webChatsFor(doc, "claude"); };
+
+    // No history yet: the paper opens straight into a chat.
+    panel.setDocument("paper-a");
+    CHECK(!panel.chatListVisible());
+    CHECK(tabs->count() == 1);
+    CHECK(!chatsButton->isHidden());
+    auto* first = panel.currentView();
+    loadClaudeMock(qt, *first, "Synapse questions - Claude");
+    CHECK(savedFor("paper-a").empty()); // not saved before the site assigns a chat URL
+    runJsSync(*first, "history.pushState({}, '', '/chat/aaa-111')");
+    CHECK(waitFor(qt, [&] { return savedFor("paper-a").size() == 1; }));
+    if (savedFor("paper-a").size() != 1) return;
+    CHECK(savedFor("paper-a")[0].url == "https://claude.ai/chat/aaa-111");
+    CHECK(savedFor("paper-a")[0].title == "Synapse questions");
+
+    // Another paper closes paper-a's tab and has no history of its own.
+    QPointer<QWebEngineView> closedFirst(first);
+    panel.setDocument("paper-b");
+    CHECK(!panel.chatListVisible());
+    CHECK(tabs->count() == 1 && panel.currentView() != first);
+    CHECK(waitFor(qt, [&] { return closedFirst.isNull(); }));
+    CHECK(savedFor("paper-b").empty());
+
+    // Reopening paper-a shows its saved chat; clicking reopens it.
+    panel.setDocument("paper-a");
+    CHECK(panel.chatListVisible());
+    CHECK(tabs->count() == 0);
+    CHECK(listBack->isHidden());
+    CHECK(list->count() == 1 && list->item(0)->text().startsWith("Synapse questions"));
+    emit list->itemClicked(list->item(0));
+    CHECK(!panel.chatListVisible());
+    CHECK(tabs->count() == 1 && tabs->tabText(0) == "Synapse questions");
+    CHECK(panel.currentSite() == Site::Claude);
+    panel.ensureLoaded();
+    CHECK(waitFor(qt, [&] {
+        return panel.currentView()->url().toString().startsWith("https://claude.ai/chat/aaa-111");
+    }));
+
+    // Picking an open chat again switches to its tab instead of duplicating it.
+    chatsButton->click();
+    CHECK(panel.chatListVisible() && !listBack->isHidden());
+    emit list->itemClicked(list->item(0));
+    CHECK(tabs->count() == 1);
+
+    // New from the list starts a fresh Claude chat that joins the list once used.
+    chatsButton->click();
+    listNew->click();
+    CHECK(!panel.chatListVisible());
+    CHECK(tabs->count() == 2 && panel.currentSite() == Site::Claude);
+    auto* second = panel.currentView();
+    loadClaudeMock(qt, *second, "Gradient follow-up - Claude");
+    runJsSync(*second, "history.pushState({}, '', '/chat/bbb-222')");
+    CHECK(waitFor(qt, [&] { return savedFor("paper-a").size() == 2; }));
+    CHECK(savedFor("paper-b").empty());
+
+    // Closing every tab brings the list back with both chats.
+    panel.closeSession(0);
+    panel.closeSession(0);
+    CHECK(panel.chatListVisible() && tabs->count() == 0);
+    CHECK(list->count() == 2);
+
+    // Removing forgets the chat for this paper only.
+    app.webChats->deleteWebChat("paper-a", "https://claude.ai/chat/bbb-222");
+    panel.showChatList();
+    CHECK(list->count() == 1);
+
+    // Asking straight from the list starts a new chat instead of dropping the question.
+    panel.ask();
+    CHECK(!panel.chatListVisible() && tabs->count() == 1);
+    panel.cancelPending();
+    QSettings().setValue("reader/chatSite", "chatgpt");
+}
+
 int main(int argc, char** argv) {
     QCoreApplication::setAttribute(Qt::AA_DontUseNativeDialogs);
     QApplication app(argc, argv);
@@ -844,6 +955,7 @@ int main(int argc, char** argv) {
 
     testFilePicker(app);
     testSessions(app);
+    testSavedChats(app);
     if (failures == 0) std::cout << "ALL WEBENGINE TESTS PASSED\n";
     return failures == 0 ? 0 : 1;
 }

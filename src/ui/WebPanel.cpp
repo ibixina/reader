@@ -5,6 +5,7 @@
 #include <QClipboard>
 #include <QComboBox>
 #include <QCursor>
+#include <QDateTime>
 #include <QFile>
 #include <QFileDialog>
 #include <QFileInfo>
@@ -12,14 +13,19 @@
 #include <QInputDialog>
 #include <QLabel>
 #include <QLineEdit>
+#include <QListWidget>
+#include <QLocale>
+#include <QMenu>
 #include <QMimeDatabase>
 #include <QMimeType>
 #include <QPointer>
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QShowEvent>
 #include <QShortcut>
 #include <QSignalBlocker>
+#include <QStackedWidget>
 #include <QTabBar>
 #include <QTabWidget>
 #include <QTextBrowser>
@@ -105,6 +111,12 @@ struct WebPanel::Session {
     bool clicked = false;
     bool closed = false;
     bool named = false;
+    // Paper this chat belongs to (empty until one is open) and, once the
+    // site assigns one, the conversation URL remembered for that paper.
+    QString document;
+    QString chatUrl;
+    QString title;
+    QUrl startUrl;
 };
 
 // Manual JSON string literal: explicit escaping, no conversion quirks.
@@ -156,6 +168,21 @@ std::optional<WebPanel::ChatSite> WebPanel::siteForUrl(const QUrl& url) {
 // editor candidates in priority order, busy (stop) button, sent user
 // messages, send buttons, the composer container that scopes the send
 // lookup, and whether Enter submits when no send button exists at all.
+QString WebPanel::claudeChatUrl(const QUrl& url) {
+    if (siteForUrl(url) != ChatSite::Claude) return {};
+    static const QRegularExpression chatPath("^/chat/([A-Za-z0-9-]+)/?$");
+    const auto match = chatPath.match(url.path());
+    return match.hasMatch() ? "https://claude.ai/chat/" + match.captured(1) : QString();
+}
+
+QString WebPanel::chatTitle(const QString& pageTitle) {
+    QString title = pageTitle.trimmed();
+    for (const QString suffix : {" - Claude", " | Claude", " — Claude"})
+        if (title.endsWith(suffix)) title.chop(suffix.size());
+    title = title.trimmed();
+    return title == "Claude" ? QString() : title;
+}
+
 QString WebPanel::siteConfig(ChatSite site) {
     QStringList editors;
     QString stop, users, send, scope;
@@ -284,13 +311,72 @@ WebPanel::WebPanel(reader::Application* app, QWidget* parent)
     auto* newChat = new QPushButton("New chat", corner);
     newChat->setObjectName("browserNewChat");
     newChat->setToolTip("Open another chat (Ctrl+T). Double-click a tab to name it.");
+    chatsButton_ = new QPushButton("Chats", corner);
+    chatsButton_->setObjectName("browserChatListButton");
+    chatsButton_->setToolTip("Claude chats saved for this paper");
+    chatsButton_->hide();
+    cornerLayout->addWidget(chatsButton_);
     cornerLayout->addWidget(siteBox_);
     cornerLayout->addWidget(newChat);
     tabs_->setCornerWidget(corner, Qt::TopRightCorner);
     connect(siteBox_, &QComboBox::activated, this, [this](int index) {
         setCurrentSite(static_cast<ChatSite>(siteBox_->itemData(index).toInt()));
     });
-    layout->addWidget(tabs_, 1);
+    // Session list: shown over the tabs when a paper with saved Claude chats
+    // opens, so the reader picks one up again or starts a new one.
+    listPage_ = new QWidget(this);
+    listPage_->setObjectName("browserChatListPage");
+    auto* listLayout = new QVBoxLayout(listPage_);
+    listLayout->setContentsMargins(0, 6, 0, 0);
+    auto* listHeader = new QHBoxLayout();
+    auto* listTitle = new QLabel("Claude chats for this paper", listPage_);
+    QFont listTitleFont = listTitle->font();
+    listTitleFont.setBold(true);
+    listTitle->setFont(listTitleFont);
+    listBack_ = new QPushButton("Back to chat", listPage_);
+    listBack_->setObjectName("browserChatListBack");
+    auto* listNew = new QPushButton("New chat", listPage_);
+    listNew->setObjectName("browserChatListNew");
+    listNew->setToolTip("Start a new Claude chat for this paper");
+    listHeader->addWidget(listTitle, 1);
+    listHeader->addWidget(listBack_);
+    listHeader->addWidget(listNew);
+    listLayout->addLayout(listHeader);
+    chatList_ = new QListWidget(listPage_);
+    chatList_->setObjectName("browserChatList");
+    chatList_->setContextMenuPolicy(Qt::CustomContextMenu);
+    chatList_->setToolTip("Click to reopen. Right-click to remove from this list "
+                          "(the chat stays on claude.ai).");
+    listLayout->addWidget(chatList_, 1);
+    stack_ = new QStackedWidget(this);
+    stack_->addWidget(tabs_);
+    stack_->addWidget(listPage_);
+    stack_->setCurrentWidget(tabs_);
+    layout->addWidget(stack_, 1);
+    auto openItem = [this](QListWidgetItem* item) {
+        if (item && !item->data(Qt::UserRole).toString().isEmpty())
+            openSavedChat(item->data(Qt::UserRole).toString());
+    };
+    connect(chatList_, &QListWidget::itemClicked, this, openItem);
+    connect(chatList_, &QListWidget::itemActivated, this, openItem);
+    connect(chatList_, &QWidget::customContextMenuRequested, this, [this](const QPoint& pos) {
+        QListWidgetItem* item = chatList_->itemAt(pos);
+        const QString url = item ? item->data(Qt::UserRole).toString() : QString();
+        if (url.isEmpty() || !app_->webChats) return;
+        QMenu menu(this);
+        QAction* open = menu.addAction("Open");
+        QAction* remove = menu.addAction("Remove from list");
+        QAction* chosen = menu.exec(chatList_->viewport()->mapToGlobal(pos));
+        if (chosen == open) {
+            openSavedChat(url);
+        } else if (chosen == remove) {
+            app_->webChats->deleteWebChat(document_.toStdString(), url.toStdString());
+            rebuildChatList();
+        }
+    });
+    connect(listNew, &QPushButton::clicked, this, &WebPanel::startChatFromList);
+    connect(listBack_, &QPushButton::clicked, this, &WebPanel::hideChatList);
+    connect(chatsButton_, &QPushButton::clicked, this, &WebPanel::showChatList);
     connect(newChat, &QPushButton::clicked, this, &WebPanel::newSession);
     connect(tabs_, &QTabWidget::currentChanged, this, &WebPanel::activateSession);
     connect(tabs_, &QTabWidget::tabCloseRequested, this, &WebPanel::closeSession);
@@ -396,8 +482,19 @@ void WebPanel::setCurrentSite(ChatSite site) {
 
 void WebPanel::newSession() {
     if (shuttingDown_) return;
+    hideChatList();
+    createSession(defaultSite_);
+}
+
+WebPanel::SessionPtr WebPanel::createSession(ChatSite site, const QString& url,
+                                             const QString& title, bool named) {
     auto session = std::make_shared<Session>();
-    session->site = defaultSite_;
+    session->site = site;
+    session->document = document_;
+    session->chatUrl = claudeChatUrl(QUrl(url));
+    session->startUrl = QUrl(url);
+    session->title = title;
+    session->named = named;
     auto* view = new QWebEngineView(tabs_);
     view->setObjectName(QString("browserChatView_%1").arg(++nextSession_));
     view->setPage(new ReaderWebPage(app_, profile_, view));
@@ -416,10 +513,14 @@ void WebPanel::newSession() {
     });
     connect(view, &QWebEngineView::urlChanged, this, [this, session](const QUrl& url) {
         if (shuttingDown_ || session->closed) return;
-        const auto site = siteForUrl(url);
-        if (!site || *site == session->site) return;
-        session->site = *site;
-        if (current_ == session) syncSiteControls();
+        if (const auto site = siteForUrl(url); site && *site != session->site) {
+            session->site = *site;
+            if (current_ == session) syncSiteControls();
+        }
+        if (const QString chat = claudeChatUrl(url); !chat.isEmpty() && chat != session->chatUrl) {
+            session->chatUrl = chat;
+            rememberChat(session);
+        }
     });
     connect(view, &QWebEngineView::loadStarted, this, [this, session] {
         if (shuttingDown_ || session->closed) return;
@@ -435,18 +536,25 @@ void WebPanel::newSession() {
         setStatus(session, ok ? name + " ready — your login is shared across chats."
                               : "Couldn't load " + name + " — check the connection and reload.");
     });
-    connect(view, &QWebEngineView::titleChanged, this, [this, session](const QString& title) {
-        if (shuttingDown_ || session->closed || session->named || title.isEmpty() || title == "ChatGPT" ||
-            title == "Claude") return;
+    connect(view, &QWebEngineView::titleChanged, this, [this, session](const QString& pageTitle) {
+        if (shuttingDown_ || session->closed) return;
+        const QString title = session->site == ChatSite::Claude ? chatTitle(pageTitle) : pageTitle;
+        if (title.isEmpty() || title == "ChatGPT" || title == "Claude") return;
+        if (session->named) return;
+        session->title = title;
+        rememberChat(session);
         const int index = tabs_->indexOf(session->view);
         if (index < 0) return;
         tabs_->setTabText(index, title.left(32));
         tabs_->setTabToolTip(index, title);
     });
     sessions_.push_back(session);
-    const int index = tabs_->addTab(view, QString("Chat %1").arg(nextSession_));
+    const int index = tabs_->addTab(
+        view, title.isEmpty() ? QString("Chat %1").arg(nextSession_) : title.left(32));
+    if (!title.isEmpty()) tabs_->setTabToolTip(index, title);
     tabs_->setCurrentIndex(index);
     activateSession(index);
+    return session;
 }
 
 void WebPanel::renameSession(int index) {
@@ -457,20 +565,147 @@ void WebPanel::renameSession(int index) {
         QLineEdit::Normal, tabs_->tabText(index), &accepted).trimmed();
     if (!accepted || name.isEmpty()) return;
     session->named = true;
+    session->title = name;
     tabs_->setTabText(index, name.left(32));
     tabs_->setTabToolTip(index, name);
+    rememberChat(session);
 }
 
 void WebPanel::closeSession(int index) {
     const auto session = sessionAt(index);
     if (!session) return;
+    removeSession(session);
+    if (tabs_->count() > 0) return;
+    // Closing the last tab offers this paper's saved chats when it has any.
+    if (app_->webChats && !document_.isEmpty() &&
+        !app_->webChats->webChatsFor(document_.toStdString(), "claude").empty())
+        showChatList();
+    else
+        newSession();
+}
+
+void WebPanel::removeSession(const SessionPtr& session) {
     cancel(session);
     session->closed = true;
     sessions_.erase(std::remove(sessions_.begin(), sessions_.end(), session), sessions_.end());
-    tabs_->removeTab(index);
-    session->view->deleteLater();
+    if (const int index = tabs_->indexOf(session->view); index >= 0) tabs_->removeTab(index);
+    if (session->view) session->view->deleteLater();
+    if (current_ == session) current_.reset();
+    if (tabs_->count() > 0) activateSession(tabs_->currentIndex());
+}
+
+// Saved only once the site has assigned a conversation URL, so chats that
+// were opened but never used don't fill the list.
+void WebPanel::rememberChat(const SessionPtr& session) {
+    if (!app_->webChats || session->site != ChatSite::Claude || session->chatUrl.isEmpty() ||
+        session->document.isEmpty())
+        return;
+    reader::WebChat chat;
+    chat.site = "claude";
+    chat.url = session->chatUrl.toStdString();
+    chat.title = session->title.toStdString();
+    chat.named = session->named;
+    app_->webChats->saveWebChat(session->document.toStdString(), chat);
+}
+
+void WebPanel::setDocument(const QString& documentId) {
+    if (shuttingDown_ || documentId == document_) return;
+    document_ = documentId;
+    std::vector<SessionPtr> stale;
+    for (const auto& session : sessions_) {
+        if (session->site != ChatSite::Claude) continue;
+        if (session->document.isEmpty()) {
+            session->document = document_;
+            rememberChat(session);
+        } else if (session->document != document_) {
+            stale.push_back(session);
+        }
+    }
+    for (const auto& session : stale) removeSession(session);
+    chatsButton_->setVisible(!document_.isEmpty() && app_->webChats);
+    const bool hasSaved = app_->webChats && !document_.isEmpty() &&
+                          !app_->webChats->webChatsFor(document_.toStdString(), "claude").empty();
+    if (hasSaved && defaultSite_ == ChatSite::Claude) {
+        showChatList();
+        return;
+    }
+    hideChatList();
     if (tabs_->count() == 0) newSession();
-    else activateSession(tabs_->currentIndex());
+}
+
+bool WebPanel::chatListVisible() const {
+    return stack_ && stack_->currentWidget() == listPage_;
+}
+
+void WebPanel::rebuildChatList() {
+    chatList_->clear();
+    std::vector<reader::WebChat> chats;
+    if (app_->webChats && !document_.isEmpty())
+        chats = app_->webChats->webChatsFor(document_.toStdString(), "claude");
+    for (const auto& chat : chats) {
+        const QString title = chat.title.empty() ? QString("Untitled chat")
+                                                 : QString::fromStdString(chat.title);
+        const QString when = QLocale().toString(
+            QDateTime::fromMSecsSinceEpoch(chat.lastOpened), QLocale::ShortFormat);
+        auto* item = new QListWidgetItem(title + "\n" + when, chatList_);
+        item->setData(Qt::UserRole, QString::fromStdString(chat.url));
+        item->setToolTip(QString::fromStdString(chat.url));
+    }
+    if (chats.empty()) {
+        auto* item = new QListWidgetItem("No saved Claude chats for this paper yet.", chatList_);
+        item->setFlags(Qt::NoItemFlags);
+    }
+}
+
+void WebPanel::showChatList() {
+    if (shuttingDown_) return;
+    rebuildChatList();
+    listBack_->setVisible(tabs_->count() > 0);
+    stack_->setCurrentWidget(listPage_);
+}
+
+void WebPanel::hideChatList() {
+    if (stack_) stack_->setCurrentWidget(tabs_);
+}
+
+void WebPanel::openSavedChat(const QString& url) {
+    if (shuttingDown_) return;
+    hideChatList();
+    const QString chat = claudeChatUrl(QUrl(url));
+    if (chat.isEmpty()) return;
+    for (const auto& session : sessions_) {
+        if (session->chatUrl != chat) continue;
+        tabs_->setCurrentWidget(session->view);
+        return;
+    }
+    QString title;
+    bool named = false;
+    if (app_->webChats) {
+        for (const auto& saved : app_->webChats->webChatsFor(document_.toStdString(), "claude")) {
+            if (saved.url != chat.toStdString()) continue;
+            title = QString::fromStdString(saved.title);
+            named = saved.named;
+        }
+        app_->webChats->touchWebChat(document_.toStdString(), chat.toStdString());
+    }
+    createSession(ChatSite::Claude, chat, title, named);
+}
+
+// A blank Claude tab of this paper is reused rather than stacking another.
+void WebPanel::startChatFromList() {
+    if (shuttingDown_) return;
+    hideChatList();
+    for (const auto& session : sessions_) {
+        if (session->site != ChatSite::Claude || !session->chatUrl.isEmpty() || session->asking ||
+            session->document != document_)
+            continue;
+        session->startUrl = QUrl();
+        if (session->loaded && session->view->url() != homeUrl(ChatSite::Claude))
+            session->view->load(homeUrl(ChatSite::Claude));
+        tabs_->setCurrentWidget(session->view);
+        return;
+    }
+    createSession(ChatSite::Claude);
 }
 
 void WebPanel::showEvent(QShowEvent* event) {
@@ -482,7 +717,8 @@ void WebPanel::ensureLoaded() {
     if (!current_ || current_->loaded) return;
     current_->loaded = true;
     current_->initialLoad = true;
-    current_->view->load(homeUrl(current_->site));
+    current_->view->load(current_->startUrl.isValid() ? current_->startUrl
+                                                       : homeUrl(current_->site));
 }
 
 void WebPanel::updateNavReveal() {
@@ -633,6 +869,9 @@ QString WebPanel::sendScript(const QString& requestId, ChatSite site) {
 }
 
 void WebPanel::ask() {
+    // Asking from the session list starts a new chat for this paper.
+    if (chatListVisible()) startChatFromList();
+    else if (!current_) newSession();
     if (!current_ || current_->asking) return;
     ensureLoaded();
     const auto session = current_;

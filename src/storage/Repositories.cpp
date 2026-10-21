@@ -911,4 +911,56 @@ std::vector<ChatMessage> ChatRepository::loadRecent(const ConversationId& conv, 
     return out;
 }
 
+bool WebChatRepository::saveWebChat(const DocumentId& doc, const WebChat& chat) {
+    const TimestampMs now = nowMs();
+    return db_->execPrepared(
+        "INSERT INTO web_chats(document_id,site,url,title,named,created_at,last_opened) "
+        "VALUES(?,?,?,?,?,?,?) ON CONFLICT(document_id,url) DO UPDATE SET "
+        "site=excluded.site, last_opened=excluded.last_opened, "
+        "title=CASE WHEN web_chats.named AND NOT excluded.named THEN web_chats.title "
+        "WHEN excluded.title='' THEN web_chats.title ELSE excluded.title END, "
+        "named=MAX(web_chats.named, excluded.named)",
+        [&](sqlite3_stmt* st) {
+            return text(st, 1, doc) && text(st, 2, chat.site) && text(st, 3, chat.url) &&
+                   text(st, 4, chat.title) && integer(st, 5, chat.named ? 1 : 0) &&
+                   integer(st, 6, chat.createdAt ? chat.createdAt : now) &&
+                   integer(st, 7, chat.lastOpened ? chat.lastOpened : now);
+        });
+}
+
+bool WebChatRepository::touchWebChat(const DocumentId& doc, const std::string& url) {
+    return db_->execPrepared("UPDATE web_chats SET last_opened=? WHERE document_id=? AND url=?",
+                             [&](sqlite3_stmt* st) {
+                                 return integer(st, 1, nowMs()) && text(st, 2, doc) &&
+                                        text(st, 3, url);
+                             });
+}
+
+bool WebChatRepository::deleteWebChat(const DocumentId& doc, const std::string& url) {
+    return db_->execPrepared("DELETE FROM web_chats WHERE document_id=? AND url=?",
+                             [&](sqlite3_stmt* st) {
+                                 return text(st, 1, doc) && text(st, 2, url);
+                             });
+}
+
+std::vector<WebChat> WebChatRepository::webChatsFor(const DocumentId& doc,
+                                                    const std::string& site) const {
+    std::vector<WebChat> out;
+    db_->queryPrepared(
+        "SELECT site,url,title,named,created_at,last_opened FROM web_chats "
+        "WHERE document_id=? AND site=? ORDER BY last_opened DESC, created_at DESC",
+        [&](sqlite3_stmt* st) { return text(st, 1, doc) && text(st, 2, site); },
+        [&](sqlite3_stmt* st) {
+            WebChat chat;
+            chat.site = columnText(st, 0);
+            chat.url = columnText(st, 1);
+            chat.title = columnText(st, 2);
+            chat.named = sqlite3_column_int64(st, 3) != 0;
+            chat.createdAt = sqlite3_column_int64(st, 4);
+            chat.lastOpened = sqlite3_column_int64(st, 5);
+            out.push_back(std::move(chat));
+        });
+    return out;
+}
+
 } // namespace reader

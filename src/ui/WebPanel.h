@@ -14,6 +14,8 @@ class QLineEdit;
 class QTabWidget;
 class QTimer;
 class QComboBox;
+class QListWidget;
+class QStackedWidget;
 
 namespace reader {
 class Application;
@@ -36,6 +38,18 @@ public:
     void newSession();
     void closeSession(int index);
     QWebEngineView* currentView() const;
+
+    // Binds the panel to the open paper. Claude tabs of another paper close
+    // (their chats are saved); if this paper has saved Claude chats, the
+    // session list shows so one can be resumed or a new one started.
+    void setDocument(const QString& documentId);
+    void showChatList();
+    void openSavedChat(const QString& url);
+    bool chatListVisible() const;
+    // Canonical https://claude.ai/chat/<id> for a conversation URL, else empty.
+    static QString claudeChatUrl(const QUrl& url);
+    // Page title without the site suffix; empty for the site's bare name.
+    static QString chatTitle(const QString& pageTitle);
 
     // Web chat sites the panel drives. Each tab remembers its own site; a
     // tab that navigates to the other site's host switches with it.
@@ -69,6 +83,13 @@ private:
     QString buildPrompt(const QString& question) const;
     static QString siteConfig(ChatSite site);
     void syncSiteControls();
+    SessionPtr createSession(ChatSite site, const QString& url = {}, const QString& title = {},
+                             bool named = false);
+    void removeSession(const SessionPtr& session);
+    void rememberChat(const SessionPtr& session);
+    void rebuildChatList();
+    void startChatFromList();
+    void hideChatList();
     reader::Application* app_;
     QWebEngineProfile* profile_ = nullptr;
     QTabWidget* tabs_ = nullptr;
@@ -85,6 +106,12 @@ private:
     QPushButton* homeButton_ = nullptr;
     QComboBox* siteBox_ = nullptr;
     ChatSite defaultSite_ = ChatSite::ChatGPT;
+    QString document_;
+    QStackedWidget* stack_ = nullptr;
+    QWidget* listPage_ = nullptr;
+    QListWidget* chatList_ = nullptr;
+    QPushButton* listBack_ = nullptr;
+    QPushButton* chatsButton_ = nullptr;
     bool shuttingDown_ = false;
 
 protected:

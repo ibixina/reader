@@ -51,6 +51,7 @@ public:
     std::unique_ptr<DocumentRepository> documents;
     std::unique_ptr<AnnotationRepository> annotations;
     std::unique_ptr<ChatRepository> chats;
+    std::unique_ptr<WebChatRepository> webChats;
     std::unique_ptr<ChatManager> chatManager;
 
     DocumentModel model;

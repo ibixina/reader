@@ -436,6 +436,7 @@ void MainWindow::openFile(const QString& path) {
                     model.document.id = fileHash;
                     app_->documents->saveDocument(model.document);
                     app_->state.openDocument = model.document.id;
+                    if (web_) web_->setDocument(QString::fromStdString(model.document.id));
 
                     reader::ReadingPosition saved;
                     if (app_->documents->loadReadingState(model.document.id, saved)) {
