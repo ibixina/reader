@@ -768,8 +768,9 @@ int main(int argc, char** argv) {
     CHECK(pinned.pinned.size() == 1);
     CHECK(app.annotations->annotationsFor(app.model.document.id).empty());
 
-    // Core rich-object flow uses real PDF clicks: equation, figure, table
-    // and citation clicks become typed live context for the browser chat.
+    // Core rich-object flow uses real PDF clicks: Ctrl+clicking an
+    // equation, figure, table or citation makes it typed live context for
+    // the browser chat; a plain click leaves context alone.
     {
         const auto context = app.context.currentContext();
         for (const auto& reference : context.temporary)
@@ -780,7 +781,8 @@ int main(int argc, char** argv) {
         pdf->goToPage(0);
         pdf->fitWidth();
         qt.processEvents(QEventLoop::AllEvents, 100);
-        auto clickAnchor = [&](const reader::DocumentAnchor& object) {
+        auto clickAnchor = [&](const reader::DocumentAnchor& object,
+                               Qt::KeyboardModifiers modifiers = Qt::ControlModifier) {
             QWidget* page = window.findChild<QWidget*>(
                 QString("pdfPage_%1").arg(object.page));
             CHECK(page != nullptr);
@@ -791,10 +793,10 @@ int main(int argc, char** argv) {
                                 (object.bounds.y + object.bounds.height / 2) * scale);
             QMouseEvent press(QEvent::MouseButtonPress, point,
                               page->mapToGlobal(point.toPoint()), Qt::LeftButton,
-                              Qt::LeftButton, Qt::NoModifier);
+                              Qt::LeftButton, modifiers);
             QMouseEvent release(QEvent::MouseButtonRelease, point,
                                 page->mapToGlobal(point.toPoint()), Qt::LeftButton,
-                                Qt::NoButton, Qt::NoModifier);
+                                Qt::NoButton, modifiers);
             QApplication::sendEvent(page, &press);
             QApplication::sendEvent(page, &release);
             qt.processEvents(QEventLoop::AllEvents, 25);
@@ -805,6 +807,8 @@ int main(int argc, char** argv) {
         CHECK(!app.model.citations.empty());
         if (!app.model.equations.empty()) {
             const auto equation = reader::anchorForEquation(app.model, app.model.equations.front());
+            clickAnchor(equation, Qt::NoModifier);
+            CHECK(app.context.currentContext().temporary.empty());
             clickAnchor(equation);
             CHECK(!app.context.currentContext().temporary.empty());
             if (!app.context.currentContext().temporary.empty()) {

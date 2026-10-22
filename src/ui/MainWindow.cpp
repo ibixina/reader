@@ -487,7 +487,7 @@ void MainWindow::openFile(const QString& path) {
                     // raster bridge is already displaying, so this only
                     // adds capabilities, never blocks the visible page.
                     pdfDoc_ = engineDoc;
-                    engine_ = std::make_shared<QtPdfEngine>(pdfDoc_);
+                    engine_ = std::make_shared<QtPdfEngine>(pdfDoc_, sourcePath);
                     pdf_->attachDocument(pdfDoc_,
                                          QString::fromStdString(sourcePath));
                     const reader::Document docInfo = app_->model.document;

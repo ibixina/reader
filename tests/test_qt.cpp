@@ -2,6 +2,7 @@
 // local ingest -> retrieval -> chat with source anchors (§66 prototype).
 // Headless via QT_QPA_PLATFORM=offscreen. Built only when Qt6 is present.
 #include <cassert>
+#include <cmath>
 #include <cstdlib>
 #include <cstdio>
 #include <fstream>
@@ -71,6 +72,42 @@ int main(int argc, char** argv) {
             CHECK(entries[1].page == 1);
             CHECK(entries[2].title == "Results");
             CHECK(entries[2].page == 2);
+        }
+    }
+
+    // Line geometry: superscripted affiliation marks and a rotated arXiv
+    // margin stamp split pdfium's fragments away from text lines. Every
+    // body line must still sit on its own baseline — shifted bounds made
+    // clicks on the abstract wash an unrelated paragraph.
+    {
+        const std::string shiftedPdf = std::string(home ? home : "/tmp") + "/qt_shifted.pdf";
+        writeTextPdf(shiftedPdf,
+            "BT /F1 18 Tf 72 720 Td (Shifted Geometry Paper) Tj ET\n"
+            "BT /F1 12 Tf 72 690 Td (Jane Doe) Tj /F1 7 Tf 4 Ts (a,1) Tj /F1 12 Tf 0 Ts "
+            "(, John Roe) Tj /F1 7 Tf 4 Ts (b,2) Tj ET\n"
+            "BT /F1 20 Tf 0 1 -1 0 40 250 Tm (arXiv:0000.00000v1 [cs.NE]) Tj ET\n"
+            "BT /F1 12 Tf 72 600 Td (Abstract) Tj ET\n"
+            "BT /F1 10 Tf 72 580 Td (First abstract line about learning.) Tj ET\n"
+            "BT /F1 10 Tf 72 566 Td (Second abstract line about circuits.) Tj ET\n"
+            "BT /F1 12 Tf 72 400 Td (Body paragraph with a citation [7].) Tj ET");
+        QPdfDocument shiftedDoc;
+        QtPdfEngine shifted(std::shared_ptr<QPdfDocument>(&shiftedDoc, [](QPdfDocument*) {}));
+        CHECK(shifted.open(shiftedPdf));
+        const auto spans = shifted.extractSpans(0);
+        auto baselineOf = [&](const std::string& needle) -> float {
+            for (const auto& s : spans)
+                if (s.text.find(needle) != std::string::npos)
+                    return s.bounds.y + s.bounds.height;
+            return -1;
+        };
+        // PDF baselines (bottom-up) mapped to top-down page points.
+        const std::pair<const char*, float> expected[] = {
+            {"Abstract", 792 - 600}, {"First abstract", 792 - 580},
+            {"Second abstract", 792 - 566}, {"citation [7]", 792 - 400}};
+        for (const auto& [needle, baseline] : expected) {
+            const float bottom = baselineOf(needle);
+            CHECK(bottom > 0);
+            CHECK(std::fabs(bottom - baseline) < 5.0f);
         }
     }
 

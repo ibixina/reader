@@ -5,6 +5,8 @@
 #include <QPdfSelection>
 #include <QTimer>
 #include <QUrl>
+#include <poppler-qt6.h>
+#include <memory>
 
 bool QtPdfEngine::open(const std::string& path) {
     if (!doc_) {
@@ -23,6 +25,7 @@ bool QtPdfEngine::open(const std::string& path) {
         return false;
     }
     lastError_.clear();
+    path_ = path;
     return true;
 }
 
@@ -30,20 +33,82 @@ int QtPdfEngine::pageCount() const {
     return doc_ ? doc_->pageCount() : 0;
 }
 
+namespace {
+
+// One span per poppler layout line, in reading order. Text and geometry
+// come from the same word boxes, so they can never drift apart; one pass
+// costs milliseconds per page. Empty when the layout is unavailable.
+std::vector<reader::TextSpan> layoutSpans(const std::string& path, int page) {
+    std::vector<reader::TextSpan> out;
+    if (path.empty()) return out;
+    std::unique_ptr<Poppler::Document> pop = Poppler::Document::load(QString::fromStdString(path));
+    if (!pop || pop->isLocked() || page < 0 || page >= pop->numPages()) return out;
+    std::unique_ptr<Poppler::Page> pg = pop->page(page);
+    if (!pg) return out;
+    const auto boxes = pg->textList();
+    QString line;
+    QRectF rect;
+    for (std::size_t i = 0; i < boxes.size(); ++i) {
+        const auto& box = boxes[i];
+        if (!box) continue;
+        const QRectF r = box->boundingBox();
+        if (r.isValid()) {
+            line += box->text();
+            rect = rect.isNull() ? r : rect.united(r);
+        }
+        // Poppler links the words of one line through nextWord().
+        const bool lineEnd = !box->nextWord() || i + 1 == boxes.size() ||
+                             boxes[i + 1].get() != box->nextWord();
+        if (!lineEnd) {
+            if (box->hasSpaceAfter() && !line.isEmpty()) line += ' ';
+            continue;
+        }
+        line = line.trimmed();
+        if (!line.isEmpty() && rect.isValid()) {
+            reader::TextSpan s;
+            s.text = line.toStdString();
+            s.bounds = {float(rect.x()), float(rect.y()), float(rect.width()),
+                        float(rect.height())};
+            s.fontSize = float(rect.height());
+            s.page = page;
+            out.push_back(std::move(s));
+        }
+        line.clear();
+        rect = {};
+    }
+    return out;
+}
+
+} // namespace
+
 std::vector<reader::TextSpan> QtPdfEngine::extractSpans(int page) {
     std::vector<reader::TextSpan> out;
     if (!doc_ || page < 0 || page >= doc_->pageCount()) return out;
+    out = layoutSpans(path_, page);
+    if (!out.empty()) return out;
     QPdfSelection all = doc_->getAllText(page);
     if (!all.isValid()) return out;
-    // bounds() yields one polygon per engine fragment (usually a line);
-    // align fragments with text lines in order.
-    QStringList lines = all.text().split('\n');
-    QList<QPolygonF> polys = all.bounds();
-    std::size_t n = std::min<std::size_t>(lines.size(), polys.size());
-    for (std::size_t i = 0; i < n; ++i) {
-        QString line = lines[i].trimmed();
-        if (line.isEmpty()) continue;
-        QRectF r = polys[i].boundingRect();
+    // Fallback (no layout): resolve each text line's geometry from its own
+    // character range. all.bounds() is one polygon per engine fragment,
+    // not per line: superscripts, rotated margin stamps and font changes
+    // add fragments, so pairing lines with polygons by position shifts
+    // every later line onto the wrong rectangle. One engine query per
+    // line is slow (~0.4 s per dense page), hence the layout path first.
+    const QString text = all.text();
+    int pos = 0;
+    while (pos < text.size()) {
+        int end = text.indexOf('\n', pos);
+        if (end < 0) end = text.size();
+        int a = pos, b = end;
+        pos = end + 1;
+        while (a < b && text[a].isSpace()) ++a;
+        while (b > a && text[b - 1].isSpace()) --b;
+        if (a == b) continue;
+        QPdfSelection sel = doc_->getSelectionAtIndex(page, a, b - a);
+        if (!sel.isValid()) continue;
+        const QString line = sel.text().trimmed();
+        const QRectF r = sel.boundingRectangle();
+        if (line.isEmpty() || !r.isValid()) continue;
         reader::TextSpan s;
         s.text = line.toStdString();
         s.bounds = {float(r.x()), float(r.y()), float(r.width()), float(r.height())};

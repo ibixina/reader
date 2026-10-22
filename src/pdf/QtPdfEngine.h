@@ -1,6 +1,7 @@
 #pragma once
 #include "pdf/PdfEngine.h"
 #include <memory>
+#include <string>
 
 class QPdfDocument;
 
@@ -10,8 +11,14 @@ class QPdfDocument;
 // safely outlive a reopen.
 class QtPdfEngine : public reader::IPdfEngine {
 public:
-    explicit QtPdfEngine(std::shared_ptr<QPdfDocument> doc = nullptr) : doc_(std::move(doc)) {}
-    void attach(std::shared_ptr<QPdfDocument> doc) { doc_ = std::move(doc); }
+    // path: the file behind doc, used for the poppler text layout (exact
+    // per-line geometry). Without it extraction falls back to pdfium.
+    explicit QtPdfEngine(std::shared_ptr<QPdfDocument> doc = nullptr, std::string path = {})
+        : doc_(std::move(doc)), path_(std::move(path)) {}
+    void attach(std::shared_ptr<QPdfDocument> doc, std::string path = {}) {
+        doc_ = std::move(doc);
+        path_ = std::move(path);
+    }
 
     bool open(const std::string& path) override;
     // Human-readable reason for the last open() failure ("" once open).
@@ -23,5 +30,6 @@ public:
 
 private:
     std::shared_ptr<QPdfDocument> doc_;
+    std::string path_;
     std::string lastError_;
 };

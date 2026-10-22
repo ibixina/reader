@@ -159,8 +159,8 @@ if(BUILD_TESTS)
         "QTWEBENGINE_DICTIONARIES_PATH=/home/nao/qtsysroot/usr/share/qt6/qtwebengine_dictionaries")
     endif()
     add_executable(test_qt tests/test_qt.cpp src/pdf/QtPdfEngine.cpp)
-    target_include_directories(test_qt PRIVATE src)
-    target_link_libraries(test_qt PRIVATE reader_core
+    target_include_directories(test_qt PRIVATE src ${PopplerQt6_INCLUDE_DIRS})
+    target_link_libraries(test_qt PRIVATE reader_core ${POPPLER_LINK}
       Qt6::Core Qt6::Gui Qt6::Pdf Qt6::Widgets)
     target_compile_options(test_qt PRIVATE -Wall -Wextra -Wpedantic)
     add_test(NAME qt COMMAND ${CMAKE_COMMAND}

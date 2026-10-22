@@ -121,7 +121,7 @@ public:
 signals:
     void selectionStarted(int page);
     void dragSelected(int page, QRectF rectPoints, QString text);
-    void clickedAt(int page, QPointF pointPoints);
+    void clickedAt(int page, QPointF pointPoints, bool objectPick);
     void contextClicked(int page);
 
 protected:
@@ -312,7 +312,8 @@ protected:
             precise_.clear();
             liveText_.clear();
             update();
-            emit clickedAt(page_, toPdf(QPointF(ev->pos())));
+            emit clickedAt(page_, toPdf(QPointF(ev->pos())),
+                           ev->modifiers().testFlag(Qt::ControlModifier));
             emit dragSelected(page_, QRectF(), QString());
             return;
         }
@@ -664,7 +665,8 @@ void PdfView::rebuildPages() {
         connect(w, &PageWidget::contextClicked, this, [this] {
             if (hasLiveSelection()) emit highlightToggleRequested();
         });
-        connect(w, &PageWidget::clickedAt, this, [this](int page, QPointF point) {
+        connect(w, &PageWidget::clickedAt, this, [this](int page, QPointF point,
+                                                         bool objectPick) {
             suppressNextClickClear_ = false;
             const auto link = linkAt(page, point);
             if (link) {
@@ -677,6 +679,11 @@ void PdfView::rebuildPages() {
                 }
                 return;
             }
+            // Detected objects span whole text blocks (any paragraph with
+            // " = " is an "equation"), so a plain click there would wash a
+            // random paragraph and steal the AI context. Picking an object
+            // is opt-in: Ctrl+click.
+            if (!objectPick) return;
             for (const auto& eq : app_->model.equations) {
                 if (eq.page == page && QRectF(eq.bounds.x, eq.bounds.y, eq.bounds.width,
                                              eq.bounds.height)
