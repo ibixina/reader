@@ -800,6 +800,7 @@ void PdfView::attachRaster(std::shared_ptr<PopplerBridge> raster, const QString&
     // via attachDocument without disturbing the raster already on screen.
     raster_ = std::move(raster);
     docPath_ = path;
+    layout_ = std::make_shared<reader::PageLayoutSource>(path);
     pageCount_ = raster_ ? raster_->pageCount() : 0;
     pageSizes_.assign(static_cast<std::size_t>(std::max(0, pageCount_)), QSizeF());
     for (int i = 0; i < pageCount_; ++i) pageSizes_[i] = raster_->pageSize(i);
@@ -843,6 +844,7 @@ void PdfView::attachDocument(std::shared_ptr<QPdfDocument> doc, const QString& p
             else renderer_->detach();
         }
         docPath_ = path;
+        layout_ = std::make_shared<reader::PageLayoutSource>(path);
         pageCount_ = raster_ ? raster_->pageCount() : 0;
         pageSizes_.assign(static_cast<std::size_t>(std::max(0, pageCount_)), QSizeF());
         for (int i = 0; i < pageCount_; ++i) pageSizes_[i] = raster_->pageSize(i);
@@ -1384,7 +1386,7 @@ void PdfView::prefetchAround(int page) {
     const auto generation = docGen_;
     const unsigned long gen = generation->load();
     std::shared_ptr<QPdfDocument> doc = doc_;
-    const QString path = docPath_;
+    const auto layout = layout_;
     const auto index = selIndex_;
     QPointer<PdfView> view(this);
     for (int p = page - 2; p <= page + 2; ++p) {
@@ -1398,7 +1400,7 @@ void PdfView::prefetchAround(int page) {
         // fallback (hundreds of queries, ~1s per dense page) only runs when
         // the layout is unavailable. A job that waited out a fast scroll
         // checks at start whether its page is still near the reader.
-        app_->docLane.submit([doc, path, index, generation, view, p, gen, this] {
+        app_->docLane.submit([doc, layout, index, generation, view, p, gen, this] {
             const auto release = [this, p] {
                 std::lock_guard<std::mutex> lock(wordPendingMutex_);
                 wordPending_.erase(p);
@@ -1412,7 +1414,8 @@ void PdfView::prefetchAround(int page) {
                 return;
             }
             QString text;
-            auto boxes = reader::buildWordBoxesFromLayout(path, p, text);
+            auto boxes = layout ? reader::buildWordBoxesFromLayout(*layout, p, text)
+                                : std::vector<reader::WordBox>{};
             if (boxes.empty() && doc) boxes = reader::buildWordBoxes(*doc, p, text);
             release();
             if (gen != generation->load()) return;

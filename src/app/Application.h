@@ -28,13 +28,9 @@ public:
     void shutdown();
 
     // One thread per lane: background work must never out-compute the
-    // reader. renderPool is reserved for future renderer jobs (the renderer
-    // owns a dedicated Qt pool); the rest serialize their lane.
-    ThreadPool renderPool{1};
+    // reader. Only lanes with work get a thread (the renderer owns its own
+    // Qt pool); idle lanes would just be parked threads.
     ThreadPool extractPool{1};
-    ThreadPool analysisPool{1};
-    ThreadPool searchPool{1};
-    ThreadPool networkPool{1};
     // Single lane serializing ALL direct pdfium (QPdfDocument) background
     // use: the engine is not thread-safe, so extraction, word indexing and
     // any other background document work queue here in order.

@@ -313,6 +313,47 @@ plain `./run.sh [paper.pdf]`. Verified 2026-09-22: fresh configure+build,
       about 1.06 s for its first full 1530×1980 render. No 60 FPS or universal
       instant-open claim is implied by the cache measurements.
 
+19. Resource + autosave round (2026-10-23, Release `build-qt`, Qt 6.10.2,
+    poppler 26.01):
+    - One poppler document per open file for text layout and word geometry
+      (`QtPdfEngine::layoutDocument`, `PageLayoutSource`) instead of a full
+      `Document::load` per page. 243-page document: extraction 4.05 → 3.57 s,
+      word geometry 4.06 → 3.58 s; identical block/span/word counts.
+    - SQLite: prepared statements cached by SQL text (`Database::
+      StatementLease`; re-entrant use gets a fresh statement) and
+      `synchronous=NORMAL` under WAL. `saveModel` (243 pages, 7.5k blocks,
+      20k spans): 77 → 37 ms of database-lock hold on first open.
+    - Hover polling (toolbar 250 ms, edge 300 ms, chat nav 250 ms) runs only
+      while the reader is shown in the active, unminimized window; the
+      toolbar poll also stops while pinned. Idle/background/minimized: zero
+      wakeups from these timers.
+    - Hidden chat tabs freeze after 30 s; tabs sitting on a saved Claude
+      conversation are discarded after 10 min (reload on show). Never below
+      Qt's `recommendedState`; Ask/tab switch/pane show wake the page first.
+    - Four unused thread pools removed from `Application`.
+    - Highlight saving no longer reloads the document. The first save
+      copies the untouched PDF to `~/.local/share/paper-reader/originals/`;
+      every save writes untouched copy + current rows over the user's file
+      by atomic rename (the open view keeps its bytes), so removal and
+      recolor work and washes never stack. `saved_files` maps the written
+      bytes back to the original identity: reopening keeps reading state,
+      highlights and cached text, and displays the untouched copy under
+      the live overlays. Autosave 20 s after the last highlight change,
+      immediately on leaving the paper, synchronously on close; Ctrl+S
+      saves now. A file changed outside the reader is never overwritten.
+      Pinned by `test_autosave` and the new `test_export` cases.
+    - `webengine` test hang fixed (test-only, also hung on unmodified
+      HEAD): on Qt 6.10 `QFileDialog::selectFile` leaves a focused name
+      field untouched in a visible dialog, so accept() looked for the old
+      name in the new folder and blocked on a nested "File not found" box
+      the 5 s guard (QFileDialog-only) never closed. The test now types the
+      name and the guard rejects any modal. That exposed a hidden cookie
+      failure: profile deletion flushes cookies asynchronously, and on a
+      real disk a same-process successor read the store first; the test
+      now waits for the cookie to reach the file. App login persistence
+      across restarts was verified separately (two processes, ext4).
+      Full suite 14/14.
+
 ## 4. Verification log
 - Latest full `ctest`: **13/13 pass** (core, chat_lifecycle, qt, select,
   render_view, render_view_hidpi, embedding_qt, reader_ui, shutdown, render,

@@ -5,6 +5,7 @@
 #include "document/DocumentAnchor.h"
 #include "document/DocumentModel.h"
 #include "storage/Database.h"
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <vector>
@@ -57,6 +58,21 @@ struct ReadingPosition {
     bool pageMode = false;
 };
 
+// A paper whose highlights were written into its file. The document keeps
+// the identity of its untouched version (pristine_path), so reading state,
+// highlights and the extracted model survive the file's new bytes.
+struct SavedFile {
+    DocumentId documentId;
+    std::string path;
+    std::string pristinePath;
+    std::string savedHash;
+    std::int64_t savedSize = 0;
+    std::int64_t savedMtime = 0;
+    // Fingerprint of the highlight rows last written (unchanged rows skip
+    // the next save).
+    std::string rowsSignature;
+};
+
 class DocumentRepository {
 public:
     explicit DocumentRepository(Database* db) : db_(db) {}
@@ -76,6 +92,10 @@ public:
     std::optional<PaperAnalysis> loadAnalysisCache(const DocumentId& doc,
                                                    const std::string& fileHash,
                                                    std::string& error) const;
+    bool saveSavedFile(const SavedFile& saved);
+    std::optional<SavedFile> savedFile(const DocumentId& doc) const;
+    std::optional<SavedFile> savedFileForPath(const std::string& path) const;
+    std::optional<SavedFile> savedFileForHash(const std::string& hash) const;
     static std::string esc(const std::string& s);
 
 private:

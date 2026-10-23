@@ -242,6 +242,22 @@ if(BUILD_TESTS)
       -P ${ISOLATED_TEST_SCRIPT})
     set_tests_properties(shutdown PROPERTIES ENVIRONMENT
       "${NATIVE_QT_TEST_ENV};${READER_WEBENGINE_TEST_ENV}" TIMEOUT 120)
+    add_executable(test_autosave tests/test_autosave.cpp ${READER_UI_TEST_SOURCES})
+    target_include_directories(test_autosave PRIVATE src tests ${PopplerQt6_INCLUDE_DIRS})
+    target_link_libraries(test_autosave PRIVATE reader_core ${POPPLER_LINK}
+      Qt6::Widgets Qt6::Network Qt6::Pdf Qt6::Sql Qt6::Concurrent
+      Qt6::WebEngineWidgets ${EXPAT_LIBRARY})
+    if(UNIX AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+      target_link_options(test_autosave PRIVATE "-Wl,--no-as-needed")
+    endif()
+    target_compile_definitions(test_autosave PRIVATE HAVE_WEBENGINE)
+    target_compile_options(test_autosave PRIVATE -Wall -Wextra -Wpedantic)
+    add_test(NAME autosave COMMAND ${CMAKE_COMMAND}
+      -DTEST_EXECUTABLE=$<TARGET_FILE:test_autosave>
+      -DTEST_HOME_ROOT=${ISOLATED_TEST_ROOT}
+      -P ${ISOLATED_TEST_SCRIPT})
+    set_tests_properties(autosave PROPERTIES ENVIRONMENT
+      "${NATIVE_QT_TEST_ENV};${READER_WEBENGINE_TEST_ENV}" TIMEOUT 120)
   endif()
   if(Qt6_FOUND AND PopplerQt6_FOUND)
     add_executable(test_render tests/test_render.cpp src/pdf/PopplerBridge.cpp)
@@ -267,7 +283,7 @@ if(BUILD_TESTS)
     add_executable(test_export tests/test_export.cpp src/pdf/HighlightExport.cpp
       src/pdf/PopplerBridge.cpp)
     target_include_directories(test_export PRIVATE src tests ${PopplerQt6_INCLUDE_DIRS})
-    target_link_libraries(test_export PRIVATE ${POPPLER_LINK} Qt6::Gui Qt6::Core)
+    target_link_libraries(test_export PRIVATE reader_core ${POPPLER_LINK} Qt6::Gui Qt6::Core)
     target_compile_options(test_export PRIVATE -Wall -Wextra -Wpedantic)
     add_test(NAME export COMMAND ${CMAKE_COMMAND}
       -DTEST_EXECUTABLE=$<TARGET_FILE:test_export>

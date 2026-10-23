@@ -35,6 +35,9 @@ public:
     void cancelPending();
     void ensureLoaded();
     void updateNavReveal();
+    // The window turns nav-bar hover polling on only while the reader is
+    // active on screen; the panel additionally polls only while shown.
+    void setRevealPolling(bool enabled);
     void newSession();
     void closeSession(int index);
     QWebEngineView* currentView() const;
@@ -86,6 +89,10 @@ private:
     SessionPtr createSession(ChatSite site, const QString& url = {}, const QString& title = {},
                              bool named = false);
     void removeSession(const SessionPtr& session);
+    void stepLifecycle(const SessionPtr& session);
+    void wake(const SessionPtr& session);
+    static constexpr int kFreezeDelayMs = 30 * 1000;
+    static constexpr int kDiscardDelayMs = 10 * 60 * 1000;
     void rememberChat(const SessionPtr& session);
     void rebuildChatList();
     void startChatFromList();
@@ -113,7 +120,10 @@ private:
     QPushButton* listBack_ = nullptr;
     QPushButton* chatsButton_ = nullptr;
     bool shuttingDown_ = false;
+    bool revealPolling_ = true;
+    void updateNavTimer();
 
 protected:
     void showEvent(QShowEvent* event) override;
+    void hideEvent(QHideEvent* event) override;
 };

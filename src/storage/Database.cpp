@@ -13,6 +13,45 @@ struct StmtGuard {
 };
 } // namespace
 
+// Borrowed statement: reset and unbound on release so the cache never holds
+// an open read cursor or stale bindings between calls.
+class Database::StatementLease {
+public:
+    StatementLease(Database& db, const std::string& sql) {
+        auto& cached = db.statements_[sql];
+        if (cached.statement && !cached.busy) {
+            entry_ = &cached;
+        } else if (!cached.statement &&
+                   sqlite3_prepare_v2(db.db_, sql.c_str(), -1, &cached.statement, nullptr) ==
+                       SQLITE_OK) {
+            entry_ = &cached;
+        } else {
+            if (!cached.statement) db.statements_.erase(sql);
+            if (sqlite3_prepare_v2(db.db_, sql.c_str(), -1, &owned_, nullptr) != SQLITE_OK) {
+                sqlite3_finalize(owned_);
+                owned_ = nullptr;
+            }
+            return;
+        }
+        entry_->busy = true;
+    }
+    ~StatementLease() {
+        if (entry_) {
+            sqlite3_reset(entry_->statement);
+            sqlite3_clear_bindings(entry_->statement);
+            entry_->busy = false;
+        }
+        if (owned_) sqlite3_finalize(owned_);
+    }
+    StatementLease(const StatementLease&) = delete;
+    StatementLease& operator=(const StatementLease&) = delete;
+    sqlite3_stmt* get() const { return entry_ ? entry_->statement : owned_; }
+
+private:
+    CachedStatement* entry_ = nullptr;
+    sqlite3_stmt* owned_ = nullptr;
+};
+
 Database::Database(const std::string& path) {
     sqlite3* opened = nullptr;
     if (sqlite3_open(path.c_str(), &opened) != SQLITE_OK) {
@@ -26,6 +65,7 @@ Database::Database(const std::string& path) {
 }
 
 Database::~Database() {
+    for (auto& [sql, cached] : statements_) sqlite3_finalize(cached.statement);
     if (db_) sqlite3_close(db_);
 }
 
@@ -60,20 +100,20 @@ bool Database::query(const std::string& sql, RowCallback cb) {
 bool Database::execPrepared(const std::string& sql, BindCallback bind) {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (!db_) return false;
-    sqlite3_stmt* st = nullptr;
-    if (sqlite3_prepare_v2(db_, sql.c_str(), -1, &st, nullptr) != SQLITE_OK) return false;
+    StatementLease lease(*this, sql);
+    sqlite3_stmt* st = lease.get();
+    if (!st) return false;
     bool bound = !bind || bind(st);
     const int rc = bound ? sqlite3_step(st) : SQLITE_MISUSE;
-    sqlite3_finalize(st);
     return bound && rc == SQLITE_DONE;
 }
 
 bool Database::queryPrepared(const std::string& sql, BindCallback bind, RowCallback cb) {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (!db_) return false;
-    sqlite3_stmt* st = nullptr;
-    if (sqlite3_prepare_v2(db_, sql.c_str(), -1, &st, nullptr) != SQLITE_OK) return false;
-    StmtGuard guard(st);
+    StatementLease lease(*this, sql);
+    sqlite3_stmt* st = lease.get();
+    if (!st) return false;
     if (bind && !bind(st)) return false;
     int rc = SQLITE_OK;
     try {
@@ -121,6 +161,10 @@ void Database::migrate() {
     schemaOk_ = false;
     const char* statements[] = {
     "PRAGMA journal_mode=WAL;",
+    // WAL keeps NORMAL crash-safe (a power loss can drop only the newest
+    // commits, never corrupt the file) and skips an fsync per commit, which
+    // the debounced reading-state saves would otherwise pay on the UI thread.
+    "PRAGMA synchronous=NORMAL;",
     R"(CREATE TABLE IF NOT EXISTS documents(
       id TEXT PRIMARY KEY, path TEXT, hash TEXT UNIQUE, title TEXT,
       authors TEXT, abstract_text TEXT, keywords TEXT,
@@ -186,6 +230,14 @@ void Database::migrate() {
     R"(CREATE TABLE IF NOT EXISTS web_chats(
       document_id TEXT, site TEXT, url TEXT, title TEXT, named INTEGER DEFAULT 0,
       created_at INTEGER, last_opened INTEGER, PRIMARY KEY(document_id,url)))",
+    // Papers whose highlights the reader wrote into the file: the user's
+    // path, the untouched copy the viewer displays and every save starts
+    // from, and the fingerprint of the file as last written.
+    R"(CREATE TABLE IF NOT EXISTS saved_files(
+      document_id TEXT PRIMARY KEY, path TEXT, pristine_path TEXT, saved_hash TEXT,
+      saved_size INTEGER, saved_mtime INTEGER, rows_signature TEXT))",
+    "CREATE INDEX IF NOT EXISTS idx_saved_files_path ON saved_files(path);",
+    "CREATE INDEX IF NOT EXISTS idx_saved_files_hash ON saved_files(saved_hash);",
     "CREATE INDEX IF NOT EXISTS idx_message_refs_message ON message_references(message_id);",
     // The live read paths (overlays, notes panel, highlight toggling) filter
     // by document on every selection/page change: without these indexes the

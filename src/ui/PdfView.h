@@ -170,6 +170,9 @@ private:
     enum class FitMode { None, Width, Page } fitMode_ = FitMode::None;
     bool applyingFit_ = false;
     std::shared_ptr<PopplerBridge> raster_;
+    // Doc-lane poppler document for word geometry, shared by every page's
+    // job; replaced (never mutated) on the UI thread when the file changes.
+    std::shared_ptr<reader::PageLayoutSource> layout_;
 #if QT_VERSION >= QT_VERSION_CHECK(6, 6, 0)
     std::unique_ptr<QPdfLinkModel> linkModel_;
 #else

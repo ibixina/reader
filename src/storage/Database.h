@@ -3,6 +3,7 @@
 #include <mutex>
 #include <optional>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 struct sqlite3;
@@ -37,6 +38,17 @@ public:
     sqlite3* handle() { return db_; }
 
 private:
+    // Prepared statements are cached by SQL text: repositories issue a
+    // fixed set of literal statements, and saving a long paper runs the
+    // same INSERTs tens of thousands of times. A statement already being
+    // stepped (re-entrant use from a row callback) gets a fresh one.
+    struct CachedStatement {
+        sqlite3_stmt* statement = nullptr;
+        bool busy = false;
+    };
+    class StatementLease;
+    std::unordered_map<std::string, CachedStatement> statements_;
+
     sqlite3* db_ = nullptr;
     bool schemaOk_ = false;
     std::string openError_;

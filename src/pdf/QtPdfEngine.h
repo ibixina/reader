@@ -4,6 +4,7 @@
 #include <string>
 
 class QPdfDocument;
+namespace Poppler { class Document; }
 
 // Qt (PDFium-based) IPdfEngine implementation (§54). All calls are
 // synchronous and run on worker lanes; the UI thread only renders.
@@ -18,6 +19,8 @@ public:
     void attach(std::shared_ptr<QPdfDocument> doc, std::string path = {}) {
         doc_ = std::move(doc);
         path_ = std::move(path);
+        layout_.reset();
+        layoutTried_ = false;
     }
 
     bool open(const std::string& path) override;
@@ -30,6 +33,11 @@ public:
 
 private:
     std::shared_ptr<QPdfDocument> doc_;
+    // Poppler document behind the text layout, loaded once and reused for
+    // every page (shared_ptr: Poppler::Document stays incomplete here).
+    Poppler::Document* layoutDocument();
+    std::shared_ptr<Poppler::Document> layout_;
+    bool layoutTried_ = false;
     std::string path_;
     std::string lastError_;
 };

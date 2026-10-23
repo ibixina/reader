@@ -8,6 +8,7 @@
 #include <vector>
 
 class QPdfDocument;
+namespace Poppler { class Document; }
 
 namespace reader {
 
@@ -34,6 +35,28 @@ std::vector<WordBox> buildWordBoxes(QPdfDocument& doc, int page, QString& pageTe
 // it exactly. Empty vector when the layout is unavailable — callers should
 // fall back to buildWordBoxes.
 std::vector<WordBox> buildWordBoxesFromLayout(const QString& path, int page,
+                                              QString& pageTextOut);
+
+// One poppler document per open file, shared by every per-page layout pass
+// (reloading the file per page re-parses its xref and fonts each time).
+// Loaded lazily on first use. Not thread-safe: use it from one serialized
+// lane only.
+class PageLayoutSource {
+public:
+    explicit PageLayoutSource(QString path);
+    ~PageLayoutSource();
+    PageLayoutSource(const PageLayoutSource&) = delete;
+    PageLayoutSource& operator=(const PageLayoutSource&) = delete;
+    // nullptr when the file cannot be opened by poppler.
+    Poppler::Document* document();
+
+private:
+    QString path_;
+    std::unique_ptr<Poppler::Document> doc_;
+    bool tried_ = false;
+};
+
+std::vector<WordBox> buildWordBoxesFromLayout(PageLayoutSource& source, int page,
                                               QString& pageTextOut);
 
 bool sameTextRow(const QRectF& a, const QRectF& b);

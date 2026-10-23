@@ -53,12 +53,8 @@ void Application::shutdown() {
     if (chatManager) chatManager->stop();
     // Join every lane before providers, repositories, and the UI-owned
     // objects used by queued callbacks are destroyed.
-    networkPool.shutdown();
-    analysisPool.shutdown();
     docLane.shutdown();
-    searchPool.shutdown();
     extractPool.shutdown();
-    renderPool.shutdown();
 }
 
 void Application::openDatabase() {

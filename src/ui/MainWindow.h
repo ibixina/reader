@@ -16,6 +16,8 @@ class QtPdfEngine;
 class QFrame;
 class QResizeEvent;
 class QCloseEvent;
+class QShowEvent;
+class QHideEvent;
 class QStackedWidget;
 class QToolButton;
 class QColor;
@@ -44,7 +46,9 @@ public:
 
 private slots:
     void toggleAiPane();
-    void saveHighlightsToPdf();
+    // wait: block until written (exit). manual: report "already saved" too.
+    void saveHighlights(bool wait, bool manual = false);
+    void scheduleHighlightSave();
     // b toggles a bookmark on the current page: saved as a top-strip
     // anchor (painted as a dot by the overlay), press again to remove.
     void toggleBookmark();
@@ -64,6 +68,13 @@ private:
     void setToolbarPinned(bool pinned);
     void setupEdgeReveal();
     void updateEdgeReveal();
+    // Hover polling (toolbar, edge, chat nav) runs only while the reader
+    // is on screen in the active window: an idle, minimized or background
+    // window must not wake the CPU several times a second.
+    void updatePollTimers();
+    void changeEvent(QEvent* event) override;
+    void showEvent(QShowEvent* event) override;
+    void hideEvent(QHideEvent* event) override;
     // Reader tools live in a left in-window overlay: the edge reveal and
     // the manual toggle show the same hovering sidebar, which never pushes
     // the document and needs no window-manager positioning.
@@ -115,7 +126,10 @@ private:
     reader::CancellationToken documentToken_;
     bool restoringHistory_ = false;
     QTimer* readingStateTimer_ = nullptr;
-    bool exportRunning_ = false;
-    // Position to restore after an in-place save reopens the file.
-    std::optional<reader::NavEntry> pendingPosition_;
+    QTimer* autosaveTimer_ = nullptr;
+    static constexpr int kAutosaveDelayMs = 20 * 1000;
+    // Size + mtime of the open file when it was opened: a save refuses to
+    // overwrite a file changed outside the reader since.
+    qint64 openedSize_ = 0;
+    qint64 openedMtime_ = 0;
 };

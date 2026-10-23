@@ -911,6 +911,60 @@ std::vector<ChatMessage> ChatRepository::loadRecent(const ConversationId& conv, 
     return out;
 }
 
+namespace {
+constexpr const char* kSavedFileColumns =
+    "SELECT document_id,path,pristine_path,saved_hash,saved_size,saved_mtime,rows_signature "
+    "FROM saved_files WHERE ";
+
+SavedFile readSavedFile(sqlite3_stmt* st) {
+    SavedFile saved;
+    saved.documentId = columnText(st, 0);
+    saved.path = columnText(st, 1);
+    saved.pristinePath = columnText(st, 2);
+    saved.savedHash = columnText(st, 3);
+    saved.savedSize = sqlite3_column_int64(st, 4);
+    saved.savedMtime = sqlite3_column_int64(st, 5);
+    saved.rowsSignature = columnText(st, 6);
+    return saved;
+}
+} // namespace
+
+bool DocumentRepository::saveSavedFile(const SavedFile& saved) {
+    return db_->execPrepared(
+        "INSERT OR REPLACE INTO saved_files(document_id,path,pristine_path,saved_hash,"
+        "saved_size,saved_mtime,rows_signature) VALUES(?,?,?,?,?,?,?)",
+        [&](sqlite3_stmt* st) {
+            return text(st, 1, saved.documentId) && text(st, 2, saved.path) &&
+                   text(st, 3, saved.pristinePath) && text(st, 4, saved.savedHash) &&
+                   integer(st, 5, saved.savedSize) && integer(st, 6, saved.savedMtime) &&
+                   text(st, 7, saved.rowsSignature);
+        });
+}
+
+std::optional<SavedFile> DocumentRepository::savedFile(const DocumentId& doc) const {
+    std::optional<SavedFile> out;
+    db_->queryPrepared(std::string(kSavedFileColumns) + "document_id=?",
+                       [&](sqlite3_stmt* st) { return text(st, 1, doc); },
+                       [&](sqlite3_stmt* st) { out = readSavedFile(st); });
+    return out;
+}
+
+std::optional<SavedFile> DocumentRepository::savedFileForPath(const std::string& path) const {
+    std::optional<SavedFile> out;
+    db_->queryPrepared(std::string(kSavedFileColumns) + "path=? LIMIT 1",
+                       [&](sqlite3_stmt* st) { return text(st, 1, path); },
+                       [&](sqlite3_stmt* st) { out = readSavedFile(st); });
+    return out;
+}
+
+std::optional<SavedFile> DocumentRepository::savedFileForHash(const std::string& hash) const {
+    std::optional<SavedFile> out;
+    db_->queryPrepared(std::string(kSavedFileColumns) + "saved_hash=? LIMIT 1",
+                       [&](sqlite3_stmt* st) { return text(st, 1, hash); },
+                       [&](sqlite3_stmt* st) { out = readSavedFile(st); });
+    return out;
+}
+
 bool WebChatRepository::saveWebChat(const DocumentId& doc, const WebChat& chat) {
     const TimestampMs now = nowMs();
     return db_->execPrepared(

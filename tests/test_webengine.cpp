@@ -8,6 +8,7 @@
 #include <QElapsedTimer>
 #include <QFile>
 #include <QFileDialog>
+#include <QDialog>
 #include <QFileInfo>
 #include <QKeyEvent>
 #include <QLineEdit>
@@ -304,14 +305,23 @@ static void testFilePicker(QApplication& qt) {
             } else {
                 dialog->setDirectory(QFileInfo(choice).absolutePath());
                 dialog->selectFile(choice);
+                // selectFile leaves the name field alone while it has focus
+                // in a visible dialog (Qt 6.10), so accept() would look for
+                // the old name in the new folder and stop on a nested "File
+                // not found" box. Type the name, as a user would.
+                if (auto* name = dialog->findChild<QLineEdit*>("fileNameEdit"))
+                    name->setText(QFileInfo(choice).fileName());
                 QMetaObject::invokeMethod(dialog, "accept");
             }
         });
         QTimer timeout;
         timeout.setSingleShot(true);
+        // Close every modal, nested ones included (a message box raised by
+        // the picker): a stuck dialog must fail the check, never hang.
         QObject::connect(&timeout, &QTimer::timeout, &panel, [] {
-            if (auto* dialog = qobject_cast<QFileDialog*>(QApplication::activeModalWidget()))
-                dialog->reject();
+            for (int i = 0; i < 4; ++i)
+                if (auto* modal = qobject_cast<QDialog*>(QApplication::activeModalWidget()))
+                    modal->reject();
         });
         observer.start();
         timeout.start(5000);
@@ -851,6 +861,22 @@ int main(int argc, char** argv) {
             }
             delete pa; // views/pages are gone before the profile is destroyed
         }
+        // Deleting the profile flushes its cookie store asynchronously. On a
+        // real disk (fsync) the flush can land after a same-process
+        // successor has already read the store, so wait for the cookie to
+        // reach the file — the property this test is about — before
+        // reopening. (Across an app restart the flush completes at exit.)
+        auto cookieOnDisk = [&] {
+            QDirIterator it(cookieRoot, {"Cookies", "Cookies-journal"}, QDir::Files,
+                            QDirIterator::Subdirectories);
+            while (it.hasNext()) {
+                QFile file(it.next());
+                if (file.open(QIODevice::ReadOnly) && file.readAll().contains("persist-test"))
+                    return true;
+            }
+            return false;
+        };
+        CHECK(waitFor(app, cookieOnDisk, 15000));
         CHECK(!cookieFile().isEmpty());
         {
             auto* pb = new QWebEngineProfile("persist-a", &app);

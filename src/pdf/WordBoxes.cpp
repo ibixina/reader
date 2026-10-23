@@ -62,11 +62,30 @@ bool sameTextRow(const QRectF& a, const QRectF& b) {
     return overlap >= 0.5 * std::min(a.height(), b.height());
 }
 
+PageLayoutSource::PageLayoutSource(QString path) : path_(std::move(path)) {}
+
+PageLayoutSource::~PageLayoutSource() = default;
+
+Poppler::Document* PageLayoutSource::document() {
+    if (!tried_) {
+        tried_ = true;
+        doc_ = Poppler::Document::load(path_);
+        if (doc_ && doc_->isLocked()) doc_.reset();
+    }
+    return doc_.get();
+}
+
 std::vector<WordBox> buildWordBoxesFromLayout(const QString& path, int page,
                                               QString& pageTextOut) {
+    PageLayoutSource source(path);
+    return buildWordBoxesFromLayout(source, page, pageTextOut);
+}
+
+std::vector<WordBox> buildWordBoxesFromLayout(PageLayoutSource& source, int page,
+                                              QString& pageTextOut) {
     pageTextOut.clear();
-    std::unique_ptr<Poppler::Document> pop = Poppler::Document::load(path);
-    if (!pop || pop->isLocked() || page < 0 || page >= pop->numPages()) return {};
+    Poppler::Document* pop = source.document();
+    if (!pop || page < 0 || page >= pop->numPages()) return {};
     auto pg = pop->page(page);
     if (!pg) return {};
     const auto boxes = pg->textList();

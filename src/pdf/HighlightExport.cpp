@@ -1,5 +1,8 @@
 #include "pdf/HighlightExport.h"
 #include "pdf/PopplerBridge.h"
+#include "core/Types.h"
+#include <QCryptographicHash>
+#include <QDateTime>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -8,7 +11,9 @@
 #include <QSet>
 #include <QStandardPaths>
 #include <QUuid>
+#include <algorithm>
 #include <cstdio>
+#include <cstdlib>
 
 namespace reader {
 namespace {
@@ -182,6 +187,68 @@ QString embedHighlights(const HighlightExportJob& job) {
     }
     cleanup();
     return "";
+}
+
+QString highlightRowsSignature(const std::vector<HighlightRow>& rows) {
+    if (rows.empty()) return {};
+    QStringList parts;
+    parts.reserve(int(rows.size()));
+    for (const auto& row : rows)
+        parts << QString("%1:%2,%3,%4,%5:%6")
+                     .arg(row.page)
+                     .arg(num(row.rect.x()), num(row.rect.y()), num(row.rect.width()),
+                          num(row.rect.height()), row.color.name(QColor::HexArgb));
+    std::sort(parts.begin(), parts.end());
+    return QString::fromLatin1(
+        QCryptographicHash::hash(parts.join('\n').toUtf8(), QCryptographicHash::Sha256).toHex());
+}
+
+QString pristineCopyPath(const std::string& documentId) {
+    const char* home = std::getenv("HOME");
+    return QString::fromLocal8Bit(home ? home : "/tmp") +
+           "/.local/share/paper-reader/originals/" + QString::fromStdString(documentId) + ".pdf";
+}
+
+namespace {
+
+// Copy src to dest through a staged sibling of dest and an atomic rename:
+// dest is never partially written, and an open reader of dest keeps the
+// bytes it had.
+QString copyAtomically(const QString& src, const QString& dest) {
+    const QString dir = QFileInfo(dest).absolutePath();
+    if (!QDir().mkpath(dir)) return "Could not create " + dir;
+    const QString staged =
+        dir + "/.reader-copy-" + QUuid::createUuid().toString(QUuid::WithoutBraces).left(8) + ".pdf";
+    if (!QFile::copy(src, staged)) return "Could not copy " + QFileInfo(src).fileName();
+    if (std::rename(QFile::encodeName(staged).constData(), QFile::encodeName(dest).constData()) != 0) {
+        QFile::remove(staged);
+        return "Could not write " + dest;
+    }
+    return "";
+}
+
+} // namespace
+
+HighlightSaveResult saveHighlightsInto(const HighlightSaveJob& job) {
+    HighlightSaveResult result;
+    if (!QFile::exists(job.path)) {
+        result.error = "The PDF is gone.";
+        return result;
+    }
+    if (!QFile::exists(job.pristinePath)) {
+        result.error = copyAtomically(job.path, job.pristinePath);
+        if (!result.error.isEmpty()) return result;
+    }
+    result.error = job.rows.empty()
+        ? copyAtomically(job.pristinePath, job.path)
+        : embedHighlights({job.pristinePath, job.path, job.pageSizes, job.rows});
+    if (!result.error.isEmpty()) return result;
+    const QFileInfo written(job.path);
+    result.savedHash = sha256File(QFile::encodeName(job.path).toStdString());
+    result.savedSize = written.size();
+    result.savedMtime = written.lastModified().toMSecsSinceEpoch();
+    if (result.savedHash.empty()) result.error = "Could not read back the saved PDF.";
+    return result;
 }
 
 } // namespace reader

@@ -22,6 +22,7 @@
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QSettings>
+#include <QHideEvent>
 #include <QShowEvent>
 #include <QShortcut>
 #include <QSignalBlocker>
@@ -98,6 +99,9 @@ struct WebPanel::Session {
     QPointer<QWebEngineView> view;
     ChatSite site = ChatSite::ChatGPT;
     QPointer<QTimer> timeout;
+    // Fires while the tab is hidden to step it down to Frozen, and later to
+    // Discarded when the chat can be reopened from its saved URL.
+    QPointer<QTimer> lifecycle;
     QString question;
     QString sentQuestion;
     QString status;
@@ -270,7 +274,6 @@ WebPanel::WebPanel(reader::Application* app, QWidget* parent)
     navTimer_ = new QTimer(this);
     navTimer_->setInterval(250);
     connect(navTimer_, &QTimer::timeout, this, &WebPanel::updateNavReveal);
-    navTimer_->start();
     layout->addWidget(context_);
     auto* askRow = new QHBoxLayout();
     question_ = new QLineEdit(this);
@@ -449,7 +452,10 @@ void WebPanel::activateSession(int index) {
     status_->setText(session->status);
     askButton_->setEnabled(!session->asking);
     syncSiteControls();
-    if (isVisible()) ensureLoaded();
+    if (isVisible()) {
+        wake(session);
+        ensureLoaded();
+    }
 }
 
 WebPanel::ChatSite WebPanel::currentSite() const {
@@ -511,6 +517,22 @@ WebPanel::SessionPtr WebPanel::createSession(ChatSite site, const QString& url,
             : siteName(session->site) +
                   " isn't ready to send yet — your question is kept. Sign in or reload and retry.");
     });
+    // Hidden chat pages keep a full renderer running site scripts. Step them
+    // down after a grace period, never below Qt's recommended state (which
+    // stays Active while visible or audible, and Frozen while a composer
+    // holds unsent input).
+    session->lifecycle = new QTimer(view);
+    session->lifecycle->setSingleShot(true);
+    connect(session->lifecycle, &QTimer::timeout, this, [this, session] { stepLifecycle(session); });
+    connect(view->page(), &QWebEnginePage::recommendedStateChanged, this,
+            [this, session](QWebEnginePage::LifecycleState state) {
+                if (shuttingDown_ || session->closed || !session->lifecycle) return;
+                if (state == QWebEnginePage::LifecycleState::Active) {
+                    session->lifecycle->stop();
+                    return;
+                }
+                if (!session->lifecycle->isActive()) session->lifecycle->start(kFreezeDelayMs);
+            });
     connect(view, &QWebEngineView::urlChanged, this, [this, session](const QUrl& url) {
         if (shuttingDown_ || session->closed) return;
         if (const auto site = siteForUrl(url); site && *site != session->site) {
@@ -710,7 +732,27 @@ void WebPanel::startChatFromList() {
 
 void WebPanel::showEvent(QShowEvent* event) {
     QWidget::showEvent(event);
+    if (current_) wake(current_);
     ensureLoaded();
+    updateNavTimer();
+}
+
+void WebPanel::hideEvent(QHideEvent* event) {
+    QWidget::hideEvent(event);
+    updateNavTimer();
+}
+
+void WebPanel::setRevealPolling(bool enabled) {
+    revealPolling_ = enabled;
+    updateNavTimer();
+}
+
+void WebPanel::updateNavTimer() {
+    if (!navTimer_) return;
+    const bool on = revealPolling_ && isVisible() && !shuttingDown_;
+    if (on == navTimer_->isActive()) return;
+    if (on) navTimer_->start();
+    else navTimer_->stop();
 }
 
 void WebPanel::ensureLoaded() {
@@ -868,6 +910,33 @@ QString WebPanel::sendScript(const QString& requestId, ChatSite site) {
 )JS").arg(jsonQuoted(requestId), siteConfig(site));
 }
 
+void WebPanel::stepLifecycle(const SessionPtr& session) {
+    if (shuttingDown_ || session->closed || !session->view) return;
+    QWebEnginePage* page = session->view->page();
+    using State = QWebEnginePage::LifecycleState;
+    const State recommended = page->recommendedState();
+    if (session->asking || recommended == State::Active) return;
+    // A discarded page reloads its current URL when shown again, so only a
+    // page sitting on a saved Claude conversation is discarded; a temporary
+    // ChatGPT chat would be lost.
+    const bool discardable = !claudeChatUrl(page->url()).isEmpty();
+    if (page->lifecycleState() == State::Active) {
+        page->setLifecycleState(State::Frozen);
+        if (discardable) session->lifecycle->start(kDiscardDelayMs);
+        return;
+    }
+    if (page->lifecycleState() == State::Frozen && recommended == State::Discarded && discardable)
+        page->setLifecycleState(State::Discarded);
+}
+
+void WebPanel::wake(const SessionPtr& session) {
+    if (!session->view) return;
+    if (session->lifecycle) session->lifecycle->stop();
+    QWebEnginePage* page = session->view->page();
+    if (page->lifecycleState() != QWebEnginePage::LifecycleState::Active)
+        page->setLifecycleState(QWebEnginePage::LifecycleState::Active);
+}
+
 void WebPanel::ask() {
     // Asking from the session list starts a new chat for this paper.
     if (chatListVisible()) startChatFromList();
@@ -875,6 +944,8 @@ void WebPanel::ask() {
     if (!current_ || current_->asking) return;
     ensureLoaded();
     const auto session = current_;
+    // Scripts never run in a frozen page: an ask from a hidden pane wakes it.
+    wake(session);
     session->asking = true;
     session->clicked = false;
     session->sentQuestion = question_->text();

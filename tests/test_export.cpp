@@ -5,6 +5,7 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QImage>
 #include <QProcess>
 #include <QSizeF>
@@ -13,6 +14,7 @@
 #include <iostream>
 #include <vector>
 
+#include "core/Types.h"
 #include "pdf/HighlightExport.h"
 #include "pdf/PopplerBridge.h"
 #include "../tests/sample_pdf.h"
@@ -137,6 +139,53 @@ int main(int argc, char** argv) {
     for (const auto& entry : QDir(root).entryList(QDir::Files))
         if (entry.startsWith(".reader-hl-")) stagedLeft = true;
     CHECK(!stagedLeft);
+
+    // Autosave path: the file becomes pristine + rows, starting from the
+    // untouched copy every time, while a viewer that already opened the
+    // file keeps reading its old bytes (no reload).
+    {
+        const QString user = root + "/autosave.pdf";
+        const QString pristine = root + "/originals/autosave-doc.pdf";
+        CHECK(QFile::copy(src, user));
+        PopplerBridge viewer;
+        CHECK(viewer.open(user));
+        const QImage clean = viewer.renderPage(0, QSize(306, 396));
+        reader::HighlightSaveJob save{user, pristine, sizes, {{0, row}}};
+        const auto first = reader::saveHighlightsInto(save);
+        CHECK(first.error.isEmpty());
+        CHECK(first.savedHash == reader::sha256File(user.toStdString()));
+        CHECK(first.savedSize == QFileInfo(user).size());
+        const auto bytes = [](const QString& path) {
+            QFile f(path);
+            return f.open(QIODevice::ReadOnly) ? f.readAll() : QByteArray();
+        };
+        CHECK(bytes(pristine) == before); // untouched copy made on first save
+        PopplerBridge reopened;
+        CHECK(reopened.open(user));
+        CHECK(reopened.renderPage(0, QSize(306, 396)) == shot);
+        CHECK(viewer.renderPage(0, QSize(306, 396)) == clean); // open view unchanged
+        // A second save re-bakes from the untouched copy: no stacked wash.
+        CHECK(reader::saveHighlightsInto(save).error.isEmpty());
+        PopplerBridge again;
+        CHECK(again.open(user));
+        CHECK(again.renderPage(0, QSize(306, 396)) == shot);
+        // Removing every highlight writes the untouched bytes back.
+        save.rows.clear();
+        CHECK(reader::saveHighlightsInto(save).error.isEmpty());
+        CHECK(bytes(user) == before);
+        bool copyLeft = false;
+        for (const auto& entry : QDir(root).entryList(QDir::Files | QDir::Hidden))
+            if (entry.startsWith(".reader-")) copyLeft = true;
+        CHECK(!copyLeft);
+    }
+    // Signatures ignore row order; no rows means no signature.
+    {
+        const reader::HighlightRow a{0, QRectF(1, 2, 3, 4), QColor("#ffe066")};
+        const reader::HighlightRow b{1, QRectF(5, 6, 7, 8), QColor("#8ce99a")};
+        CHECK(reader::highlightRowsSignature({a, b}) == reader::highlightRowsSignature({b, a}));
+        CHECK(reader::highlightRowsSignature({a}) != reader::highlightRowsSignature({b}));
+        CHECK(reader::highlightRowsSignature({}).isEmpty());
+    }
 
     if (failures == 0) std::cout << "ALL EXPORT TESTS PASSED\n";
     return failures == 0 ? 0 : 1;

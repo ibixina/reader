@@ -26,6 +26,8 @@ bool QtPdfEngine::open(const std::string& path) {
     }
     lastError_.clear();
     path_ = path;
+    layout_.reset();
+    layoutTried_ = false;
     return true;
 }
 
@@ -38,11 +40,9 @@ namespace {
 // One span per poppler layout line, in reading order. Text and geometry
 // come from the same word boxes, so they can never drift apart; one pass
 // costs milliseconds per page. Empty when the layout is unavailable.
-std::vector<reader::TextSpan> layoutSpans(const std::string& path, int page) {
+std::vector<reader::TextSpan> layoutSpans(Poppler::Document* pop, int page) {
     std::vector<reader::TextSpan> out;
-    if (path.empty()) return out;
-    std::unique_ptr<Poppler::Document> pop = Poppler::Document::load(QString::fromStdString(path));
-    if (!pop || pop->isLocked() || page < 0 || page >= pop->numPages()) return out;
+    if (!pop || page < 0 || page >= pop->numPages()) return out;
     std::unique_ptr<Poppler::Page> pg = pop->page(page);
     if (!pg) return out;
     const auto boxes = pg->textList();
@@ -81,10 +81,20 @@ std::vector<reader::TextSpan> layoutSpans(const std::string& path, int page) {
 
 } // namespace
 
+Poppler::Document* QtPdfEngine::layoutDocument() {
+    if (!layoutTried_ && !path_.empty()) {
+        layoutTried_ = true;
+        std::unique_ptr<Poppler::Document> pop =
+            Poppler::Document::load(QString::fromStdString(path_));
+        if (pop && !pop->isLocked()) layout_ = std::move(pop);
+    }
+    return layout_.get();
+}
+
 std::vector<reader::TextSpan> QtPdfEngine::extractSpans(int page) {
     std::vector<reader::TextSpan> out;
     if (!doc_ || page < 0 || page >= doc_->pageCount()) return out;
-    out = layoutSpans(path_, page);
+    out = layoutSpans(layoutDocument(), page);
     if (!out.empty()) return out;
     QPdfSelection all = doc_->getAllText(page);
     if (!all.isValid()) return out;

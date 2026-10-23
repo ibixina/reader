@@ -4,6 +4,7 @@
 #include <QRectF>
 #include <QSizeF>
 #include <QString>
+#include <string>
 #include <vector>
 
 namespace reader {
@@ -37,5 +38,31 @@ struct HighlightExportJob {
     std::vector<HighlightRow> rows;
 };
 QString embedHighlights(const HighlightExportJob& job);
+
+// Stable fingerprint of a set of rows (order-independent): an unchanged set
+// skips the write. Empty rows give an empty signature.
+QString highlightRowsSignature(const std::vector<HighlightRow>& rows);
+
+// Autosave into the user's file without touching what the viewer shows.
+// Every save starts from the untouched copy at pristinePath (made from path
+// when missing, so the caller must only omit it while path is still
+// untouched): path becomes pristine + rows, or the pristine bytes again
+// when no rows remain. path is replaced by an atomic rename, so a viewer
+// that already has the file open keeps reading its old bytes.
+struct HighlightSaveJob {
+    QString path;
+    QString pristinePath;
+    std::vector<QSizeF> pageSizes;
+    std::vector<HighlightRow> rows;
+};
+struct HighlightSaveResult {
+    QString error; // empty on success
+    std::string savedHash;
+    qint64 savedSize = 0;
+    qint64 savedMtime = 0;
+};
+HighlightSaveResult saveHighlightsInto(const HighlightSaveJob& job);
+// Where the untouched copy of a document lives.
+QString pristineCopyPath(const std::string& documentId);
 
 } // namespace reader

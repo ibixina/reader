@@ -15,13 +15,14 @@
 #include "ui/WebPanel.h"
 #include <QApplication>
 #include <QCloseEvent>
+#include <QHideEvent>
+#include <QShowEvent>
 #include <QColorDialog>
 #include <QFile>
 #include <QFileInfo>
 #include <QDesktopServices>
 #include <QDir>
 #include <QFrame>
-#include <QFutureWatcher>
 #include <QGuiApplication>
 #include <QImage>
 #include <QKeyEvent>
@@ -30,6 +31,7 @@
 #include <QMenu>
 #include <QPainter>
 #include <QPixmap>
+#include <QPointer>
 #include <QPlainTextEdit>
 #include <QMetaObject>
 #include <QPdfDocument>
@@ -53,7 +55,6 @@
 #include <QUrl>
 #include <QUuid>
 #include <QVBoxLayout>
-#include <QtConcurrent/QtConcurrent>
 
 MainWindow::MainWindow(reader::Application* app, QWidget* parent)
     : QMainWindow(parent), app_(app) {
@@ -104,8 +105,9 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
         if (marksPanel_->isVisible()) readerOverlay_->hide();
         else showNotes();
     });
-    QAction* saveAct = addAction("Save", [this] { saveHighlightsToPdf(); });
-    saveAct->setToolTip("Save highlights into this PDF (Ctrl+S)");
+    QAction* saveAct = addAction("Save", [this] { saveHighlights(false, true); });
+    saveAct->setToolTip("Save highlights into this PDF now (Ctrl+S). Changes also save "
+                        "automatically 20 s after the last edit and when you leave the paper.");
     highlightColorButton_ = new QToolButton(toolbar_);
     highlightColorButton_->setObjectName("highlightColorButton");
     highlightColorButton_->setText("Color");
@@ -253,6 +255,14 @@ MainWindow::MainWindow(reader::Application* app, QWidget* parent)
                 navigateToAnchor(a);
             });
     connect(pdf_, &PdfView::annotationsChanged, marksPanel_, &MarksPanel::rebuild);
+    // Highlight edits write themselves into the PDF once the reader pauses.
+    autosaveTimer_ = new QTimer(this);
+    autosaveTimer_->setObjectName("highlightAutosave");
+    autosaveTimer_->setSingleShot(true);
+    autosaveTimer_->setInterval(kAutosaveDelayMs);
+    connect(autosaveTimer_, &QTimer::timeout, this, [this] { saveHighlights(false); });
+    connect(pdf_, &PdfView::annotationsChanged, this, &MainWindow::scheduleHighlightSave);
+    connect(marksPanel_, &MarksPanel::annotationsChanged, this, &MainWindow::scheduleHighlightSave);
     connect(pdf_, &PdfView::highlightToggleRequested, this, &MainWindow::toggleHighlight);
     connect(marksPanel_, &MarksPanel::annotationsChanged, pdf_, &PdfView::refreshUserOverlays);
     connect(marksPanel_, &MarksPanel::noteOnSelectionRequested, pdf_,
@@ -315,6 +325,8 @@ MainWindow::~MainWindow() {
     if (marksPanel_) marksPanel_->flushPendingNote();
     persistWindowLayout();
     saveReadingState();
+    // Before the lanes shut down: a queued save must not be dropped.
+    saveHighlights(true);
     documentToken_.cancel();
     if (web_) web_->cancelPending();
     if (app_) app_->shutdown();
@@ -340,12 +352,14 @@ bool MainWindow::readerVisible() const {
 void MainWindow::showShelf() {
     if (marksPanel_ && !marksPanel_->flushPendingNote()) return;
     saveReadingState();
+    saveHighlights(false);
     persistWindowLayout();
     readingStateTimer_->stop();
     readerOverlay_->hide();
     pages_->setCurrentWidget(shelf_);
     toolbar_->hide();
     setWindowTitle("Paper Reader");
+    updatePollTimers();
 }
 
 void MainWindow::openFile(const QString& path) {
@@ -354,25 +368,47 @@ void MainWindow::openFile(const QString& path) {
     // Shared ownership with deleteLater deleter: background doc-lane jobs
     // may still reference the document after a reopen supersedes them.
     saveReadingState();
+    // Leaving a paper writes its pending highlights first. The save queues
+    // on the open lane ahead of this open's identity step, so reopening the
+    // same file sees the bytes the save wrote.
+    saveHighlights(false);
     const QString currentPath = QString::fromStdString(app_->model.document.filePath);
     const bool switchingDocuments = !currentPath.isEmpty() &&
                                     QFileInfo(currentPath).canonicalFilePath() !=
                                         QFileInfo(path).canonicalFilePath();
+    // A paper whose highlights the reader wrote into it is displayed from
+    // its untouched copy: the file's baked highlights would otherwise sit
+    // under the live overlays twice. Size + mtime pick the copy right away;
+    // the hash confirms it in stage B.
+    const QFileInfo fileInfo(path);
+    QString displayPath = path;
+    if (app_->documents) {
+        const auto saved =
+            app_->documents->savedFileForPath(fileInfo.canonicalFilePath().toStdString());
+        if (saved && saved->savedSize == fileInfo.size() &&
+            saved->savedMtime == fileInfo.lastModified().toMSecsSinceEpoch() &&
+            QFile::exists(QString::fromStdString(saved->pristinePath)))
+            displayPath = QString::fromStdString(saved->pristinePath);
+    }
     // Stage A — show pixels first. Poppler opens in ~2 ms even on huge,
     // complex documents (measured), so the reader validates the file and
     // paints page 1 from the raster bridge without waiting for the pdfium
     // engine to parse the whole document (QPdfDocument::load on the UI
     // thread is what froze the pane blank for seconds on heavy PDFs).
     auto raster = std::make_shared<PopplerBridge>();
-    if (!raster->open(path) || raster->pageCount() == 0) {
+    if (displayPath != path && !raster->open(displayPath)) displayPath = path;
+    if ((displayPath == path && !raster->open(path)) || raster->pageCount() == 0) {
         statusPage_->setText("Could not open PDF");
         statusHint_->setText("The previous paper stays open.");
         if (!readerVisible()) shelf_->showOpenError(path);
         return;
     }
+    openedSize_ = fileInfo.size();
+    openedMtime_ = fileInfo.lastModified().toMSecsSinceEpoch();
     pages_->setCurrentWidget(splitter_);
+    updatePollTimers();
     updateToolbarAutoHide();
-    setWindowTitle(QString("%1 — Paper Reader").arg(QFileInfo(path).fileName()));
+    setWindowTitle(QString("%1 — Paper Reader").arg(fileInfo.fileName()));
     if (switchingDocuments) {
         const auto context = app_->context.currentContext();
         for (const auto& reference : context.temporary)
@@ -391,9 +427,9 @@ void MainWindow::openFile(const QString& path) {
     reader::DocumentModel& model = app_->model;
     model = reader::DocumentModel{};
     model.document.filePath = path.toStdString();
-    model.document.title = QFileInfo(path).baseName().toStdString();
+    model.document.title = fileInfo.baseName().toStdString();
     model.document.pageCount = raster->pageCount();
-    pdf_->attachRaster(raster, path);
+    pdf_->attachRaster(raster, displayPath);
     outlinePanel_->rebuild();
     marksPanel_->rebuild();
     marksPanel_->setSelection(reader::DocumentAnchor{});
@@ -415,25 +451,53 @@ void MainWindow::openFile(const QString& path) {
     // never reads a model that a worker is still mutating, and every
     // cache publication remains bound to this open generation.
     const reader::CancellationToken documentToken = documentToken_;
-    const std::string sourcePath = path.toStdString();
+    const std::string filePath = path.toStdString();
+    const std::string shownPath = displayPath.toStdString();
+    auto* documents = app_->documents.get();
     app_->extractPool.submit(
-        [this, sourcePath, generation, documentToken] {
+        [this, filePath, shownPath, documents, generation, documentToken] {
             if (documentToken.cancelled()) return;
-            const std::string fileHash = reader::sha256File(sourcePath);
+            const std::string fileHash = reader::sha256File(filePath);
+            // A file the reader saved keeps the identity of its untouched
+            // copy (found by the saved bytes' hash, so a moved or renamed
+            // file still matches); anything else is identified by its bytes.
+            std::string documentId = fileHash;
+            std::string sourcePath = filePath;
+            if (!fileHash.empty() && documents) {
+                if (auto saved = documents->savedFileForHash(fileHash);
+                    saved && QFile::exists(QString::fromStdString(saved->pristinePath))) {
+                    documentId = saved->documentId;
+                    sourcePath = saved->pristinePath;
+                    const std::string canonical =
+                        QFileInfo(QString::fromStdString(filePath)).canonicalFilePath().toStdString();
+                    if (saved->path != canonical) {
+                        saved->path = canonical;
+                        documents->saveSavedFile(*saved);
+                    }
+                }
+            }
             // Identity + reading position restore: needs only the hash and
             // the raster already attached, so it lands even while pdfium
             // is still parsing.
             QMetaObject::invokeMethod(
                 this,
-                [this, fileHash, generation, documentToken] {
+                [this, fileHash, documentId, sourcePath, shownPath, generation, documentToken] {
                     if (generation != openGeneration_ || documentToken.cancelled()) return;
                     if (fileHash.empty()) {
                         statusPage_->setText("Could not identify PDF");
                         return;
                     }
+                    // Stage A guessed the displayed bytes from size + mtime;
+                    // the hash decides. A mismatch re-attaches the right ones
+                    // before the reading position is restored.
+                    if (sourcePath != shownPath) {
+                        auto raster = std::make_shared<PopplerBridge>();
+                        if (raster->open(QString::fromStdString(sourcePath)))
+                            pdf_->attachRaster(raster, QString::fromStdString(sourcePath));
+                    }
                     auto& model = app_->model;
-                    model.document.fileHash = fileHash;
-                    model.document.id = fileHash;
+                    model.document.fileHash = documentId;
+                    model.document.id = documentId;
                     app_->documents->saveDocument(model.document);
                     app_->state.openDocument = model.document.id;
                     if (web_) web_->setDocument(QString::fromStdString(model.document.id));
@@ -459,6 +523,7 @@ void MainWindow::openFile(const QString& path) {
                                              .arg(model.document.pageCount));
                 },
                 Qt::QueuedConnection);
+            if (fileHash.empty()) return;
             // pdfium load happens here (worker lane), never on the GUI
             // thread: heavy documents parse for seconds and the reader
             // stays interactive — and visible — throughout.
@@ -522,17 +587,6 @@ void MainWindow::openFile(const QString& path) {
                                     pdf_->schedulePrefetchAround(app_->state.page);
                                     outlinePanel_->rebuild();
                                     marksPanel_->rebuild();
-                                    // In-place save reopened the same file: jump back to
-                                    // where the reader was instead of page 1.
-                                    if (pendingPosition_) {
-                                        restoringHistory_ = true;
-                                        pdf_->setZoom(pendingPosition_->zoom);
-                                        pdf_->goToPage(pendingPosition_->page);
-                                        pdf_->verticalScrollBar()->setValue(static_cast<int>(
-                                            std::max(0.0, pendingPosition_->scrollY)));
-                                        restoringHistory_ = false;
-                                        pendingPosition_.reset();
-                                    }
                                     statusPage_->setText(
                                         QString("p.%1 / %2 · %3 blocks")
                                             .arg(app_->state.page + 1)
@@ -577,7 +631,7 @@ void MainWindow::setupToolbarAutoHide() {
     toolbarRevealTimer_ = new QTimer(this);
     toolbarRevealTimer_->setInterval(250);
     connect(toolbarRevealTimer_, &QTimer::timeout, this, &MainWindow::updateToolbarAutoHide);
-    toolbarRevealTimer_->start();
+    updatePollTimers();
     updateToolbarAutoHide();
 }
 
@@ -617,6 +671,7 @@ void MainWindow::setToolbarPinned(bool pinned) {
     toolbarPinned_ = pinned;
     QSettings settings;
     settings.setValue("reader/toolbarPinned", pinned);
+    updatePollTimers();
     updateToolbarAutoHide();
     if (pinned && toolbar_ && !toolbar_->isVisible()) toolbar_->show();
     persistWindowLayout();
@@ -627,7 +682,35 @@ void MainWindow::setupEdgeReveal() {
     edgeRevealTimer_ = new QTimer(this);
     edgeRevealTimer_->setInterval(300);
     connect(edgeRevealTimer_, &QTimer::timeout, this, &MainWindow::updateEdgeReveal);
-    edgeRevealTimer_->start();
+    updatePollTimers();
+}
+
+void MainWindow::updatePollTimers() {
+    const bool poll = isVisible() && !isMinimized() && isActiveWindow() && readerVisible();
+    auto run = [](QTimer* timer, bool on) {
+        if (!timer || on == timer->isActive()) return;
+        if (on) timer->start();
+        else timer->stop();
+    };
+    run(toolbarRevealTimer_, poll && !toolbarPinned_);
+    run(edgeRevealTimer_, poll);
+    if (web_) web_->setRevealPolling(poll);
+}
+
+void MainWindow::changeEvent(QEvent* event) {
+    QMainWindow::changeEvent(event);
+    if (event->type() == QEvent::ActivationChange || event->type() == QEvent::WindowStateChange)
+        updatePollTimers();
+}
+
+void MainWindow::showEvent(QShowEvent* event) {
+    QMainWindow::showEvent(event);
+    updatePollTimers();
+}
+
+void MainWindow::hideEvent(QHideEvent* event) {
+    QMainWindow::hideEvent(event);
+    updatePollTimers();
 }
 
 void MainWindow::selectReaderTab(const QString& name) {
@@ -754,6 +837,7 @@ void MainWindow::closeEvent(QCloseEvent* event) {
         return;
     }
     saveReadingState();
+    saveHighlights(true);
     persistWindowLayout();
     readingStateTimer_->stop();
     QMainWindow::closeEvent(event);
@@ -782,7 +866,7 @@ void MainWindow::setupShortcuts() {
     add(QKeySequence("Ctrl+S"), [this] {
         if (marksPanel_->isVisible() && marksPanel_->isAncestorOf(QApplication::focusWidget()))
             marksPanel_->flushPendingNote();
-        else saveHighlightsToPdf();
+        else saveHighlights(false, true);
     });
     // h/n/a act on the live PDF selection from anywhere in the window.
     // PdfView rarely owns keyboard focus (mouse selection does not move
@@ -947,57 +1031,92 @@ bool MainWindow::eventFilter(QObject* watched, QEvent* event) {
     return QMainWindow::eventFilter(watched, event);
 }
 
-void MainWindow::saveHighlightsToPdf() {
-    if (exportRunning_) return;
+void MainWindow::scheduleHighlightSave() {
+    if (autosaveTimer_ && !app_->model.document.id.empty()) autosaveTimer_->start();
+}
+
+// Writes the open paper's highlights into its file; the view is untouched
+// (no reload). The job runs on the open lane, so saves and opens stay in
+// order, and reads the saved-file record there: an earlier queued save may
+// have just written it. Unchanged rows are a no-op.
+void MainWindow::saveHighlights(bool wait, bool manual) {
+    if (autosaveTimer_) autosaveTimer_->stop();
     const std::string docId = app_->model.document.id;
-    const QString src = QString::fromStdString(app_->model.document.filePath);
-    if (docId.empty() || src.isEmpty() || !QFile::exists(src)) {
-        statusHint_->setText("Open a paper first.");
+    const QString path = QString::fromStdString(app_->model.document.filePath);
+    if (docId.empty() || path.isEmpty() || !app_->annotations || !app_->documents) {
+        if (manual) statusHint_->setText("Open a paper first.");
         return;
     }
     std::vector<reader::HighlightRow> rows;
-    if (app_->annotations)
-        for (const auto& ann : app_->annotations->annotationsFor(docId)) {
-            if (ann.kind != "highlight" || !ann.anchor.bounds.valid()) continue;
-            const auto& b = ann.anchor.bounds;
-            const QColor color(QString::fromStdString(ann.color));
-            rows.push_back({ann.anchor.page, QRectF(b.x, b.y, b.width, b.height),
-                            color.isValid() ? color : PdfView::defaultHighlightColor()});
-        }
-    if (rows.empty()) {
-        statusHint_->setText("No highlights to save — select text and press h first.");
-        return;
+    for (const auto& ann : app_->annotations->annotationsFor(docId)) {
+        if (ann.kind != "highlight" || !ann.anchor.bounds.valid()) continue;
+        const auto& b = ann.anchor.bounds;
+        const QColor color(QString::fromStdString(ann.color));
+        rows.push_back({ann.anchor.page, QRectF(b.x, b.y, b.width, b.height),
+                        color.isValid() ? color : PdfView::defaultHighlightColor()});
     }
-    if (QStandardPaths::findExecutable("qpdf").isEmpty() ||
-        QStandardPaths::findExecutable("pdfinfo").isEmpty()) {
-        statusHint_->setText("Saving needs qpdf + pdfinfo installed.");
-        return;
-    }
-    // In-place save: merge to a temp sibling, verify, atomically replace
-    // the original — no dialog. The file hash changes, so the paper is
-    // reopened afterwards with the reading position restored.
-    reader::HighlightExportJob job{src, src, pdf_->pageSizes(), std::move(rows)};
-    if (job.pageSizes.empty()) {
-        statusHint_->setText("No pages — open a paper first.");
-        return;
-    }
-    const auto state = pdf_->captureState();
-    exportRunning_ = true;
-    statusHint_->setText("Saving highlights…");
-    auto* watcher = new QFutureWatcher<QString>(this);
-    connect(watcher, &QFutureWatcher<QString>::finished, this,
-            [this, watcher, src, state] {
-                const QString error = watcher->result();
-                watcher->deleteLater();
-                exportRunning_ = false;
-                if (error.isEmpty()) {
-                    statusHint_->setText("Saved ✓");
-                    pendingPosition_ = {state.page, static_cast<double>(state.scrollY),
-                                        state.zoom, state.selection};
-                    openFile(src);
+    const std::vector<QSizeF> pageSizes = pdf_->pageSizes();
+    if (pageSizes.empty()) return;
+    const qint64 openedSize = openedSize_;
+    const qint64 openedMtime = openedMtime_;
+    auto* documents = app_->documents.get();
+    QPointer<MainWindow> self(this);
+    auto job =
+        [self, documents, docId, path, rows, pageSizes, openedSize, openedMtime, manual] {
+            const QString signature = reader::highlightRowsSignature(rows);
+            const auto saved = documents->savedFile(docId);
+            QString error;
+            bool wrote = false;
+            if (signature != QString::fromStdString(saved ? saved->rowsSignature : "")) {
+                // Never overwrite edits made outside the reader: the file
+                // must still be what was opened, or what the last save wrote.
+                const QFileInfo info(path);
+                const qint64 size = saved ? saved->savedSize : openedSize;
+                const qint64 mtime = saved ? saved->savedMtime : openedMtime;
+                const QString pristine = saved ? QString::fromStdString(saved->pristinePath)
+                                               : reader::pristineCopyPath(docId);
+                if (!info.exists()) {
+                    error = "the PDF is gone.";
+                } else if (info.size() != size || info.lastModified().toMSecsSinceEpoch() != mtime) {
+                    error = "the PDF changed outside the reader — reopen it to save highlights.";
+                } else if (saved && !QFile::exists(pristine)) {
+                    error = "the untouched copy of this PDF is missing.";
                 } else {
-                    statusHint_->setText("Save failed: " + error);
+                    const auto result = reader::saveHighlightsInto({path, pristine, pageSizes, rows});
+                    error = result.error;
+                    if (error.isEmpty()) {
+                        reader::SavedFile record;
+                        record.documentId = docId;
+                        record.path = info.canonicalFilePath().toStdString();
+                        record.pristinePath = pristine.toStdString();
+                        record.savedHash = result.savedHash;
+                        record.savedSize = result.savedSize;
+                        record.savedMtime = result.savedMtime;
+                        record.rowsSignature = signature.toStdString();
+                        if (!documents->saveSavedFile(record))
+                            error = "could not record the saved file.";
+                        wrote = true;
+                    }
                 }
-            });
-    watcher->setFuture(QtConcurrent::run(reader::embedHighlights, job));
+            }
+            if (!manual && !wrote && error.isEmpty()) return;
+            if (auto* gui = QCoreApplication::instance())
+                QMetaObject::invokeMethod(gui, [self, docId, error, wrote] {
+                    if (!self || !self->statusHint_ || self->app_->model.document.id != docId) return;
+                    self->statusHint_->setText(
+                        !error.isEmpty() ? "Highlights not saved: " + error
+                        : wrote          ? QString("Highlights saved to the PDF ✓")
+                                         : QString("Highlights already saved ✓"));
+                }, Qt::QueuedConnection);
+        };
+    std::future<void> future;
+    try {
+        future = app_->extractPool.submit(job);
+    } catch (const std::runtime_error&) {
+        // Lanes already joined (teardown): nothing else can run, so write
+        // here rather than drop the change.
+        job();
+        return;
+    }
+    if (wait) future.wait();
 }
