@@ -96,12 +96,17 @@ Select a result and click **Open**, double-click it, or press Enter to open it.
 Clear the search to see all PDFs and folders; use **Up** or **Choose folder…**
 to browse elsewhere. The folder path is read-only and there is no filename field.
 
-In the browser chat pane, Enter sends the current selection and question in
+The chat pane is claude.ai. Enter sends the current selection and question in
 one step. **New chat** opens another conversation; each tab keeps its own
-conversation and question draft while sharing your ChatGPT login. Double-click
+conversation and question draft while sharing your Claude login. Double-click
 a tab to name it, drag tabs to reorder them, or use its close button. With focus
-in the AI pane, Ctrl+T opens a chat and Ctrl+W closes the current chat.
-ChatGPT's **Add files** picker opens in the current PDF's folder with that PDF
+in the AI pane, Ctrl+T opens a chat and Ctrl+W closes the current chat. Back,
+Forward and Reload are in the page's right-click menu.
+Each live chat page costs 0.5 GB of memory or more, so a tab you leave stops
+running after 30 seconds and releases that memory, unless an answer is still
+streaming or its composer holds unsent text; it reloads when you return. The
+shown chat does the same 2 minutes after the pane or window is hidden.
+Claude's **Add files** picker opens in the current PDF's folder with that PDF
 preselected. You can choose other files or cancel; files attach only after you
 confirm the picker.
 

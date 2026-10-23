@@ -562,15 +562,6 @@ int main(int argc, char** argv) {
         }
     }
 
-    // Copy-prompt assembles selection + question without any network.
-    if (browser && !selText.isEmpty()) {
-        browserQuestion->setText("What does this passage mean?");
-        browser->copyPrompt();
-        const QString prompt = QGuiApplication::clipboard()->text();
-        CHECK(prompt.contains("What does this passage mean?"));
-        CHECK(prompt.contains(selText.left(40)));
-    }
-
     // Search is a real reader widget action, not a model-only shortcut.
     QMetaObject::invokeMethod(&window, "openReaderTools", Qt::DirectConnection);
     auto* query = window.findChild<QLineEdit*>("searchQuery");
@@ -637,7 +628,7 @@ int main(int argc, char** argv) {
     CHECK(browserQuestion &&
           (browserQuestion->hasFocus() || QApplication::focusWidget() == browserQuestion));
     CHECK(pdf->removeHighlightForCurrentSelection());
-    // Chatting is sacred: with focus inside the browser chat (ChatGPT's
+    // Chatting is sacred: with focus inside the browser chat (Claude's
     // own composer looks like the web view to Qt), space must NOT jump to
     // the ask box, and letter shortcuts must not fire either.
     if (auto* webView = window.findChild<QWebEngineView*>()) {

@@ -97,7 +97,7 @@ private:
     // over an existing highlight is recolored. Persisted in QSettings.
     void setHighlightColor(const QColor& color);
     static QIcon colorSwatch(const QColor& color);
-    // Focus inside the browser chat (including ChatGPT's own composer,
+    // Focus inside the browser chat (including Claude's own composer,
     // which Qt sees as the web view): reading shortcuts must never steal
     // keystrokes from a conversation.
     bool chatHasFocus() const;

@@ -20,8 +20,8 @@ authoritative for the current minimal scope.
 - PopplerBridge raster (Antialiasing+TextAntialiasing+Hinting, exact-DPI,
   pad/crop instead of blur rescale) — `src/pdf/PopplerBridge.*`
 - QtPdfEngine text/selection/outline source; TextExtractor + StructureDetector
-- WebPanel browser chat (selection-aware Ask/Copy-prompt, persistent profile,
-  lazy first load) — `src/ui/WebPanel.*` — the ONLY AI chat
+- WebPanel claude.ai chat (selection-aware Ask, persistent profile, lazy
+  first load, hidden tabs discarded) — `src/ui/WebPanel.*` — the ONLY AI chat
 - OutlinePanel; literal-only SearchPanel
 - Notes/highlights (AnnotationRepository + h/n/a/space + status-bar hints)
 - Shortcuts: Ctrl+Shift+A, Alt+Left/Right, h, Ctrl+H, n, Ctrl+N, a, Ctrl+F,
@@ -353,6 +353,34 @@ plain `./run.sh [paper.pdf]`. Verified 2026-09-22: fresh configure+build,
       now waits for the cookie to reach the file. App login persistence
       across restarts was verified separately (two processes, ext4).
       Full suite 14/14.
+20. Claude-only chat (2026-10-23, Qt 6.10.2, measured with a throwaway
+    offscreen WebEngine harness, `--disable-gpu`, logged out):
+    - Where memory went on the user's machine after ~20 h: claude.ai
+      renderer 1.45 GB RSS (1.31 GB private anon); reader process 715 MB,
+      of which ~300 MB is WebEngine's in-process browser/GPU side
+      (QtWebEngineCore 85 MB, NVIDIA driver ~130 MB, LLVM/Mesa ~45 MB).
+    - A fresh chat page costs 450–650 MB of renderer each (chatgpt.com
+      532 MB, claude.ai sign-in 644 MB); two tabs are two renderers
+      (1023 MB PSS); `--renderer-process-limit=1` saves only ~80 MB.
+    - Rejected: request blocking (claude.ai's only third party is Datadog,
+      chatgpt.com has none); lean page settings (−6 MB); `--js-flags`
+      optimize-for-size / lite-mode (no gain / worse);
+      `--enable-low-end-device-mode` (−230 MB, but caps the JS heap at
+      273 MB, so a long chat could crash, and the saving vanishes once the
+      cap is raised).
+    - Done: ChatGPT and the site picker removed (the default was already
+      claude.ai); the auto-hiding nav row, its 250 ms reveal poll and Copy
+      prompt removed (Back/Forward/Reload stay in the page context menu).
+      Hidden tabs are checked before freezing: an answer still streaming
+      keeps the page Active, unsent composer text keeps it at Frozen, and
+      an idle claude.ai background tab is Discarded right after freezing
+      (30 s), so its renderer exits; the shown tab, hidden with the pane or
+      window, is discarded after 2 min (was 10). Verified with a one-off
+      four-tab run: idle→Discarded at 30 s, draft→Frozen, streaming→Active,
+      re-showing reloads the same chat URL.
+    - Dead ChatGPT ingest fixtures (attach/poll/confirm scripts) and their
+      tests removed from `test_webengine`; remaining mocks use claude.ai's
+      DOM. Full suite 14/14.
 
 ## 4. Verification log
 - Latest full `ctest`: **13/13 pass** (core, chat_lifecycle, qt, select,

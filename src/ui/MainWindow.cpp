@@ -694,7 +694,6 @@ void MainWindow::updatePollTimers() {
     };
     run(toolbarRevealTimer_, poll && !toolbarPinned_);
     run(edgeRevealTimer_, poll);
-    if (web_) web_->setRevealPolling(poll);
 }
 
 void MainWindow::changeEvent(QEvent* event) {

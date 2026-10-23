@@ -43,107 +43,6 @@ static int failures = 0;
         } \
     } while (0)
 
-namespace {
-// Former WebPanel ingest-via-chat helpers, removed from the shipped app
-// when the slim-down dropped that flow. They encode the chatgpt.com DOM
-// contract the tests pin, so they live here as test fixtures now.
-
-// JS that stuffs a PDF into the composer's file input. Synchronous
-// result: 'started' (async attach running, outcome in window.__attach),
-// 'no-file-input', or 'error:...'.
-QString attachScript(const QString& base64Pdf, const QString& filename) {
-    return QStringLiteral(
-               "(function(b64, name){"
-               " try {"
-               "  var inp = document.querySelector('input[type=\"file\"]');"
-               "  if (!inp) return 'no-file-input';"
-               "  window.__attach = 'pending';"
-               "  fetch('data:application/pdf;base64,' + b64).then(function(r){"
-               "   return r.arrayBuffer();"
-               "  }).then(function(buf){"
-               "   try {"
-               "    var file = new File([buf], name, {type: 'application/pdf'});"
-               "    var dt = new DataTransfer();"
-               "    dt.items.add(file);"
-               "    inp.files = dt.files;"
-               "    inp.dispatchEvent(new Event('change', {bubbles: true}));"
-               "    inp.dispatchEvent(new Event('input', {bubbles: true}));"
-               "    var check = function(tries){"
-               "     var has = inp.files && inp.files.length > 0;"
-               "     var bodyText = (document.body && (document.body.innerText ||"
-               "                     document.body.textContent)) || '';"
-               "     var chip = bodyText.indexOf(name) !== -1;"
-               "     if (has && chip) { window.__attach = 'attached'; return; }"
-               "     if (tries <= 0) { window.__attach = has ? 'attached' : 'error:no-chip';"
-               "                       return; }"
-               "     setTimeout(function(){ check(tries - 1); }, 500);"
-               "    };"
-               "    check(10);"
-               "   } catch (e) { window.__attach = 'error:' + e; }"
-               "  }).catch(function(e){ window.__attach = 'error:' + e; });"
-               "  return 'started';"
-               " } catch (e) { return 'error:' + e; }"
-               "})(%1, %2)")
-        .arg(WebPanel::jsonQuoted(base64Pdf), WebPanel::jsonQuoted(filename));
-}
-
-// Reads window.__attach ('pending' when unset).
-QString attachPollScript() {
-    return QStringLiteral("(function(){ return window.__attach || 'pending'; })()");
-}
-
-// JS snapshot of send evidence: {"users":int,"composer":int,"generating":bool,"url":"..."}.
-QString confirmScript() {
-    return QStringLiteral(
-        "(function(){"
-        " try {"
-        "  var users = document.querySelectorAll('[data-message-author-role=\"user\"]');"
-        "  var stop = document.querySelector('[data-testid=\"stop-button\"]')"
-        "        || document.querySelector('button[aria-label=\"Stop generating\"]');"
-        "  var ed = document.getElementById('prompt-textarea')"
-        "        || document.querySelector('[data-testid=\"composer-text-input\"]')"
-        "        || document.querySelector('form div[contenteditable=\"true\"]')"
-        "        || document.querySelector('div[contenteditable=\"true\"]');"
-        "  var pm = ed ? (ed.querySelector('.ProseMirror') || ed) : null;"
-        "  var txt = pm ? (pm.innerText || pm.textContent || '') : '';"
-        "  return JSON.stringify({users: users.length, composer: txt.trim().length,"
-        "                         generating: !!stop, url: window.location.href});"
-        " } catch (e) { return JSON.stringify({users: -1, composer: -1,"
-        "                                     generating: false, url: ''}); }"
-        "})()");
-}
-
-// Pure decision rule over two confirmScript snapshots.
-bool sendConfirmed(const QString& beforeJson, const QString& afterJson) {
-    const QJsonObject before = QJsonDocument::fromJson(beforeJson.toUtf8()).object();
-    const QJsonObject after = QJsonDocument::fromJson(afterJson.toUtf8()).object();
-    if (after.value("users").toInt(-1) > before.value("users").toInt(-1)) return true;
-    if (!after.value("url").toString().isEmpty() &&
-        after.value("url").toString() != before.value("url").toString())
-        return true;
-    return after.value("generating").toBool(false) && after.value("composer").toInt(-1) == 0;
-}
-
-// JS polling the latest assistant message: {"generating":bool,"text":"..."}.
-QString pollScript() {
-    return QStringLiteral(
-        "(function(){"
-        " try {"
-        "  var stop = document.querySelector('[data-testid=\"stop-button\"]')"
-        "        || document.querySelector('button[aria-label=\"Stop generating\"]');"
-        "  var nodes = document.querySelectorAll('[data-message-author-role=\"assistant\"]');"
-        "  if (!nodes.length) nodes = document.querySelectorAll('.markdown');"
-        "  var text = '';"
-        "  if (nodes.length) {"
-        "   var el = nodes[nodes.length - 1];"
-        "   text = el.innerText || el.textContent || '';"
-        "  }"
-        "  return JSON.stringify({generating: !!stop, text: text});"
-        " } catch (e) { return JSON.stringify({generating: true, text: '', error: String(e)}); }"
-        "})()");
-}
-} // namespace
-
 static QVariant runJsSync(QWebEngineView& view, const QString& script, int timeoutMs = 15000) {
     struct State {
         QVariant result;
@@ -205,14 +104,14 @@ static void pressEnter(QLineEdit& edit) {
 
 static QString chatMock() {
     return QStringLiteral(R"HTML(
-        <form>
-          <div id="prompt-textarea" class="ProseMirror" contenteditable="true"></div>
-          <button id="composer-submit-button" type="submit" disabled aria-disabled="true">Send</button>
-        </form>
+        <fieldset>
+          <div class="ProseMirror" contenteditable="true"></div>
+          <button aria-label="Send message" disabled aria-disabled="true">Send</button>
+        </fieldset>
         <script>
           window.__fills = 0; window.__sends = 0; window.__enableDelay = 350;
-          var editor = document.getElementById('prompt-textarea');
-          var button = document.getElementById('composer-submit-button');
+          var editor = document.querySelector('.ProseMirror');
+          var button = document.querySelector('fieldset button');
           editor.addEventListener('input', function() {
             // ProseMirror can emit several input events for a multiline insertion.
             clearTimeout(window.__inputTimer);
@@ -223,13 +122,12 @@ static QString chatMock() {
                          window.__enableDelay);
             }, 0);
           });
-          document.querySelector('form').addEventListener('submit', function(event) {
-            event.preventDefault();
+          button.addEventListener('click', function() {
             ++window.__sends;
             window.__prompt = editor.innerText;
             setTimeout(function() {
               var message = document.createElement('div');
-              message.setAttribute('data-message-author-role', 'user');
+              message.setAttribute('data-testid', 'user-message');
               message.textContent = window.__prompt;
               document.body.appendChild(message);
               editor.textContent = '';
@@ -507,22 +405,6 @@ static void testSessions(QApplication& qt) {
     CHECK(waitFor(qt, [&] { return ask->isEnabled(); }));
     CHECK(question->text() == "Explain this passage");
     CHECK(runJsSync(*fresh, "window.__sends").toInt() == 1);
-
-    // The site picker switches the current tab and becomes the default for
-    // new chats; each tab keeps its own site.
-    auto* siteBox = panel.findChild<QComboBox*>("browserChatSite");
-    CHECK(siteBox && siteBox->currentText() == "ChatGPT");
-    panel.setCurrentSite(WebPanel::ChatSite::Claude);
-    CHECK(panel.currentSite() == WebPanel::ChatSite::Claude);
-    CHECK(siteBox && siteBox->currentText() == "Claude");
-    auto* claudeTab = panel.currentView();
-    CHECK(waitFor(qt, [&] { return claudeTab->url().host() == "claude.ai"; }));
-    newChat->click();
-    CHECK(panel.currentSite() == WebPanel::ChatSite::Claude);
-    panel.setCurrentSite(WebPanel::ChatSite::ChatGPT);
-    tabs->setCurrentWidget(claudeTab);
-    CHECK(panel.currentSite() == WebPanel::ChatSite::Claude);
-    CHECK(siteBox && siteBox->currentText() == "Claude");
 }
 
 static void loadClaudeMock(QApplication& qt, QWebEngineView& view, const QString& title) {
@@ -537,7 +419,6 @@ static void loadClaudeMock(QApplication& qt, QWebEngineView& view, const QString
 // Claude chats are remembered per paper: reopening a paper lists them,
 // a pick reopens that conversation, and New starts one that joins the list.
 static void testSavedChats(QApplication& qt) {
-    using Site = WebPanel::ChatSite;
     CHECK(WebPanel::claudeChatUrl(QUrl("https://claude.ai/chat/abc-123?x=1#m")) ==
           "https://claude.ai/chat/abc-123");
     CHECK(WebPanel::claudeChatUrl(QUrl("https://claude.ai/new")).isEmpty());
@@ -546,7 +427,6 @@ static void testSavedChats(QApplication& qt) {
     CHECK(WebPanel::chatTitle("Synapse questions - Claude") == "Synapse questions");
     CHECK(WebPanel::chatTitle(" Claude ").isEmpty());
 
-    QSettings().setValue("reader/chatSite", "claude");
     reader::Application app;
     CHECK(app.webChats);
     if (!app.webChats) return;
@@ -593,7 +473,6 @@ static void testSavedChats(QApplication& qt) {
     emit list->itemClicked(list->item(0));
     CHECK(!panel.chatListVisible());
     CHECK(tabs->count() == 1 && tabs->tabText(0) == "Synapse questions");
-    CHECK(panel.currentSite() == Site::Claude);
     panel.ensureLoaded();
     CHECK(waitFor(qt, [&] {
         return panel.currentView()->url().toString().startsWith("https://claude.ai/chat/aaa-111");
@@ -609,7 +488,7 @@ static void testSavedChats(QApplication& qt) {
     chatsButton->click();
     listNew->click();
     CHECK(!panel.chatListVisible());
-    CHECK(tabs->count() == 2 && panel.currentSite() == Site::Claude);
+    CHECK(tabs->count() == 2);
     auto* second = panel.currentView();
     loadClaudeMock(qt, *second, "Gradient follow-up - Claude");
     runJsSync(*second, "history.pushState({}, '', '/chat/bbb-222')");
@@ -631,7 +510,6 @@ static void testSavedChats(QApplication& qt) {
     panel.ask();
     CHECK(!panel.chatListVisible() && tabs->count() == 1);
     panel.cancelPending();
-    QSettings().setValue("reader/chatSite", "chatgpt");
 }
 
 int main(int argc, char** argv) {
@@ -646,8 +524,8 @@ int main(int argc, char** argv) {
     QObject::connect(&loadTimer, &QTimer::timeout, &loaded, &QEventLoop::quit);
     QObject::connect(view.page(), &QWebEnginePage::loadFinished, &loaded, &QEventLoop::quit);
     view.setHtml(R"HTML(
-        <div id="prompt-textarea"><div class="ProseMirror" contenteditable="true"></div></div>
-        <button data-testid="send-button" onclick="window.__sent=(window.__sent || 0)+1">send</button>
+        <fieldset><div class="ProseMirror" contenteditable="true"></div>
+        <button aria-label="Send message" onclick="window.__sent=(window.__sent || 0)+1">send</button></fieldset>
     )HTML",
                  QUrl("http://reader.test/"));
     loadTimer.start(20000);
@@ -660,7 +538,7 @@ int main(int argc, char** argv) {
     // innerText needs layout (absent headless); walk text nodes explicitly.
     QString editorText = runJsSync(view,
                                    "(function(){"
-                                   " var pm=document.querySelector('#prompt-textarea .ProseMirror');"
+                                   " var pm=document.querySelector('fieldset .ProseMirror');"
                                    " var out=[];"
                                    " function walk(n){"
                                    "  if(n.nodeType===3) out.push(n.nodeValue);"
@@ -689,7 +567,7 @@ int main(int argc, char** argv) {
     CHECK(runJsSync(view, WebPanel::sendScript()).toString() == "waiting-confirmation");
     CHECK(runJsSync(view, WebPanel::sendScript()).toString() == "waiting-confirmation");
     CHECK(runJsSync(view, "window.__sent").toInt() == 1);
-    runJsSync(view, "document.body.insertAdjacentHTML('beforeend', '<div data-message-author-role=\"user\">sent</div>')");
+    runJsSync(view, "document.body.insertAdjacentHTML('beforeend', '<div data-testid=\"user-message\">sent</div>')");
     CHECK(runJsSync(view, WebPanel::sendScript()).toString() == "sent");
 
     // Missing editor degrades to a diagnosable status, never silent.
@@ -699,7 +577,7 @@ int main(int argc, char** argv) {
     loaded.exec();
     CHECK(runJsSync(view, WebPanel::fillScript("hi")).toString() == "no-editor");
 
-    // Redesigned composer contract: alternate editor + submit selectors.
+    // Fallback contract: any contenteditable editor and its form's submit button.
     view.setHtml(R"HTML(
         <form><div data-testid="composer-text-input" contenteditable="true"></div>
         <button type="submit" onclick="event.preventDefault(); window.__sent2=true">send</button></form>
@@ -717,22 +595,21 @@ int main(int argc, char** argv) {
 
     // Textarea composers need their native value setter and an input event.
     loadMock(view, R"HTML(
-        <form><textarea id="prompt-textarea"></textarea>
-        <button data-testid="composer-send-button" disabled>Send</button></form>
-        <button data-testid="stop-button">Stop</button>
+        <fieldset><textarea></textarea>
+        <button aria-label="Send message" disabled>Send</button></fieldset>
+        <button aria-label="Stop response">Stop</button>
         <script>
           document.querySelector('textarea').addEventListener('input', function() {
-            document.querySelector('form button').disabled = false;
+            document.querySelector('fieldset button').disabled = false;
           });
-          document.querySelector('form').addEventListener('submit', function(event) {
-            event.preventDefault();
-            document.body.insertAdjacentHTML('beforeend', '<div data-message-author-role="user">sent</div>');
+          document.querySelector('fieldset button').addEventListener('click', function() {
+            document.body.insertAdjacentHTML('beforeend', '<div data-testid="user-message">sent</div>');
           });
         </script>
     )HTML");
     CHECK(runJsSync(view, WebPanel::fillScript(prompt)).toString() == "busy");
     CHECK(runJsSync(view, "document.querySelector('textarea').value").toString().isEmpty());
-    runJsSync(view, "document.querySelector('[data-testid=\"stop-button\"]').remove()");
+    runJsSync(view, "document.querySelector('[aria-label=\"Stop response\"]').remove()");
     CHECK(runJsSync(view, WebPanel::fillScript(prompt)).toString() == "filled");
     CHECK(runJsSync(view, "document.querySelector('textarea').value").toString() == prompt);
     CHECK(runJsSync(view, WebPanel::sendScript("older-request")).toString() == "cancelled");
@@ -743,7 +620,6 @@ int main(int argc, char** argv) {
     // button that enables on input, "Stop response" while streaming, and
     // user turns marked data-testid="user-message".
     {
-        using Site = WebPanel::ChatSite;
         loadMock(view, R"HTML(
             <fieldset>
               <div contenteditable="true" class="ProseMirror" aria-label="Write your prompt to Claude"></div>
@@ -764,15 +640,18 @@ int main(int argc, char** argv) {
               });
             </script>
         )HTML");
-        CHECK(runJsSync(view, WebPanel::fillScript(prompt, "c1", Site::Claude)).toString() == "busy");
+        CHECK(runJsSync(view, WebPanel::idleScript()).toString() == "busy");
+        CHECK(runJsSync(view, WebPanel::fillScript(prompt, "c1")).toString() == "busy");
         runJsSync(view, "document.querySelector('[aria-label=\"Stop response\"]').remove()");
-        CHECK(runJsSync(view, WebPanel::fillScript(prompt, "c1", Site::Claude)).toString() == "filled");
+        CHECK(runJsSync(view, WebPanel::idleScript()).toString() == "idle");
+        CHECK(runJsSync(view, WebPanel::fillScript(prompt, "c1")).toString() == "filled");
+        CHECK(runJsSync(view, WebPanel::idleScript()).toString() == "draft");
         CHECK(runJsSync(view, "document.querySelector('.ProseMirror').textContent").toString()
                   .contains("amortization"));
-        CHECK(runJsSync(view, WebPanel::sendScript("c1", Site::Claude)).toString() == "clicked");
+        CHECK(runJsSync(view, WebPanel::sendScript("c1")).toString() == "clicked");
         CHECK(runJsSync(view, "window.__claudeSends").toInt() == 1);
         CHECK(waitFor(app, [&] {
-            return runJsSync(view, WebPanel::sendScript("c1", Site::Claude)).toString() == "sent";
+            return runJsSync(view, WebPanel::sendScript("c1")).toString() == "sent";
         }));
         CHECK(runJsSync(view, "window.__claudeSends").toInt() == 1);
 
@@ -790,36 +669,16 @@ int main(int argc, char** argv) {
               });
             </script>
         )HTML");
-        CHECK(runJsSync(view, WebPanel::fillScript("enter only", "c2", Site::Claude)).toString() == "filled");
-        CHECK(runJsSync(view, WebPanel::sendScript("c2", Site::Claude)).toString() == "clicked");
+        CHECK(runJsSync(view, WebPanel::fillScript("enter only", "c2")).toString() == "filled");
+        CHECK(runJsSync(view, WebPanel::sendScript("c2")).toString() == "clicked");
         CHECK(runJsSync(view, "window.__enterSends").toInt() == 1);
-        CHECK(runJsSync(view, WebPanel::sendScript("c2", Site::Claude)).toString() == "sent");
+        CHECK(runJsSync(view, WebPanel::sendScript("c2")).toString() == "sent");
 
-        CHECK(WebPanel::siteForUrl(QUrl("https://claude.ai/chat/abc")) == Site::Claude);
-        CHECK(WebPanel::siteForUrl(QUrl("https://chatgpt.com/c/1")) == Site::ChatGPT);
-        CHECK(!WebPanel::siteForUrl(QUrl("http://reader.test/chat")));
-        CHECK(!WebPanel::siteForUrl(QUrl("https://notclaude.ai/")));
-        CHECK(WebPanel::homeUrl(Site::Claude).host() == "claude.ai");
-    }
-
-    // Ingest polling: stop button visible -> generating; gone -> final text.
-    view.setHtml(R"HTML(
-        <div data-message-author-role="assistant"><div class="markdown">{"overview":1}</div></div>
-        <button data-testid="stop-button">stop</button>
-    )HTML",
-                 QUrl("http://reader.test/"));
-    QObject::connect(view.page(), &QWebEnginePage::loadFinished, &loaded, &QEventLoop::quit);
-    loadTimer.start(20000);
-    loaded.exec();
-    {
-        QString poll = runJsSync(view, pollScript()).toString();
-        CHECK(poll.contains("\"generating\":true"));
-    }
-    runJsSync(view, "document.querySelector('[data-testid=\"stop-button\"]').remove()");
-    {
-        QString poll = runJsSync(view, pollScript()).toString();
-        CHECK(poll.contains("\"generating\":false"));
-        CHECK(poll.contains("overview"));
+        CHECK(WebPanel::isClaudeUrl(QUrl("https://claude.ai/chat/abc")));
+        CHECK(!WebPanel::isClaudeUrl(QUrl("https://chatgpt.com/c/1")));
+        CHECK(!WebPanel::isClaudeUrl(QUrl("http://reader.test/chat")));
+        CHECK(!WebPanel::isClaudeUrl(QUrl("https://notclaude.ai/")));
+        CHECK(WebPanel::homeUrl().host() == "claude.ai");
     }
 
     // Login persistence regression: a cookie written through a
@@ -905,79 +764,6 @@ int main(int argc, char** argv) {
         }
         clearStore();
     }
-
-    // Send confirmation rule: a mechanical 'sent' means nothing until the
-    // conversation shows it. Pure logic, no page needed.
-    CHECK(sendConfirmed("{\"users\":0,\"composer\":0,\"generating\":false,"
-                                  "\"url\":\"https://chatgpt.com/\"}",
-                                  "{\"users\":1,\"composer\":0,\"generating\":true,"
-                                  "\"url\":\"https://chatgpt.com/\"}"));
-    CHECK(!sendConfirmed("{\"users\":0,\"composer\":0,\"generating\":false,"
-                                   "\"url\":\"https://chatgpt.com/\"}",
-                                   "{\"users\":0,\"composer\":140,\"generating\":false,"
-                                   "\"url\":\"https://chatgpt.com/\"}"));
-    // The screenshot bug: composer still full, nothing generating, no new
-    // user message -> unconfirmed, never reported as sent.
-    CHECK(!sendConfirmed("{\"users\":0,\"composer\":0,\"generating\":false,"
-                                   "\"url\":\"https://chatgpt.com/?temporary-chat=true\"}",
-                                   "{\"users\":0,\"composer\":0,\"generating\":false,"
-                                   "\"url\":\"https://chatgpt.com/?temporary-chat=true\"}"));
-
-    // confirmScript snapshot shape on a mock conversation.
-    view.setHtml(R"HTML(
-        <div data-message-author-role="user">hello</div>
-        <div id="prompt-textarea"><div class="ProseMirror" contenteditable="true">draft</div></div>
-    )HTML",
-                 QUrl("http://reader.test/"));
-    QObject::connect(view.page(), &QWebEnginePage::loadFinished, &loaded, &QEventLoop::quit);
-    loadTimer.start(20000);
-    loaded.exec();
-    {
-        QString snap = runJsSync(view, confirmScript()).toString();
-        CHECK(snap.contains("\"users\":1"));
-        CHECK(snap.contains("\"generating\":false"));
-        CHECK(!snap.contains("\"composer\":0"));
-    }
-
-    // PDF attach: file input receives the file and its name renders as a
-    // chip, exactly the evidence the floating flow waits for.
-    view.setHtml(R"HTML(
-        <input type="file" id="up">
-        <script>
-        document.getElementById('up').addEventListener('change', function() {
-            var d = document.createElement('div');
-            d.id = 'chip';
-            d.textContent = this.files[0].name;
-            document.body.appendChild(d);
-        });
-        </script>
-    )HTML",
-                 QUrl("http://reader.test/"));
-    QObject::connect(view.page(), &QWebEnginePage::loadFinished, &loaded, &QEventLoop::quit);
-    loadTimer.start(20000);
-    loaded.exec();
-    CHECK(runJsSync(view, attachScript("SGVsbG8=", "paper.pdf")).toString() ==
-          "started");
-    {
-        QString state;
-        for (int i = 0; i < 15; ++i) {
-            state = runJsSync(view, attachPollScript()).toString();
-            if (state == "attached") break;
-            QEventLoop pause;
-            QTimer::singleShot(1000, &pause, &QEventLoop::quit);
-            pause.exec();
-        }
-        CHECK(state == "attached");
-        CHECK(runJsSync(view, "document.getElementById('up').files.length").toInt() == 1);
-    }
-
-    // No file input degrades to a diagnosable status, never silent.
-    view.setHtml("<p>login wall</p>", QUrl("http://reader.test/"));
-    QObject::connect(view.page(), &QWebEnginePage::loadFinished, &loaded, &QEventLoop::quit);
-    loadTimer.start(20000);
-    loaded.exec();
-    CHECK(runJsSync(view, attachScript("SGVsbG8=", "paper.pdf")).toString() ==
-          "no-file-input");
 
     testFilePicker(app);
     testSessions(app);

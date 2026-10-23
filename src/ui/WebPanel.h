@@ -2,7 +2,6 @@
 #include <QWidget>
 #include <QUrl>
 #include <memory>
-#include <optional>
 #include <vector>
 
 class QWebEngineView;
@@ -12,8 +11,6 @@ class QTextBrowser;
 class QPushButton;
 class QLineEdit;
 class QTabWidget;
-class QTimer;
-class QComboBox;
 class QListWidget;
 class QStackedWidget;
 
@@ -28,23 +25,18 @@ public:
     ~WebPanel() override;
     void refreshContext();
     void clearQuestionDrafts();
-    void copyPrompt();
     void ask();
     void focusQuestion();
     void focusQuestionWithSeed(const QString& seed);
     void cancelPending();
     void ensureLoaded();
-    void updateNavReveal();
-    // The window turns nav-bar hover polling on only while the reader is
-    // active on screen; the panel additionally polls only while shown.
-    void setRevealPolling(bool enabled);
     void newSession();
     void closeSession(int index);
     QWebEngineView* currentView() const;
 
-    // Binds the panel to the open paper. Claude tabs of another paper close
-    // (their chats are saved); if this paper has saved Claude chats, the
-    // session list shows so one can be resumed or a new one started.
+    // Binds the panel to the open paper. Tabs of another paper close (their
+    // chats are saved); if this paper has saved chats, the session list
+    // shows so one can be resumed or a new one started.
     void setDocument(const QString& documentId);
     void showChatList();
     void openSavedChat(const QString& url);
@@ -53,24 +45,17 @@ public:
     static QString claudeChatUrl(const QUrl& url);
     // Page title without the site suffix; empty for the site's bare name.
     static QString chatTitle(const QString& pageTitle);
-
-    // Web chat sites the panel drives. Each tab remembers its own site; a
-    // tab that navigates to the other site's host switches with it.
-    enum class ChatSite { ChatGPT, Claude };
-    static QString siteName(ChatSite site);
-    static QUrl homeUrl(ChatSite site);
-    static std::optional<ChatSite> siteForUrl(const QUrl& url);
-    ChatSite currentSite() const;
-    void setCurrentSite(ChatSite site);
+    static QUrl homeUrl() { return QUrl("https://claude.ai/new"); }
+    static bool isClaudeUrl(const QUrl& url);
 
     // Fill once, then poll sendScript until the composer accepts the message.
     // A request token prevents an old callback from sending a newer draft.
-    static QString fillScript(const QString& prompt, const QString& requestId = "test",
-                              ChatSite site = ChatSite::ChatGPT);
-    static QString sendScript(const QString& requestId = "test",
-                              ChatSite site = ChatSite::ChatGPT);
+    static QString fillScript(const QString& prompt, const QString& requestId = "test");
+    static QString sendScript(const QString& requestId = "test");
+    // 'busy' while an answer streams, 'draft' with unsent composer text,
+    // else 'idle'.
+    static QString idleScript();
     static QString jsonQuoted(const QString& text);
-    static QUrl temporaryChatUrl() { return homeUrl(ChatSite::ChatGPT); }
 
 private:
     struct Session;
@@ -84,15 +69,18 @@ private:
     void trySend(const SessionPtr& session, unsigned long generation);
     void finishAsk(const SessionPtr& session, bool sent, const QString& status);
     QString buildPrompt(const QString& question) const;
-    static QString siteConfig(ChatSite site);
-    void syncSiteControls();
-    SessionPtr createSession(ChatSite site, const QString& url = {}, const QString& title = {},
+    static QString siteConfig();
+    SessionPtr createSession(const QString& url = {}, const QString& title = {},
                              bool named = false);
     void removeSession(const SessionPtr& session);
     void stepLifecycle(const SessionPtr& session);
     void wake(const SessionPtr& session);
+    // A hidden chat freezes after kFreezeDelayMs. A background tab is then
+    // discarded at once, so its renderer exits; the shown tab, hidden with
+    // the pane or window, only after kDiscardDelayMs. Discarded pages reload
+    // their URL when shown again.
     static constexpr int kFreezeDelayMs = 30 * 1000;
-    static constexpr int kDiscardDelayMs = 10 * 60 * 1000;
+    static constexpr int kDiscardDelayMs = 2 * 60 * 1000;
     void rememberChat(const SessionPtr& session);
     void rebuildChatList();
     void startChatFromList();
@@ -104,15 +92,10 @@ private:
     SessionPtr current_;
     unsigned long nextRequest_ = 0;
     int nextSession_ = 0;
-    QWidget* navBar_ = nullptr;
-    QTimer* navTimer_ = nullptr;
     QTextBrowser* context_ = nullptr;
     QLabel* status_ = nullptr;
     QLineEdit* question_ = nullptr;
     QPushButton* askButton_ = nullptr;
-    QPushButton* homeButton_ = nullptr;
-    QComboBox* siteBox_ = nullptr;
-    ChatSite defaultSite_ = ChatSite::ChatGPT;
     QString document_;
     QStackedWidget* stack_ = nullptr;
     QWidget* listPage_ = nullptr;
@@ -120,10 +103,7 @@ private:
     QPushButton* listBack_ = nullptr;
     QPushButton* chatsButton_ = nullptr;
     bool shuttingDown_ = false;
-    bool revealPolling_ = true;
-    void updateNavTimer();
 
 protected:
     void showEvent(QShowEvent* event) override;
-    void hideEvent(QHideEvent* event) override;
 };
